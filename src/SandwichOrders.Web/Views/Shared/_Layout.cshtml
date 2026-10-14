@@ -1,0 +1,79 @@
+@using System.Globalization
+@{
+    var language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var returnUrl = Context.Request.Path.Value + Context.Request.QueryString.Value;
+    var isSignedIn = User.Identity?.IsAuthenticated == true;
+}
+<!DOCTYPE html>
+<html lang="@language">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - @L["Sandwich Orders"]</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+    <div class="container">
+        <a class="navbar-brand" asp-controller="Menu" asp-action="Index">🥖 @L["Sandwich Orders"]</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="mainNav" class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" asp-controller="Menu" asp-action="Index">@L["Menu"]</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="Today">@L["My order"]</a></li>
+                @if (User.IsInRole(Roles.Staff))
+                {
+                    <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="Today">@L["Today's orders"]</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="Menu">@L["Manage menu"]</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="Deadline">@L["Deadline"]</a></li>
+                }
+            </ul>
+
+            <form asp-controller="Culture" asp-action="Set" method="post" class="d-flex gap-1 me-lg-3 my-2 my-lg-0">
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <button type="submit" name="culture" value="en"
+                        class="btn btn-sm @(language == "en" ? "btn-primary" : "btn-outline-secondary")">EN</button>
+                <button type="submit" name="culture" value="nl"
+                        class="btn btn-sm @(language == "nl" ? "btn-primary" : "btn-outline-secondary")">NL</button>
+            </form>
+
+            @if (isSignedIn)
+            {
+                <span class="navbar-text me-2">@User.Identity?.Name</span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">@L["Sign out"]</button>
+                </form>
+            }
+            else
+            {
+                <a class="btn btn-sm btn-outline-primary me-2" asp-controller="Account" asp-action="Login">@L["Sign in"]</a>
+                <a class="btn btn-sm btn-primary" asp-controller="Account" asp-action="Register">@L["Register"]</a>
+            }
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success" role="status">@success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+    @RenderBody()
+</main>
+
+<footer class="container pb-4 text-muted small">
+    @L["Payment happens at the canteen by QR code."]
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,86 @@
+@model SandwichEditViewModel
+@{
+    var isNew = Model.Id is null;
+    ViewData["Title"] = isNew ? L["Add a sandwich"].Value : L["Edit sandwich"].Value;
+}
+
+<h1 class="h3 mb-3">@ViewData["Title"]</h1>
+
+<form asp-action="SandwichEdit" method="post" enctype="multipart/form-data" class="row g-3">
+    <div asp-validation-summary="All" class="alert alert-danger col-12 mb-0"></div>
+
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ExistingImagePath" />
+
+    <div class="col-6 col-md-2">
+        <label asp-for="Number" class="form-label">@L["Number"]</label>
+        <input asp-for="Number" type="number" min="1" max="9999" class="form-control" />
+    </div>
+    <div class="col-6 col-md-2">
+        <label asp-for="PriceText" class="form-label">@L["Price"] (€)</label>
+        <input asp-for="PriceText" class="form-control" inputmode="decimal" placeholder="4.50" />
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label asp-for="NameEn" class="form-label">@L["Name (English)"]</label>
+        <input asp-for="NameEn" class="form-control" maxlength="100" />
+    </div>
+    <div class="col-12 col-md-6">
+        <label asp-for="NameNl" class="form-label">@L["Name (Dutch)"]</label>
+        <input asp-for="NameNl" class="form-control" maxlength="100" />
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label asp-for="DescriptionEn" class="form-label">@L["Description (English)"]</label>
+        <textarea asp-for="DescriptionEn" class="form-control" rows="2" maxlength="500"></textarea>
+    </div>
+    <div class="col-12 col-md-6">
+        <label asp-for="DescriptionNl" class="form-label">@L["Description (Dutch)"]</label>
+        <textarea asp-for="DescriptionNl" class="form-control" rows="2" maxlength="500"></textarea>
+    </div>
+
+    <div class="col-12">
+        <div class="form-label">@L["Ingredients"]</div>
+        <div class="row row-cols-2 row-cols-md-4 g-1">
+            @foreach (var ingredient in Model.AllIngredients)
+            {
+                <div class="col">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="IngredientIds" value="@ingredient.Id"
+                               id="ingredient-@ingredient.Id" @(Model.IngredientIds.Contains(ingredient.Id) ? "checked" : null) />
+                        <label class="form-check-label" for="ingredient-@ingredient.Id">@ingredient.Name()</label>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="form-text">@L["An ingredient that is missing from the list can be added on the menu page."]</div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label asp-for="Photo" class="form-label">@L["Photo"]</label>
+        @if (!string.IsNullOrWhiteSpace(Model.ExistingImagePath))
+        {
+            <div class="mb-2">
+                <img src="@Model.ExistingImagePath" alt="" class="rounded border" style="max-height: 120px" />
+            </div>
+            <div class="form-check mb-2">
+                <input asp-for="RemovePhoto" class="form-check-input" />
+                <label asp-for="RemovePhoto" class="form-check-label">@L["Remove the current photo"]</label>
+            </div>
+        }
+        <input asp-for="Photo" type="file" class="form-control" accept="image/jpeg,image/png,image/webp" />
+        <div class="form-text">@L["JPG, PNG or WebP, at most 2 MB."]</div>
+    </div>
+
+    <div class="col-12 col-md-6 d-flex align-items-end">
+        <div class="form-check">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label">@L["On the menu"]</label>
+        </div>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">@L["Save"]</button>
+        <a asp-action="Menu" class="btn btn-outline-secondary">@L["Cancel"]</a>
+    </div>
+</form>

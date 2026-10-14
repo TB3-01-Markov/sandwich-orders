@@ -1,0 +1,64 @@
+@model TodayOrderViewModel
+@{
+    ViewData["Title"] = L["My order"].Value;
+    var deadlineText = Model.Window.Deadline.ToString("HH:mm");
+}
+
+<h1 class="h3 mb-3">@L["My order for today"]</h1>
+
+@if (Model.Order is null)
+{
+    <p>@L["You have no order for today."]</p>
+    <a asp-controller="Menu" asp-action="Index" class="btn btn-primary">@L["Browse the menu"]</a>
+}
+else
+{
+    var order = Model.Order;
+
+    <div class="card">
+        <div class="card-body">
+            <p class="mb-2"><strong>@L["Name"]:</strong> @order.CustomerName</p>
+
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>@L["Sandwich"]</th>
+                    <th>@L["Bread"]</th>
+                    <th class="text-end">@L["Price"]</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var line in order.Lines)
+                {
+                    <tr>
+                        <td>#@line.Sandwich.Number @line.Sandwich.Name()</td>
+                        <td>@L.BreadName(line.Bread)</td>
+                        <td class="text-end">@Money.Format(line.UnitPrice)</td>
+                    </tr>
+                }
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th colspan="2">@L["Total"]</th>
+                    <th class="text-end">@Money.Format(order.Total)</th>
+                </tr>
+                </tfoot>
+            </table>
+
+            <p class="mb-2"><span class="badge text-bg-secondary">@L.StatusName(order.Status)</span></p>
+            <p class="text-muted">@L["Pay at the canteen with the QR code."]</p>
+
+            @if (Model.Window.IsOpen)
+            {
+                <form asp-controller="Orders" asp-action="Cancel" method="post">
+                    <button type="submit" class="btn btn-outline-danger">@L["Cancel my order"]</button>
+                    <span class="text-muted small ms-2">@L["You can cancel until {0}.", deadlineText]</span>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">@L["The deadline has passed, so the order can no longer be cancelled."]</p>
+            }
+        </div>
+    </div>
+}

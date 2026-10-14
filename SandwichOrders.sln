@@ -1,0 +1,35 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SandwichOrders.Core", "src\SandwichOrders.Core\SandwichOrders.Core.csproj", "{0EC6D166-0DB9-4CF9-9630-E3A897A09AC7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SandwichOrders.Web", "src\SandwichOrders.Web\SandwichOrders.Web.csproj", "{8A964EC2-2A3E-4580-814D-4080A0E5454A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SandwichOrders.UnitTests", "tests\SandwichOrders.UnitTests\SandwichOrders.UnitTests.csproj", "{D2B1FDBB-BEFE-4C89-B512-880DEFFE306E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SandwichOrders.IntegrationTests", "tests\SandwichOrders.IntegrationTests\SandwichOrders.IntegrationTests.csproj", "{5964DB7B-0D6F-4DCE-8D7B-FC5718B1F51B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0EC6D166-0DB9-4CF9-9630-E3A897A09AC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EC6D166-0DB9-4CF9-9630-E3A897A09AC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EC6D166-0DB9-4CF9-9630-E3A897A09AC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EC6D166-0DB9-4CF9-9630-E3A897A09AC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A964EC2-2A3E-4580-814D-4080A0E5454A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A964EC2-2A3E-4580-814D-4080A0E5454A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A964EC2-2A3E-4580-814D-4080A0E5454A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A964EC2-2A3E-4580-814D-4080A0E5454A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2B1FDBB-BEFE-4C89-B512-880DEFFE306E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2B1FDBB-BEFE-4C89-B512-880DEFFE306E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2B1FDBB-BEFE-4C89-B512-880DEFFE306E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2B1FDBB-BEFE-4C89-B512-880DEFFE306E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5964DB7B-0D6F-4DCE-8D7B-FC5718B1F51B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5964DB7B-0D6F-4DCE-8D7B-FC5718B1F51B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5964DB7B-0D6F-4DCE-8D7B-FC5718B1F51B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5964DB7B-0D6F-4DCE-8D7B-FC5718B1F51B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

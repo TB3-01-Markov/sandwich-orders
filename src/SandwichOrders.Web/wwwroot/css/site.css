@@ -1,0 +1,16 @@
+/* Placeholder shown until a real photo is added for a sandwich. */
+.sandwich-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 140px;
+    font-size: 3.5rem;
+    background-color: var(--bs-tertiary-bg);
+    border-top-left-radius: var(--bs-card-inner-border-radius);
+    border-top-right-radius: var(--bs-card-inner-border-radius);
+}
+
+.sandwich-image {
+    height: 140px;
+    object-fit: cover;
+}

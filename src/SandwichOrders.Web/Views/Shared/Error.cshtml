@@ -1,0 +1,6 @@
+@{
+    ViewData["Title"] = L["Error"].Value;
+}
+<h1 class="h3">@L["Something went wrong."]</h1>
+<p>@L["Please try again. If the problem stays, tell the canteen staff."]</p>
+<a asp-controller="Menu" asp-action="Index" class="btn btn-primary">@L["Back to the menu"]</a>

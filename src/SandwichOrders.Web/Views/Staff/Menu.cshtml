@@ -1,0 +1,123 @@
+@model StaffMenuViewModel
+@{
+    ViewData["Title"] = L["Manage menu"].Value;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">@L["Manage menu"]</h1>
+    <a asp-action="SandwichEdit" class="btn btn-primary">@L["Add a sandwich"]</a>
+</div>
+
+<h2 class="h5">@L["Sandwiches"]</h2>
+<table class="table table-sm align-middle mb-4">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>@L["Sandwich"]</th>
+        <th class="text-end">@L["Price"]</th>
+        <th>@L["Status"]</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var sandwich in Model.Sandwiches)
+    {
+        <tr>
+            <td>@sandwich.Number</td>
+            <td>@sandwich.Name()</td>
+            <td class="text-end">@Money.Format(sandwich.Price)</td>
+            <td>
+                @if (!sandwich.IsActive)
+                {
+                    <span class="badge text-bg-secondary">@L["Removed from the menu"]</span>
+                }
+                else if (sandwich.IsTemporarilyUnavailable)
+                {
+                    <span class="badge text-bg-danger">@L["Switched off"]</span>
+                }
+                else if (!sandwich.IsAvailable)
+                {
+                    <span class="badge text-bg-warning">@L["An ingredient is missing"]</span>
+                }
+                else
+                {
+                    <span class="badge text-bg-success">@L["Available"]</span>
+                }
+            </td>
+            <td class="text-end text-nowrap">
+                <a asp-action="SandwichEdit" asp-route-id="@sandwich.Id" class="btn btn-sm btn-outline-primary">@L["Edit"]</a>
+                <form asp-action="SetSandwichActive" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@sandwich.Id" />
+                    <input type="hidden" name="active" value="@(sandwich.IsActive ? "false" : "true")" />
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                        @(sandwich.IsActive ? L["Remove from the menu"] : L["Put back on the menu"])
+                    </button>
+                </form>
+                @if (sandwich.IsActive)
+                {
+                    <form asp-action="SetSandwichUnavailable" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@sandwich.Id" />
+                        <input type="hidden" name="unavailable" value="@(sandwich.IsTemporarilyUnavailable ? "false" : "true")" />
+                        <button type="submit" class="btn btn-sm @(sandwich.IsTemporarilyUnavailable ? "btn-success" : "btn-outline-danger")">
+                            @(sandwich.IsTemporarilyUnavailable ? L["Switch on"] : L["Switch off"])
+                        </button>
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2 class="h5">@L["Ingredients"]</h2>
+<table class="table table-sm align-middle">
+    <thead>
+    <tr>
+        <th>@L["Ingredient"]</th>
+        <th>@L["Status"]</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var ingredient in Model.Ingredients)
+    {
+        <tr>
+            <td>@ingredient.Name()</td>
+            <td>
+                @if (ingredient.IsAvailable)
+                {
+                    <span class="badge text-bg-success">@L["In stock"]</span>
+                }
+                else
+                {
+                    <span class="badge text-bg-danger">@L["Out of stock"]</span>
+                }
+            </td>
+            <td class="text-end">
+                <form asp-action="SetIngredientAvailable" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@ingredient.Id" />
+                    <input type="hidden" name="available" value="@(ingredient.IsAvailable ? "false" : "true")" />
+                    <button type="submit" class="btn btn-sm @(ingredient.IsAvailable ? "btn-outline-danger" : "btn-success")">
+                        @(ingredient.IsAvailable ? L["Mark out of stock"] : L["Mark in stock"])
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h3 class="h6 mt-4">@L["Add an ingredient"]</h3>
+<form asp-action="AddIngredient" method="post" class="row g-2 align-items-end">
+    <div class="col-12 col-md-4">
+        <label class="form-label" for="nameEn">@L["Name (English)"]</label>
+        <input id="nameEn" name="nameEn" class="form-control" maxlength="100" required />
+    </div>
+    <div class="col-12 col-md-4">
+        <label class="form-label" for="nameNl">@L["Name (Dutch)"]</label>
+        <input id="nameNl" name="nameNl" class="form-control" maxlength="100" required />
+    </div>
+    <div class="col-12 col-md-auto">
+        <button type="submit" class="btn btn-outline-primary">@L["Add an ingredient"]</button>
+    </div>
+</form>

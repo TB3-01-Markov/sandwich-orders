@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- TargetFramework, Nullable and ImplicitUsings come from Directory.Build.props. -->
+  <PropertyGroup>
+    <RootNamespace>SandwichOrders.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>

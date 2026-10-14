@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Access denied" xml:space="preserve"><value>Toegang geweigerd</value></data>
+  <data name="Already have an account?" xml:space="preserve"><value>Heb je al een account?</value></data>
+  <data name="An account with this email already exists." xml:space="preserve"><value>Er bestaat al een account met dit e-mailadres.</value></data>
+  <data name="An ingredient is missing" xml:space="preserve"><value>Er ontbreekt een ingrediënt</value></data>
+  <data name="At least 8 characters, with a digit." xml:space="preserve"><value>Minstens 8 tekens, met een cijfer.</value></data>
+  <data name="Available" xml:space="preserve"><value>Beschikbaar</value></data>
+  <data name="Back to the menu" xml:space="preserve"><value>Terug naar het menu</value></data>
+  <data name="Bread" xml:space="preserve"><value>Brood</value></data>
+  <data name="Browse the menu" xml:space="preserve"><value>Bekijk het menu</value></data>
+  <data name="Cancel my order" xml:space="preserve"><value>Mijn bestelling annuleren</value></data>
+  <data name="Cancelled" xml:space="preserve"><value>Geannuleerd</value></data>
+  <data name="Collected" xml:space="preserve"><value>Opgehaald</value></data>
+  <data name="Create an account" xml:space="preserve"><value>Maak een account aan</value></data>
+  <data name="Deadline" xml:space="preserve"><value>Deadline</value></data>
+  <data name="Deadline (Belgian time)" xml:space="preserve"><value>Deadline (Belgische tijd)</value></data>
+  <data name="Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="Email is required." xml:space="preserve"><value>E-mail is verplicht.</value></data>
+  <data name="Enter a valid email address." xml:space="preserve"><value>Geef een geldig e-mailadres in.</value></data>
+  <data name="Error" xml:space="preserve"><value>Fout</value></data>
+  <data name="In stock" xml:space="preserve"><value>Op voorraad</value></data>
+  <data name="Ingredient" xml:space="preserve"><value>Ingrediënt</value></data>
+  <data name="Ingredients" xml:space="preserve"><value>Ingrediënten</value></data>
+  <data name="Invalid email or password." xml:space="preserve"><value>Ongeldig e-mailadres of wachtwoord.</value></data>
+  <data name="Manage menu" xml:space="preserve"><value>Menu beheren</value></data>
+  <data name="Mark in stock" xml:space="preserve"><value>Op voorraad zetten</value></data>
+  <data name="Mark out of stock" xml:space="preserve"><value>Niet meer op voorraad</value></data>
+  <data name="Menu" xml:space="preserve"><value>Menu</value></data>
+  <data name="My order" xml:space="preserve"><value>Mijn bestelling</value></data>
+  <data name="My order for today" xml:space="preserve"><value>Mijn bestelling voor vandaag</value></data>
+  <data name="Name" xml:space="preserve"><value>Naam</value></data>
+  <data name="Name is required." xml:space="preserve"><value>Naam is verplicht.</value></data>
+  <data name="No account yet?" xml:space="preserve"><value>Nog geen account?</value></data>
+  <data name="No orders yet." xml:space="preserve"><value>Nog geen bestellingen.</value></data>
+  <data name="Order" xml:space="preserve"><value>Bestellen</value></data>
+  <data name="Order before {0}" xml:space="preserve"><value>Bestel vóór {0}</value></data>
+  <data name="Order deadline" xml:space="preserve"><value>Deadline voor bestellingen</value></data>
+  <data name="Ordering closed at {0}" xml:space="preserve"><value>Bestellen gesloten sinds {0}</value></data>
+  <data name="Out of stock" xml:space="preserve"><value>Niet op voorraad</value></data>
+  <data name="Password" xml:space="preserve"><value>Wachtwoord</value></data>
+  <data name="Password is required." xml:space="preserve"><value>Wachtwoord is verplicht.</value></data>
+  <data name="Pay at the canteen with the QR code." xml:space="preserve"><value>Betaal in de kantine met de QR-code.</value></data>
+  <data name="Payment happens at the canteen by QR code." xml:space="preserve"><value>Betalen gebeurt in de kantine met een QR-code.</value></data>
+  <data name="Placed" xml:space="preserve"><value>Geplaatst</value></data>
+  <data name="Please enter a valid time." xml:space="preserve"><value>Geef een geldig uur in.</value></data>
+  <data name="Please try again. If the problem stays, tell the canteen staff." xml:space="preserve"><value>Probeer het opnieuw. Blijft het probleem, zeg het dan aan het kantinepersoneel.</value></data>
+  <data name="Prepared" xml:space="preserve"><value>Klaar</value></data>
+  <data name="Price" xml:space="preserve"><value>Prijs</value></data>
+  <data name="Quantity" xml:space="preserve"><value>Aantal</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Vernieuwen</value></data>
+  <data name="Register" xml:space="preserve"><value>Registreren</value></data>
+  <data name="Remember me" xml:space="preserve"><value>Onthoud mij</value></data>
+  <data name="Removed from the menu" xml:space="preserve"><value>Van het menu gehaald</value></data>
+  <data name="Repeat password" xml:space="preserve"><value>Herhaal wachtwoord</value></data>
+  <data name="Sandwich" xml:space="preserve"><value>Broodje</value></data>
+  <data name="Sandwich Orders" xml:space="preserve"><value>Broodjes bestellen</value></data>
+  <data name="Sandwiches" xml:space="preserve"><value>Broodjes</value></data>
+  <data name="Save" xml:space="preserve"><value>Opslaan</value></data>
+  <data name="Sign in" xml:space="preserve"><value>Aanmelden</value></data>
+  <data name="Sign in to order" xml:space="preserve"><value>Meld je aan om te bestellen</value></data>
+  <data name="Sign out" xml:space="preserve"><value>Afmelden</value></data>
+  <data name="Something went wrong." xml:space="preserve"><value>Er ging iets mis.</value></data>
+  <data name="Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Switch off" xml:space="preserve"><value>Uitzetten</value></data>
+  <data name="Switch on" xml:space="preserve"><value>Aanzetten</value></data>
+  <data name="Switched off" xml:space="preserve"><value>Uitgezet</value></data>
+  <data name="The deadline has been saved." xml:space="preserve"><value>De deadline is opgeslagen.</value></data>
+  <data name="The deadline has passed, so the order can no longer be cancelled." xml:space="preserve"><value>De deadline is voorbij, dus de bestelling kan niet meer geannuleerd worden.</value></data>
+  <data name="The name is too long." xml:space="preserve"><value>De naam is te lang.</value></data>
+  <data name="The order deadline has passed." xml:space="preserve"><value>De deadline voor bestellingen is voorbij.</value></data>
+  <data name="The passwords do not match." xml:space="preserve"><value>De wachtwoorden komen niet overeen.</value></data>
+  <data name="This ingredient does not exist." xml:space="preserve"><value>Dit ingrediënt bestaat niet.</value></data>
+  <data name="This sandwich does not exist." xml:space="preserve"><value>Dit broodje bestaat niet.</value></data>
+  <data name="This sandwich is not available." xml:space="preserve"><value>Dit broodje is niet beschikbaar.</value></data>
+  <data name="Today's orders" xml:space="preserve"><value>Bestellingen van vandaag</value></data>
+  <data name="Today's sandwiches" xml:space="preserve"><value>Broodjes van vandaag</value></data>
+  <data name="Total" xml:space="preserve"><value>Totaal</value></data>
+  <data name="Trainees can order until this time. They see it on the menu." xml:space="preserve"><value>Cursisten kunnen tot dit uur bestellen. Ze zien het op het menu.</value></data>
+  <data name="Unavailable" xml:space="preserve"><value>Niet beschikbaar</value></data>
+  <data name="View my order" xml:space="preserve"><value>Bekijk mijn bestelling</value></data>
+  <data name="What to prepare" xml:space="preserve"><value>Wat klaar te maken</value></data>
+  <data name="White bread" xml:space="preserve"><value>Wit brood</value></data>
+  <data name="Who ordered what" xml:space="preserve"><value>Wie heeft wat besteld</value></data>
+  <data name="Whole-grain bread" xml:space="preserve"><value>Volkorenbrood</value></data>
+  <data name="You already have an order for today." xml:space="preserve"><value>Je hebt al een bestelling voor vandaag.</value></data>
+  <data name="You are not allowed to open this page." xml:space="preserve"><value>Je hebt geen toegang tot deze pagina.</value></data>
+  <data name="You can cancel until {0}." xml:space="preserve"><value>Je kunt annuleren tot {0}.</value></data>
+  <data name="You have an order for today." xml:space="preserve"><value>Je hebt een bestelling voor vandaag.</value></data>
+  <data name="You have no order for today." xml:space="preserve"><value>Je hebt geen bestelling voor vandaag.</value></data>
+  <data name="Your name" xml:space="preserve"><value>Je naam</value></data>
+  <data name="Your order has been cancelled." xml:space="preserve"><value>Je bestelling is geannuleerd.</value></data>
+  <data name="Your order has been placed." xml:space="preserve"><value>Je bestelling is geplaatst.</value></data>
+  <data name="Please enter your name (at most 100 characters)." xml:space="preserve"><value>Vul je naam in (maximaal 100 tekens).</value></data>
+  <data name="Ordering is closed. You can browse the menu, but orders are accepted again tomorrow." xml:space="preserve"><value>Bestellen is gesloten. Je kunt het menu bekijken, morgen kun je weer bestellen.</value></data>
+  <data name="First name and last name" xml:space="preserve"><value>Voornaam en achternaam</value></data>
+  <data name="No account needed: type your name and pick a sandwich." xml:space="preserve"><value>Geen account nodig: vul je naam in en kies een broodje.</value></data>
+  <data name="Add a sandwich" xml:space="preserve"><value>Broodje toevoegen</value></data>
+  <data name="Add an ingredient" xml:space="preserve"><value>Ingrediënt toevoegen</value></data>
+  <data name="An ingredient that is missing from the list can be added on the menu page." xml:space="preserve"><value>Ontbreekt er een ingrediënt in de lijst? Voeg het toe op de menupagina.</value></data>
+  <data name="Both ingredient names are required (at most 100 characters)." xml:space="preserve"><value>Beide ingrediëntnamen zijn verplicht (maximaal 100 tekens).</value></data>
+  <data name="Both names are required (at most 100 characters) and descriptions can have at most 500 characters." xml:space="preserve"><value>Beide namen zijn verplicht (maximaal 100 tekens) en beschrijvingen mogen maximaal 500 tekens hebben.</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Annuleren</value></data>
+  <data name="Description (Dutch)" xml:space="preserve"><value>Beschrijving (Nederlands)</value></data>
+  <data name="Description (English)" xml:space="preserve"><value>Beschrijving (Engels)</value></data>
+  <data name="Edit" xml:space="preserve"><value>Bewerken</value></data>
+  <data name="Edit sandwich" xml:space="preserve"><value>Broodje bewerken</value></data>
+  <data name="Enter a price above 0 with at most two decimals, for example 4.50." xml:space="preserve"><value>Geef een prijs boven 0 met maximaal twee decimalen, bijvoorbeeld 4,50.</value></data>
+  <data name="JPG, PNG or WebP, at most 2 MB." xml:space="preserve"><value>JPG, PNG of WebP, maximaal 2 MB.</value></data>
+  <data name="Name (Dutch)" xml:space="preserve"><value>Naam (Nederlands)</value></data>
+  <data name="Name (English)" xml:space="preserve"><value>Naam (Engels)</value></data>
+  <data name="Number" xml:space="preserve"><value>Nummer</value></data>
+  <data name="On the menu" xml:space="preserve"><value>Op het menu</value></data>
+  <data name="One of the selected ingredients does not exist." xml:space="preserve"><value>Een van de gekozen ingrediënten bestaat niet.</value></data>
+  <data name="Photo" xml:space="preserve"><value>Foto</value></data>
+  <data name="Put back on the menu" xml:space="preserve"><value>Terug op het menu zetten</value></data>
+  <data name="Remove from the menu" xml:space="preserve"><value>Van het menu halen</value></data>
+  <data name="Remove the current photo" xml:space="preserve"><value>Huidige foto verwijderen</value></data>
+  <data name="The Dutch name is required." xml:space="preserve"><value>De Nederlandse naam is verplicht.</value></data>
+  <data name="The English name is required." xml:space="preserve"><value>De Engelse naam is verplicht.</value></data>
+  <data name="The description is too long." xml:space="preserve"><value>De beschrijving is te lang.</value></data>
+  <data name="The ingredient has been added." xml:space="preserve"><value>Het ingrediënt is toegevoegd.</value></data>
+  <data name="The number is required." xml:space="preserve"><value>Het nummer is verplicht.</value></data>
+  <data name="The number must be between 1 and 9999." xml:space="preserve"><value>Het nummer moet tussen 1 en 9999 liggen.</value></data>
+  <data name="The photo is larger than 2 MB." xml:space="preserve"><value>De foto is groter dan 2 MB.</value></data>
+  <data name="The photo must be a JPG, PNG or WebP image." xml:space="preserve"><value>De foto moet een JPG-, PNG- of WebP-afbeelding zijn.</value></data>
+  <data name="The price is required." xml:space="preserve"><value>De prijs is verplicht.</value></data>
+  <data name="The sandwich has been saved." xml:space="preserve"><value>Het broodje is opgeslagen.</value></data>
+  <data name="This ingredient already exists." xml:space="preserve"><value>Dit ingrediënt bestaat al.</value></data>
+  <data name="This sandwich number is already used (use a number of 1 or higher)." xml:space="preserve"><value>Dit broodjesnummer is al in gebruik (gebruik 1 of hoger).</value></data>
+</root>

@@ -1,0 +1,39 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = L["Register"].Value;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <h1 class="h3 mb-3">@L["Create an account"]</h1>
+
+        <form asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="DisplayName" class="form-label">@L["Your name"]</label>
+                <input asp-for="DisplayName" class="form-control" autocomplete="name" />
+                <span asp-validation-for="DisplayName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">@L["Email"]</label>
+                <input asp-for="Email" class="form-control" autocomplete="username" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">@L["Password"]</label>
+                <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+                <div class="form-text">@L["At least 8 characters, with a digit."]</div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label">@L["Repeat password"]</label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">@L["Register"]</button>
+        </form>
+
+        <p class="mt-3">@L["Already have an account?"] <a asp-action="Login">@L["Sign in"]</a></p>
+    </div>
+</div>

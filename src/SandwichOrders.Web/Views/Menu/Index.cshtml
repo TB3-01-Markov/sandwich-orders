@@ -1,0 +1,128 @@
+@model MenuViewModel
+@{
+    ViewData["Title"] = L["Menu"].Value;
+    var deadlineText = Model.Window.Deadline.ToString("HH:mm");
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">@L["Today's sandwiches"]</h1>
+    @if (Model.Window.IsOpen)
+    {
+        <span class="badge text-bg-success fs-6">@L["Order before {0}", deadlineText]</span>
+    }
+    else
+    {
+        <span class="badge text-bg-danger fs-6">@L["Ordering closed at {0}", deadlineText]</span>
+    }
+</div>
+
+@if (Model.TodaysOrder is not null)
+{
+    <div class="alert alert-info">
+        @L["You have an order for today."]
+        <a asp-controller="Orders" asp-action="Today" class="alert-link">@L["View my order"]</a>
+    </div>
+}
+
+@if (!Model.Window.IsOpen)
+{
+    <div class="alert alert-warning">@L["Ordering is closed. You can browse the menu, but orders are accepted again tomorrow."]</div>
+}
+else if (!Model.IsSignedIn && Model.TodaysOrder is null)
+{
+    <div class="card card-body mb-3">
+        <label for="guestName" class="form-label fw-semibold">@L["Your name"]</label>
+        <input id="guestName" type="text" class="form-control" maxlength="100" value="@Model.GuestName"
+               placeholder="@L["First name and last name"]" autocomplete="name" />
+        <div class="form-text">
+            @L["No account needed: type your name and pick a sandwich."]
+            <a asp-controller="Account" asp-action="Login">@L["Sign in"]</a> /
+            <a asp-controller="Account" asp-action="Register">@L["Register"]</a>
+        </div>
+    </div>
+}
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    @foreach (var sandwich in Model.Sandwiches)
+    {
+        var available = sandwich.IsAvailable;
+        var canOrder = available && Model.Window.IsOpen && Model.TodaysOrder is null;
+        var description = sandwich.Description();
+
+        <div class="col">
+            <div class="card h-100 @(available ? "" : "opacity-75")">
+                @if (!string.IsNullOrWhiteSpace(sandwich.ImagePath))
+                {
+                    <img src="@sandwich.ImagePath" class="card-img-top sandwich-image" alt="@sandwich.Name()" />
+                }
+                else
+                {
+                    <div class="sandwich-placeholder" aria-hidden="true">🥖</div>
+                }
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between gap-2">
+                        <h2 class="h5 card-title">#@sandwich.Number @sandwich.Name()</h2>
+                        <span class="fw-semibold">@Money.Format(sandwich.Price)</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(description))
+                    {
+                        <p class="card-text text-muted small">@description</p>
+                    }
+
+                    <p class="mb-2">
+                        @foreach (var ingredient in sandwich.SandwichIngredients.Select(si => si.Ingredient).OrderBy(i => i.Name()))
+                        {
+                            <span class="badge @(ingredient.IsAvailable ? "text-bg-light border" : "text-bg-secondary text-decoration-line-through")">@ingredient.Name()</span>
+                        }
+                    </p>
+
+                    @if (!available)
+                    {
+                        <span class="badge text-bg-danger align-self-start mb-2">@L["Unavailable"]</span>
+                    }
+
+                    <div class="mt-auto">
+                        @if (canOrder)
+                        {
+                            <form asp-controller="Orders" asp-action="Create" method="post" class="d-flex gap-2 order-form">
+                                <input type="hidden" name="sandwichId" value="@sandwich.Id" />
+                                @if (!Model.IsSignedIn)
+                                {
+                                    <input type="hidden" name="customerName" value="@Model.GuestName" />
+                                }
+                                <select name="bread" class="form-select form-select-sm" aria-label="@L["Bread"]">
+                                    <option value="@Bread.White">@L["White bread"]</option>
+                                    <option value="@Bread.WholeGrain">@L["Whole-grain bread"]</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary btn-sm">@L["Order"]</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Copies the name typed at the top into the form of the sandwich that was clicked.
+        (function () {
+            var nameInput = document.getElementById('guestName');
+            if (!nameInput) return;
+            document.querySelectorAll('form.order-form').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    var name = nameInput.value.trim();
+                    if (!name) {
+                        event.preventDefault();
+                        nameInput.focus();
+                        nameInput.classList.add('is-invalid');
+                        return;
+                    }
+                    form.querySelector('input[name=customerName]').value = name;
+                });
+            });
+        })();
+    </script>
+}

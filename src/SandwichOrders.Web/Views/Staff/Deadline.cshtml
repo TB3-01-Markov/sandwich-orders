@@ -1,0 +1,21 @@
+@model DeadlineViewModel
+@{
+    ViewData["Title"] = L["Order deadline"].Value;
+}
+
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        <h1 class="h3 mb-3">@L["Order deadline"]</h1>
+        <p class="text-muted">@L["Trainees can order until this time. They see it on the menu."]</p>
+
+        <form asp-action="Deadline" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="mb-3">
+                <label for="Deadline" class="form-label">@L["Deadline (Belgian time)"]</label>
+                <input id="Deadline" name="Deadline" type="time" class="form-control" required
+                       value="@(Model.Deadline?.ToString("HH:mm"))" />
+            </div>
+            <button type="submit" class="btn btn-primary">@L["Save"]</button>
+        </form>
+    </div>
+</div>
