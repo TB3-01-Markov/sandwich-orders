@@ -113,7 +113,9 @@ builder.Services.AddSingleton<PhotoStorage>();
 builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<AnnouncementService>();
-builder.Services.AddHostedService<DatabaseInitializer>();
+// Hosted services start in the order they were registered. The database must be ready FIRST: Data Protection
+// (registered earlier by Identity) reads its keys from the DataProtectionKeys table while the host starts.
+builder.Services.Insert(0, ServiceDescriptor.Singleton<IHostedService, DatabaseInitializer>());
 builder.Services.AddFormRateLimiting();
 
 // GET /health answers "Healthy" when the app runs and can reach its database (for Docker and monitoring later).
