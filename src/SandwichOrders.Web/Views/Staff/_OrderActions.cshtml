@@ -1,0 +1,23 @@
+@model SandwichOrders.Core.Orders.Order
+@* The canteen employee's buttons for one order; used in the table (wide screens) and in the cards (phones). *@
+@if (Model.Status == OrderStatus.Placed)
+{
+    <form asp-action="SetOrderStatus" method="post" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" name="status" value="@OrderStatus.Prepared" />
+        <button type="submit" class="btn btn-sm btn-success">@L["Ready"]</button>
+    </form>
+}
+@if (Model.Status is OrderStatus.Placed or OrderStatus.Prepared)
+{
+    <form asp-action="SetOrderStatus" method="post" class="d-inline">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" name="status" value="@OrderStatus.Collected" />
+        <button type="submit" class="btn btn-sm btn-outline-secondary">@L["Collected"]</button>
+    </form>
+    <form asp-action="CancelOrder" method="post" class="d-inline"
+          onsubmit="return confirm('@L["Cancel this order and put the stock back?"]');">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="btn btn-sm btn-outline-danger">@L["Cancel"]</button>
+    </form>
+}

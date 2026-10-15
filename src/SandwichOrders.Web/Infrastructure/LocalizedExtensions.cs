@@ -79,6 +79,16 @@ public static class MenuMessages
     };
 }
 
+// Dates as Belgians write them (22/10/2026), in both languages. The plain "en" culture would show 10/22/2026.
+public static class Dates
+{
+    public static string Format(DateOnly day) => day.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+    // One day is shown once ("22/10/2026"), a longer period as "22/10/2026 – 26/10/2026".
+    public static string Period(DateOnly start, DateOnly end) =>
+        start == end ? Format(start) : $"{Format(start)} – {Format(end)}";
+}
+
 public static class Money
 {
     // Accepts "4.5", "4,50" and "4.50" whatever the language of the page is. Thousands separators are not allowed.

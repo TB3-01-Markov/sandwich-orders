@@ -1,6 +1,5 @@
 /* Placeholder shown until a real photo is added for a sandwich. */
 .sandwich-placeholder {
-    display: flex;
     align-items: center;
     justify-content: center;
     height: 140px;
@@ -22,4 +21,33 @@
 
 .portions-input {
     width: 4.5rem;
+}
+
+/* ---- Phones (most orders are placed from a phone) ------------------------------------------------------- */
+@media (max-width: 575.98px) {
+    /* iPhone Safari zooms into a form field whose text is smaller than 16px when it is tapped. */
+    .form-control-sm,
+    .form-select-sm {
+        font-size: 1rem;
+    }
+
+    /* Big enough to hit with a thumb (about 44px is the usual advice). */
+    .order-form .btn,
+    .order-form .form-select,
+    #guestName {
+        min-height: 44px;
+    }
+
+    .btn-sm {
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+    }
+}
+
+/* The language and account buttons sit in the opened navigation on phones and small tablets. */
+@media (max-width: 991.98px) {
+    .navbar .btn-sm {
+        padding: 0.5rem 0.9rem;
+        font-size: 1rem;
+    }
 }

@@ -422,7 +422,9 @@ public class OrderingAndStaffTests : IntegrationTestBase
         }, "/Staff/AnnouncementEdit");
 
         using var visitor = CreateClient();
-        Assert.Contains("Closed next week", await visitor.GetStringAsync("/"));
+        var menu = WebUtility.HtmlDecode(await visitor.GetStringAsync("/"));
+        Assert.Contains("Closed next week", menu);
+        Assert.Contains("19/01/2026 – 23/01/2026", menu); // Belgian date order, also in English
 
         var order = await OrderHamAsync(visitor, "White", "Jan Peeters");
         Assert.EndsWith("/Orders/Today", order.Headers.Location!.ToString());
