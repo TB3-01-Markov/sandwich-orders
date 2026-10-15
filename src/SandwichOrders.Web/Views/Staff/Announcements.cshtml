@@ -39,8 +39,8 @@ else
             var phase = announcement.PhaseOn(Model.Today);
             <tr class="@(phase == AnnouncementPhase.Expired ? "text-body-secondary" : "")">
                 <td>@announcement.MessageFor(culture, Model.Today)</td>
-                <td class="text-nowrap">@announcement.ShowFrom.ToString("d")</td>
-                <td class="text-nowrap">@announcement.PeriodStart.ToString("d") – @announcement.PeriodEnd.ToString("d")</td>
+                <td class="text-nowrap">@Dates.Format(announcement.ShowFrom)</td>
+                <td class="text-nowrap">@Dates.Period(announcement.PeriodStart, announcement.PeriodEnd)</td>
                 <td>@(announcement.BlocksOrdering ? L["Yes"] : L["No"])</td>
                 <td>
                     @switch (phase)

@@ -13,7 +13,7 @@
         <div>
             <div>@announcement.MessageFor(culture, Model.Today)</div>
             <div class="small text-body-secondary">
-                @announcement.PeriodStart.ToString("d") – @announcement.PeriodEnd.ToString("d")
+                @Dates.Period(announcement.PeriodStart, announcement.PeriodEnd)
                 @if (announcement.BlocksOrdering)
                 {
                     <text>· @L["Ordering is not possible in this period."]</text>

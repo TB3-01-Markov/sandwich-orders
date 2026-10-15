@@ -9,7 +9,8 @@
 </div>
 
 <h2 class="h5">@L["Sandwiches"]</h2>
-<table class="table table-sm align-middle mb-4">
+<div class="table-responsive mb-4">
+<table class="table table-sm align-middle mb-0">
     <thead>
     <tr>
         <th>#</th>
@@ -90,8 +91,10 @@
     }
     </tbody>
 </table>
+</div>
 
 <h2 class="h5">@L["Ingredients"]</h2>
+<div class="table-responsive">
 <table class="table table-sm align-middle">
     <thead>
     <tr>
@@ -141,6 +144,7 @@
     }
     </tbody>
 </table>
+</div>
 
 <h3 class="h6 mt-4">@L["Add an ingredient"]</h3>
 <form asp-action="AddIngredient" method="post" class="row g-2 align-items-end">

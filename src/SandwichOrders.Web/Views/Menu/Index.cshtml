@@ -125,7 +125,7 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
                 }
                 else
                 {
-                    <div class="sandwich-placeholder" aria-hidden="true">🥖</div>
+                    <div class="sandwich-placeholder d-none d-sm-flex" aria-hidden="true">🥖</div>
                 }
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between gap-2">
@@ -169,11 +169,11 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
                                 {
                                     <input type="hidden" name="customerName" value="@Model.GuestName" />
                                 }
-                                <select name="bread" class="form-select form-select-sm" aria-label="@L["Bread"]">
+                                <select name="bread" class="form-select" aria-label="@L["Bread"]">
                                     <option value="@Bread.White">@L["White bread"]</option>
                                     <option value="@Bread.WholeGrain">@L["Whole-grain bread"] (+@Money.Format(OrderingRules.BrownBreadSurcharge))</option>
                                 </select>
-                                <button type="submit" class="btn btn-primary btn-sm">@L["Order"]</button>
+                                <button type="submit" class="btn btn-primary">@L["Order"]</button>
                             </form>
                         }
                     </div>
