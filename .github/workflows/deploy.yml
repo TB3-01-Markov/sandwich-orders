@@ -1,0 +1,86 @@
+name: Deploy to MonsterASP
+# CD: after CI is green on main, publish the tested commit to the hosting (Windows/IIS, so no Docker there) with
+# Web Deploy, then check that the live site answers. Can also be started by hand (Actions > Deploy > Run workflow).
+# Needs the repository secrets MONSTERASP_SITE, MONSTERASP_USERNAME, MONSTERASP_PASSWORD, PRODUCTION_DB and
+# STAFF_PASSWORD; without them the job only says that it was skipped.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+concurrency: deploy-production
+env:
+  SITE_URL: http://broodjesbestel.runasp.net
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: windows-2025
+    env:
+      SITE: ${{ secrets.MONSTERASP_SITE }}
+    steps:
+      - name: Are the hosting secrets there?
+        id: secrets
+        shell: bash
+        run: |
+          if [ -z "$SITE" ]; then
+            echo "::notice title=Deploy skipped::The MonsterASP secrets are not set in this repository."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v7
+        if: steps.secrets.outputs.ok == 'true'
+        with:
+          # After CI: exactly the commit that CI tested.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-dotnet@v6
+        if: steps.secrets.outputs.ok == 'true'
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish
+        if: steps.secrets.outputs.ok == 'true'
+        run: dotnet publish src/SandwichOrders.Web -c Release -o publish
+      - name: Production settings from the secrets (never stored in the repository)
+        if: steps.secrets.outputs.ok == 'true'
+        shell: pwsh
+        env:
+          PRODUCTION_DB: ${{ secrets.PRODUCTION_DB }}
+          STAFF_PASSWORD: ${{ secrets.STAFF_PASSWORD }}
+        run: |
+          $settings = [ordered]@{
+            Database          = @{ Provider = 'SqlServer' }
+            ConnectionStrings = @{ DefaultConnection = $env:PRODUCTION_DB }
+            Seed              = [ordered]@{ Enabled = $true; StaffEmail = 'staff@example.test'; StaffPassword = $env:STAFF_PASSWORD }
+            # Behind the hosting's front end many visitors may share an address; allow more requests per minute.
+            RateLimiting      = @{ PermitsPerMinute = 120 }
+          }
+          $settings | ConvertTo-Json -Depth 5 | Set-Content -Path publish/appsettings.Production.json -Encoding utf8
+      - name: Web Deploy to the hosting
+        if: steps.secrets.outputs.ok == 'true'
+        shell: cmd
+        env:
+          DEPLOY_USER: ${{ secrets.MONSTERASP_USERNAME }}
+          DEPLOY_PASSWORD: ${{ secrets.MONSTERASP_PASSWORD }}
+        # AppOffline: the site shows a short "offline" page while files are replaced (IIS keeps the DLLs locked).
+        # The skip rule keeps the sandwich photos that staff uploaded on the hosting.
+        run: |
+          set MSDEPLOY="C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          if not exist %MSDEPLOY% choco install webdeploy -y --no-progress
+          %MSDEPLOY% -verb:sync ^
+            -source:contentPath="%GITHUB_WORKSPACE%\publish" ^
+            -dest:contentPath="%SITE%",computerName="https://%SITE%.siteasp.net:8172/msdeploy.axd?site=%SITE%",userName="%DEPLOY_USER%",password="%DEPLOY_PASSWORD%",authtype="Basic",includeAcls="False" ^
+            -allowUntrusted ^
+            -disableLink:AppPoolExtension -disableLink:ContentExtension -disableLink:CertificateExtension ^
+            -enableRule:AppOffline ^
+            -skip:objectName=dirPath,absolutePath=\\uploads$
+      - name: The live site answers
+        if: steps.secrets.outputs.ok == 'true'
+        shell: bash
+        run: |
+          # The first start after a deploy runs the migrations, so give it some time.
+          for i in $(seq 1 30); do curl -sf "$SITE_URL/health" > /dev/null && break; sleep 5; done
+          curl -sf "$SITE_URL/health" | grep -q Healthy
+          curl -sf "$SITE_URL/" | grep -q "Smos"
+          curl -sf "$SITE_URL/api/menu/status" | grep -q '"sandwiches"'
+          echo "::notice title=Deployed::$SITE_URL answers: health, menu page and API."
