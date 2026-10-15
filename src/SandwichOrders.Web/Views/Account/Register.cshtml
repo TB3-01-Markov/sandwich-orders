@@ -21,6 +21,12 @@
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label">@L["Phone number (optional)"]</label>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" autocomplete="tel" placeholder="+32 470 12 34 56" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <div class="form-text">@L["Only used by the canteen to contact you about your order."]</div>
+            </div>
+            <div class="mb-3">
                 <label asp-for="Password" class="form-label">@L["Password"]</label>
                 <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" />
                 <span asp-validation-for="Password" class="text-danger"></span>

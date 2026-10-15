@@ -15,6 +15,8 @@
         <th>#</th>
         <th>@L["Sandwich"]</th>
         <th class="text-end">@L["Price"]</th>
+        <th>@L["Type"]</th>
+        <th>@L["Can still be made"]</th>
         <th>@L["Status"]</th>
         <th></th>
     </tr>
@@ -26,6 +28,22 @@
             <td>@sandwich.Number</td>
             <td>@sandwich.Name()</td>
             <td class="text-end">@Money.Format(sandwich.Price)</td>
+            <td>@L.KindName(sandwich.Kind)</td>
+            <td>
+                @if (sandwich.Kind == SandwichKind.Supplied)
+                {
+                    <form asp-action="SetSandwichStock" method="post" class="d-flex gap-1 stock-form">
+                        <input type="hidden" name="id" value="@sandwich.Id" />
+                        <input type="number" name="count" min="0" max="@MenuLimits.MaxStock" value="@sandwich.StockCount"
+                               class="form-control form-control-sm" aria-label="@L["Pieces left"]" placeholder="—" />
+                        <button type="submit" class="btn btn-sm btn-outline-primary">@L["Save"]</button>
+                    </form>
+                }
+                else
+                {
+                    <span title="@L["Calculated from the ingredient stock"]">@(sandwich.AvailableCount?.ToString() ?? "∞")</span>
+                }
+            </td>
             <td>
                 @if (!sandwich.IsActive)
                 {
@@ -34,6 +52,10 @@
                 else if (sandwich.IsTemporarilyUnavailable)
                 {
                     <span class="badge text-bg-danger">@L["Switched off"]</span>
+                }
+                else if (sandwich.AvailableCount == 0)
+                {
+                    <span class="badge text-bg-warning">@L["Sold out"]</span>
                 }
                 else if (!sandwich.IsAvailable)
                 {
@@ -74,6 +96,7 @@
     <thead>
     <tr>
         <th>@L["Ingredient"]</th>
+        <th>@L["Stock (portions)"]</th>
         <th>@L["Status"]</th>
         <th></th>
     </tr>
@@ -84,7 +107,19 @@
         <tr>
             <td>@ingredient.Name()</td>
             <td>
-                @if (ingredient.IsAvailable)
+                <form asp-action="SetIngredientStock" method="post" class="d-flex gap-1 stock-form">
+                    <input type="hidden" name="id" value="@ingredient.Id" />
+                    <input type="number" name="portions" min="0" max="@MenuLimits.MaxStock" value="@ingredient.StockPortions"
+                           class="form-control form-control-sm" aria-label="@L["Stock (portions)"]" placeholder="—" />
+                    <button type="submit" class="btn btn-sm btn-outline-primary">@L["Save"]</button>
+                </form>
+            </td>
+            <td>
+                @if (ingredient.StockPortions == 0)
+                {
+                    <span class="badge text-bg-danger">@L["Out of stock"]</span>
+                }
+                else if (ingredient.IsAvailable)
                 {
                     <span class="badge text-bg-success">@L["In stock"]</span>
                 }
@@ -117,7 +152,14 @@
         <label class="form-label" for="nameNl">@L["Name (Dutch)"]</label>
         <input id="nameNl" name="nameNl" class="form-control" maxlength="100" required />
     </div>
+    <div class="col-6 col-md-2">
+        <label class="form-label" for="stockPortions">@L["Stock (portions)"]</label>
+        <input id="stockPortions" name="stockPortions" type="number" min="0" max="@MenuLimits.MaxStock" class="form-control" />
+    </div>
     <div class="col-12 col-md-auto">
         <button type="submit" class="btn btn-outline-primary">@L["Add an ingredient"]</button>
     </div>
 </form>
+<p class="form-text mt-2">
+    @L["Stock is counted in portions: 1 portion is what goes on one sandwich (for example 1 slice of cheese). Leave the field empty to not count an ingredient. The menu calculates how many sandwiches can still be made and greys out what is sold out."]
+</p>

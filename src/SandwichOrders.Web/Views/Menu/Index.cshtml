@@ -6,7 +6,11 @@
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <h1 class="h3 mb-0">@L["Today's sandwiches"]</h1>
-    @if (Model.Window.IsOpen)
+    @if (Model.Window.ClosedToday)
+    {
+        <span class="badge text-bg-danger fs-6">@L["Closed today"]</span>
+    }
+    else if (Model.Window.IsOpen)
     {
         <span class="badge text-bg-success fs-6">@L["Order before {0}", deadlineText]</span>
     }
@@ -24,7 +28,11 @@
     </div>
 }
 
-@if (!Model.Window.IsOpen)
+@if (Model.Window.ClosedToday)
+{
+    @* The reason (holidays, renovation...) is in the announcement shown at the top of the page. *@
+}
+else if (!Model.Window.IsOpen)
 {
     <div class="alert alert-warning">@L["Ordering is closed. You can browse the menu, but orders are accepted again tomorrow."]</div>
 }
@@ -46,6 +54,7 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
     @foreach (var sandwich in Model.Sandwiches)
     {
         var available = sandwich.IsAvailable;
+        var left = sandwich.AvailableCount;
         var canOrder = available && Model.Window.IsOpen && Model.TodaysOrder is null;
         var description = sandwich.Description();
 
@@ -71,15 +80,25 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
                     }
 
                     <p class="mb-2">
-                        @foreach (var ingredient in sandwich.SandwichIngredients.Select(si => si.Ingredient).OrderBy(i => i.Name()))
+                        @if (sandwich.Kind == SandwichKind.Supplied)
                         {
-                            <span class="badge @(ingredient.IsAvailable ? "text-bg-light border" : "text-bg-secondary text-decoration-line-through")">@ingredient.Name()</span>
+                            <span class="badge text-bg-info">@L.KindName(sandwich.Kind)</span>
+                        }
+                        @foreach (var link in sandwich.SandwichIngredients.OrderBy(si => si.Ingredient.Name()))
+                        {
+                            var ingredient = link.Ingredient;
+                            var missing = sandwich.Kind == SandwichKind.Prepared && !(ingredient.IsAvailable && ingredient.HasStockFor(link.Portions));
+                            <span class="badge @(missing ? "text-bg-secondary text-decoration-line-through" : "text-bg-light border")">@ingredient.Name()</span>
                         }
                     </p>
 
                     @if (!available)
                     {
-                        <span class="badge text-bg-danger align-self-start mb-2">@L["Unavailable"]</span>
+                        <span class="badge text-bg-danger align-self-start mb-2">@(left == 0 ? L["Sold out"] : L["Unavailable"])</span>
+                    }
+                    else if (left is not null && left <= 5)
+                    {
+                        <span class="badge text-bg-warning align-self-start mb-2">@L["Only {0} left", left]</span>
                     }
 
                     <div class="mt-auto">

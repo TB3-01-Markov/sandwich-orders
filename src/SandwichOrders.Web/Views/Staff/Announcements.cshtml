@@ -1,0 +1,77 @@
+@using System.Globalization
+@using SandwichOrders.Core.Announcements
+@model StaffAnnouncementsViewModel
+@{
+    ViewData["Title"] = L["Announcements"].Value;
+    var culture = CultureInfo.CurrentUICulture.Name;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">@L["Announcements"]</h1>
+    <a asp-action="AnnouncementEdit" class="btn btn-primary">@L["New announcement"]</a>
+</div>
+
+<p class="text-muted">
+    @L["An announcement is shown from its first date. During the period it can block ordering, for example during holidays. After the period it disappears by itself."]
+</p>
+
+@if (!Model.Announcements.Any())
+{
+    <p class="text-muted">@L["No announcements yet."]</p>
+}
+else
+{
+    <div class="table-responsive">
+    <table class="table table-sm align-middle">
+        <thead>
+        <tr>
+            <th>@L["Text"]</th>
+            <th>@L["Shown from"]</th>
+            <th>@L["Period"]</th>
+            <th>@L["Blocks ordering"]</th>
+            <th>@L["Now"]</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var announcement in Model.Announcements)
+        {
+            var phase = announcement.PhaseOn(Model.Today);
+            <tr class="@(phase == AnnouncementPhase.Expired ? "text-body-secondary" : "")">
+                <td>@announcement.MessageFor(culture, Model.Today)</td>
+                <td class="text-nowrap">@announcement.ShowFrom.ToString("d")</td>
+                <td class="text-nowrap">@announcement.PeriodStart.ToString("d") – @announcement.PeriodEnd.ToString("d")</td>
+                <td>@(announcement.BlocksOrdering ? L["Yes"] : L["No"])</td>
+                <td>
+                    @switch (phase)
+                    {
+                        case AnnouncementPhase.Hidden:
+                            <span class="badge text-bg-light border">@L["Not shown yet"]</span>
+                            break;
+                        case AnnouncementPhase.Upcoming:
+                            <span class="badge text-bg-warning">@L["Informing"]</span>
+                            break;
+                        case AnnouncementPhase.Active:
+                            <span class="badge @(announcement.BlocksOrdering ? "text-bg-danger" : "text-bg-warning")">
+                                @(announcement.BlocksOrdering ? L["Blocking"] : L["In period"])
+                            </span>
+                            break;
+                        default:
+                            <span class="badge text-bg-secondary">@L["Finished"]</span>
+                            break;
+                    }
+                </td>
+                <td class="text-end text-nowrap">
+                    <a asp-action="AnnouncementEdit" asp-route-id="@announcement.Id" class="btn btn-sm btn-outline-primary">@L["Edit"]</a>
+                    <form asp-action="AnnouncementDelete" method="post" class="d-inline"
+                          onsubmit="return confirm('@L["Delete this announcement?"]');">
+                        <input type="hidden" name="id" value="@announcement.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">@L["Delete"]</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+}

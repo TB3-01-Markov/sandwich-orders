@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 using SandwichOrders.Core.Orders;
 using SandwichOrders.Web.Models;
@@ -14,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
     public DbSet<AppSetting> Settings => Set<AppSetting>();
+    public DbSet<Announcement> Announcements => Set<Announcement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,6 +26,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             entity.Property(i => i.NameEn).HasMaxLength(60).IsRequired();
             entity.Property(i => i.NameNl).HasMaxLength(60).IsRequired();
             entity.HasIndex(i => i.NameEn).IsUnique();
+
+            // Two orders that take the last portion at the same moment: the second save fails instead of
+            // silently making the stock negative (see EfOrderRepository.SaveChangesAsync).
+            entity.Property(i => i.StockVersion).IsConcurrencyToken();
         });
 
         modelBuilder.Entity<Sandwich>(entity =>
@@ -35,6 +41,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             entity.Property(s => s.ImagePath).HasMaxLength(300);
             entity.Property(s => s.Price).HasPrecision(8, 2);
             entity.HasIndex(s => s.Number).IsUnique();
+            entity.Property(s => s.Kind).HasConversion<string>().HasMaxLength(20);
+            entity.Property(s => s.StockVersion).IsConcurrencyToken();
         });
 
         // Many-to-many through an explicit join entity (same idea as RecipeIngredient in RecipeMatcher).
@@ -49,6 +57,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         {
             entity.Property(o => o.CustomerId).HasMaxLength(450).IsRequired();
             entity.Property(o => o.CustomerName).HasMaxLength(100).IsRequired();
+            entity.Property(o => o.CustomerPhone).HasMaxLength(30);
             entity.HasIndex(o => new { o.CustomerId, o.OrderDate });
             entity.HasMany(o => o.Lines).WithOne(l => l.Order).HasForeignKey(l => l.OrderId).OnDelete(DeleteBehavior.Cascade);
         });
@@ -57,6 +66,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
         {
             entity.Property(l => l.UnitPrice).HasPrecision(8, 2);
             entity.HasOne(l => l.Sandwich).WithMany().HasForeignKey(l => l.SandwichId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Announcement>(entity =>
+        {
+            entity.Property(a => a.MessageEn).HasMaxLength(Announcement.MaxMessageLength).IsRequired();
+            entity.Property(a => a.MessageNl).HasMaxLength(Announcement.MaxMessageLength).IsRequired();
+            entity.Property(a => a.PeriodMessageEn).HasMaxLength(Announcement.MaxMessageLength);
+            entity.Property(a => a.PeriodMessageNl).HasMaxLength(Announcement.MaxMessageLength);
         });
 
         modelBuilder.Entity<AppSetting>(entity =>

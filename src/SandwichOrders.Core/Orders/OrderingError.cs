@@ -9,7 +9,10 @@ public enum OrderingError
     SandwichUnavailable,
     DeadlinePassed,
     AlreadyOrdered,
-    OrderNotFound
+    OrderNotFound,
+    CanteenClosed,
+    StockChanged,
+    InvalidStatusChange
 }
 
 public class OrderingException(OrderingError error) : Exception($"Ordering rule violated: {error}")

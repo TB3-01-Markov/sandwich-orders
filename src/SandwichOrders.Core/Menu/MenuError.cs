@@ -9,7 +9,11 @@ public enum MenuError
     InvalidPrice,
     UnknownIngredient,
     IngredientNameRequired,
-    IngredientExists
+    IngredientExists,
+    IngredientNotFound,
+    InvalidStock,
+    InvalidPortions,
+    StockChanged
 }
 
 public class MenuException(MenuError error) : Exception($"Menu change refused: {error}")
