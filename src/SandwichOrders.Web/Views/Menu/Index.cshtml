@@ -12,7 +12,11 @@
     }
     else if (Model.Window.IsOpen)
     {
-        <span class="badge text-bg-success fs-6">@L["Order before {0}", deadlineText]</span>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span id="countdown" class="text-muted small d-none" data-template="@L["Closes in {0}"]"></span>
+            <span id="ordering-badge" class="badge text-bg-success fs-6"
+                  data-closed-text="@L["Ordering closed at {0}", deadlineText]">@L["Order before {0}", deadlineText]</span>
+        </div>
     }
     else
     {
@@ -26,6 +30,21 @@
         @L["You have an order for today."]
         <a asp-controller="Orders" asp-action="Today" class="alert-link">@L["View my order"]</a>
     </div>
+}
+
+@* Live updates (wwwroot/js/live-menu.js): countdown to the deadline and "Only N left" / "Sold out" without
+   reloading. The texts come from here, already translated. The server still checks everything when ordering. *@
+<div id="live-menu" class="d-none"
+     data-status-url="/api/menu/status"
+     data-is-open="@(Model.Window.IsOpen ? "true" : "false")"
+     data-seconds-left="@((int)Math.Ceiling(Model.Window.TimeLeft.TotalSeconds))"
+     data-text-sold-out="@L["Sold out"]"
+     data-text-unavailable="@L["Unavailable"]"
+     data-text-left="@L["Only {0} left", "{0}"]"></div>
+
+@if (Model.Window.IsOpen)
+{
+    <div id="closed-alert" class="alert alert-warning d-none">@L["Ordering is closed. You can browse the menu, but orders are accepted again tomorrow."]</div>
 }
 
 @if (Model.Window.Weekend)
@@ -42,7 +61,7 @@ else if (!Model.Window.IsOpen)
 }
 else if (!Model.IsSignedIn && Model.TodaysOrder is null)
 {
-    <div class="card card-body mb-3">
+    <div id="guest-name-card" class="card card-body mb-3">
         <label for="guestName" class="form-label fw-semibold">@L["Your name"]</label>
         <input id="guestName" type="text" class="form-control" maxlength="100" value="@Model.GuestName"
                placeholder="@L["First name and last name"]" autocomplete="name" />
@@ -114,11 +133,13 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
     {
         var available = sandwich.IsAvailable;
         var left = sandwich.AvailableCount;
-        var canOrder = available && Model.Window.IsOpen && Model.TodaysOrder is null;
+        // The form is there for every sandwich while ordering is open, hidden when sold out: live-menu.js shows it
+        // again when stock comes back (e.g. an order was cancelled).
+        var showForm = Model.Window.IsOpen && Model.TodaysOrder is null;
         var description = sandwich.Description();
 
         <div class="col">
-            <div class="card h-100 @(available ? "" : "opacity-75")">
+            <div class="card h-100 @(available ? "" : "opacity-75")" data-sandwich-id="@sandwich.Id">
                 @if (!string.IsNullOrWhiteSpace(sandwich.ImagePath))
                 {
                     <img src="@sandwich.ImagePath" class="card-img-top sandwich-image" alt="@sandwich.Name()" />
@@ -151,19 +172,21 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
                         }
                     </p>
 
-                    @if (!available)
-                    {
-                        <span class="badge text-bg-danger align-self-start mb-2">@(left == 0 ? L["Sold out"] : L["Unavailable"])</span>
-                    }
-                    else if (left is not null && left <= 5)
-                    {
-                        <span class="badge text-bg-warning align-self-start mb-2">@L["Only {0} left", left]</span>
-                    }
+                    <div class="js-stock">
+                        @if (!available)
+                        {
+                            <span class="badge text-bg-danger d-inline-block mb-2">@(left == 0 ? L["Sold out"] : L["Unavailable"])</span>
+                        }
+                        else if (left is not null && left <= 5)
+                        {
+                            <span class="badge text-bg-warning d-inline-block mb-2">@L["Only {0} left", left]</span>
+                        }
+                    </div>
 
                     <div class="mt-auto">
-                        @if (canOrder)
+                        @if (showForm)
                         {
-                            <form asp-controller="Orders" asp-action="Create" method="post" class="d-flex gap-2 order-form">
+                            <form asp-controller="Orders" asp-action="Create" method="post" class="d-flex gap-2 order-form @(available ? "" : "d-none")">
                                 <input type="hidden" name="sandwichId" value="@sandwich.Id" />
                                 @if (!Model.IsSignedIn)
                                 {
@@ -184,6 +207,7 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
 </div>
 
 @section Scripts {
+    <script src="~/js/live-menu.js" asp-append-version="true"></script>
     <script>
         // Guests: copies the name typed at the top into the form of the sandwich that was clicked.
         // Everyone: after the first click all order buttons are disabled, so a double click sends one order.

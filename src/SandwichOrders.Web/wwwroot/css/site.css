@@ -51,3 +51,14 @@
         font-size: 1rem;
     }
 }
+
+/* Live "Today's orders": a new order glows for a few seconds. */
+@keyframes live-new {
+    from { background-color: var(--bs-warning-bg-subtle); }
+    to { background-color: transparent; }
+}
+
+tr.live-new > td,
+.card.live-new {
+    animation: live-new 4s ease-out;
+}
