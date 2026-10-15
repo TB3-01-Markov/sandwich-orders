@@ -6,15 +6,12 @@ No account is needed: a visitor types his name (an account is optional).
 Staff see what to prepare, switch sandwiches on/off, set the deadline, and add/edit sandwiches, ingredients and photos.
 Payment stays at the canteen. Built for one canteen (Sint-Niklaas); several canteens are a possible future step.
 
-> **Status: written with AI assistance, NOT yet fully compiled or run.**
-> The stock/announcements update was checked like this (NuGet was not reachable, so EF Core and xUnit could not be restored):
-> `SandwichOrders.Core` compiles without warnings and its new logic passed a 38-check harness; the web project
-> (controllers, view models, all Razor views) compiles and passed a 33-check run with in-memory repositories.
-> **Not run:** the EF Core mapping, `dotnet test` (unit + integration tests were updated but never executed).
-> Run the commands below and fix what fails before relying on anything in this README.
+> **Status:** written with AI assistance. Build and all automated tests (unit + integration, SQLite) run in GitHub Actions
+> on every push and pull request (see the CI badge/Actions tab). **Not verified yet:** the Docker image and the
+> `docker compose` setup with SQL Server, and manual use of every screen in a browser.
 
 ## Stack
-.NET 8, ASP.NET Core MVC (Razor), ASP.NET Core Identity (cookie auth, roles Customer/Staff), EF Core 8
+.NET 10, ASP.NET Core MVC (Razor), ASP.NET Core Identity (cookie auth, roles Customer/Staff), EF Core 10
 (SQLite by default, SQL Server via configuration), Bootstrap 5, EN/NL localization,
 xUnit + NSubstitute + FakeTimeProvider, WebApplicationFactory integration tests, Docker, GitHub Actions.
 
@@ -26,7 +23,7 @@ xUnit + NSubstitute + FakeTimeProvider, WebApplicationFactory integration tests,
 
 ## Run locally
 ```
-dotnet --list-sdks          # needs 8.x
+dotnet --list-sdks          # needs 10.x
 dotnet build
 dotnet test
 dotnet run --project src/SandwichOrders.Web

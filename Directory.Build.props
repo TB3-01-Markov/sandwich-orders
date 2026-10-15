@@ -2,7 +2,7 @@
 
   <!-- Shared settings for every project. Change the framework in ONE place if you need another .NET version. -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
