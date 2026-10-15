@@ -5,7 +5,7 @@ on:
   pull_request:
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -13,4 +13,29 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet restore
       - run: dotnet build --no-restore -c Release
-      - run: dotnet test --no-build -c Release --verbosity normal
+      - name: Test
+        run: dotnet test --no-build -c Release --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
+      - name: Report failed tests
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import glob, re
+          import xml.etree.ElementTree as ET
+          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+          lines = ["### Failed tests"]
+          for f in glob.glob("**/TestResults/*.trx", recursive=True):
+              for r in ET.parse(f).getroot().iterfind(".//t:UnitTestResult", ns):
+                  if r.get("outcome") != "Failed":
+                      continue
+                  msg = r.findtext(".//t:ErrorInfo/t:Message", default="", namespaces=ns).strip()
+                  stack = r.findtext(".//t:ErrorInfo/t:StackTrace", default="", namespaces=ns).strip().splitlines()
+                  text = (r.get("testName") + " :: " + msg + " @ " + (stack[0].strip() if stack else "")).replace("\r", " ").replace("\n", " | ")
+                  print("::error title=Failed test::" + text[:1500])
+                  lines.append("- " + r.get("testName"))
+          open(__import__("os").environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join(lines) + "\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"

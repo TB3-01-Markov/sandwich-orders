@@ -32,7 +32,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 ["Database:Provider"] = "Sqlite",
                 ["ConnectionStrings:DefaultConnection"] = $"Data Source={databasePath}",
                 ["Uploads:Path"] = uploadsPath,
-                ["Seed:Enabled"] = "false"
+                ["Seed:Enabled"] = "false",
+                // EF Core logs every SQL command at Information level, which buries test failures in the CI log.
+                ["Logging:LogLevel:Default"] = "Warning",
+                ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
             }));
 
         builder.ConfigureServices(services =>

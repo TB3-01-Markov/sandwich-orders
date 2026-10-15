@@ -98,15 +98,18 @@ public class MenuAndAccountTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task SigningOutEndsTheSession()
+    public async Task SigningOutEndsTheSession_AndTheAccountsOrderIsNoLongerShown()
     {
         using var customer = await CreateSignedInCustomerAsync();
+        await OrderHamAsync(customer);
 
         var response = await PostFormAsync(customer, "/Account/Logout", new Dictionary<string, string>());
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
 
-        var page = await customer.GetAsync("/Orders/Today");
-        Assert.Equal(HttpStatusCode.Redirect, page.StatusCode);
-        Assert.Contains("/Account/Login", page.Headers.Location!.ToString());
+        // "My order" is open to guests now, so a signed-out visitor sees an empty page instead of a sign-in redirect.
+        var page = await customer.GetStringAsync("/Orders/Today");
+        Assert.DoesNotContain("Ada Lovelace", page);
+        Assert.Contains("You have no order for today", page);
+        Assert.DoesNotContain("Sign out", await customer.GetStringAsync("/"));
     }
 }
