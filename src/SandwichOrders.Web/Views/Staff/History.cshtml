@@ -32,13 +32,14 @@
 }
 else
 {
+    @* On phones the sandwich count is hidden (one sandwich per order, so it is almost always the order count). *@
     <div class="table-responsive">
         <table class="table table-sm align-middle">
             <thead>
             <tr>
                 <th>@L["Day"]</th>
                 <th class="text-end">@L["Orders"]</th>
-                <th class="text-end">@L["Sandwiches"]</th>
+                <th class="text-end d-none d-sm-table-cell">@L["Sandwiches"]</th>
                 <th class="text-end">@L["Amount"]</th>
                 <th class="text-end">@L["Cancelled"]</th>
             </tr>
@@ -51,7 +52,7 @@ else
                         <a asp-action="Day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">@Dates.DayInMonth(day.Date)</a>
                     </td>
                     <td class="text-end">@day.Orders</td>
-                    <td class="text-end">@day.Sandwiches</td>
+                    <td class="text-end d-none d-sm-table-cell">@day.Sandwiches</td>
                     <td class="text-end text-nowrap">@Money.Format(day.Amount)</td>
                     <td class="text-end">@(day.Cancelled == 0 ? "" : day.Cancelled.ToString())</td>
                 </tr>
@@ -61,7 +62,7 @@ else
             <tr>
                 <th>@L["Total"]</th>
                 <th class="text-end">@month.Orders</th>
-                <th class="text-end">@month.Sandwiches</th>
+                <th class="text-end d-none d-sm-table-cell">@month.Sandwiches</th>
                 <th class="text-end text-nowrap">@Money.Format(month.Amount)</th>
                 <th class="text-end">@(month.Cancelled == 0 ? "" : month.Cancelled.ToString())</th>
             </tr>
