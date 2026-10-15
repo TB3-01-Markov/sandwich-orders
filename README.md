@@ -14,7 +14,7 @@ Payment stays at the canteen. Built for one canteen (Sint-Niklaas); several cant
 > Run the commands below and fix what fails before relying on anything in this README.
 
 ## Stack
-.NET 8, ASP.NET Core MVC (Razor), ASP.NET Core Identity (cookie auth, roles Customer/Staff), EF Core 8
+.NET 10, ASP.NET Core MVC (Razor), ASP.NET Core Identity (cookie auth, roles Customer/Staff), EF Core 10
 (SQLite by default, SQL Server via configuration), Bootstrap 5, EN/NL localization,
 xUnit + NSubstitute + FakeTimeProvider, WebApplicationFactory integration tests, Docker, GitHub Actions.
 
@@ -26,7 +26,7 @@ xUnit + NSubstitute + FakeTimeProvider, WebApplicationFactory integration tests,
 
 ## Run locally
 ```
-dotnet --list-sdks          # needs 8.x
+dotnet --list-sdks          # needs 10.x
 dotnet build
 dotnet test
 dotnet run --project src/SandwichOrders.Web
