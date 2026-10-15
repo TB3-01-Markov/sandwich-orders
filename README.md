@@ -6,9 +6,10 @@ No account is needed: a visitor types his name (an account is optional).
 Staff see what to prepare, switch sandwiches on/off, set the deadline, and add/edit sandwiches, ingredients and photos.
 Payment stays at the canteen. Built for one canteen (Sint-Niklaas); several canteens are a possible future step.
 
-> **Status:** written with AI assistance. Build and all automated tests (unit + integration, SQLite) run in GitHub Actions
-> on every push and pull request (see the CI badge/Actions tab). **Not verified yet:** the Docker image and the
-> `docker compose` setup with SQL Server, and manual use of every screen in a browser.
+> **Status:** written with AI assistance. GitHub Actions runs on every pull request: build and all tests on SQLite;
+> the integration tests again on SQL Server 2022 (database created by the migrations); the Docker image with
+> `docker compose` and SQL Server; and a browser check of every page at phone to desktop sizes (layout, live updates,
+> accessibility with axe-core). **Not verified:** every screen used by hand on a real phone, a real screen reader.
 
 ## Stack
 .NET 10, ASP.NET Core MVC (Razor), ASP.NET Core Identity (cookie auth, roles Customer/Staff), EF Core 10
@@ -45,8 +46,9 @@ Photos (JPG/PNG/WebP, max 2 MB, checked by file signature) are stored in `Upload
 
 ## What changed in the stock / announcements update
 
-> **Database:** the app uses `EnsureCreated`, which does not add new columns to an existing database.
-> Delete `src/SandwichOrders.Web/sandwich-orders.db` (or the Docker SQL Server volume) once, so it is created again.
+> **Database:** on SQL Server (Docker, hosting) the schema comes from the EF Core migrations in
+> `src/SandwichOrders.Web/Data/Migrations`, so data is kept when the model changes. The local SQLite file is created
+> straight from the model: after a model change delete `src/SandwichOrders.Web/sandwich-orders.db*` once.
 
 **Two kinds of sandwiches**
 - *Made here* (prepared): stock comes from the ingredients. Each ingredient on a sandwich has a number of
@@ -80,4 +82,4 @@ when it is empty the normal text is used. One language is enough; the other fall
 - The price is copied into the order line when ordering.
 
 ## Not built yet
-Several canteens, per-day deadlines, EF migrations (uses `EnsureCreated`), order history, admin user management.
+Several canteens, per-day deadlines, admin user management.
