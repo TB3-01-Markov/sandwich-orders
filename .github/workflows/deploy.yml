@@ -40,7 +40,15 @@ jobs:
           dotnet-version: 10.0.x
       - name: Publish
         if: steps.secrets.outputs.ok == 'true'
-        run: dotnet publish src/SandwichOrders.Web -c Release -o publish
+        shell: pwsh
+        run: |
+          dotnet publish src/SandwichOrders.Web -c Release -o publish
+          # Startup log on the hosting (logs\stdout_*.log): when the app cannot start, this job downloads it.
+          $config = Get-Content publish/web.config -Raw
+          if ($config -notmatch 'stdoutLogEnabled="false"') { throw 'web.config has no stdoutLogEnabled setting' }
+          $config.Replace('stdoutLogEnabled="false"', 'stdoutLogEnabled="true"') | Set-Content publish/web.config -Encoding utf8
+          New-Item -ItemType Directory -Force publish/logs | Out-Null
+          'Startup logs of the app (written by IIS).' | Set-Content publish/logs/README.txt
       - name: Production settings from the secrets (never stored in the repository)
         if: steps.secrets.outputs.ok == 'true'
         shell: pwsh
@@ -75,6 +83,7 @@ jobs:
             -enableRule:AppOffline ^
             -skip:objectName=dirPath,absolutePath=\\uploads$
       - name: The live site answers
+        id: smoke
         if: steps.secrets.outputs.ok == 'true'
         shell: bash
         run: |
@@ -84,3 +93,23 @@ jobs:
           curl -sf "$SITE_URL/" | grep -q "Smos"
           curl -sf "$SITE_URL/api/menu/status" | grep -q '"sandwiches"'
           echo "::notice title=Deployed::$SITE_URL answers: health, menu page and API."
+      - name: When the site does not answer, download and show its startup log
+        if: failure() && steps.smoke.conclusion == 'failure'
+        shell: cmd
+        env:
+          DEPLOY_USER: ${{ secrets.MONSTERASP_USERNAME }}
+          DEPLOY_PASSWORD: ${{ secrets.MONSTERASP_PASSWORD }}
+        run: |
+          set MSDEPLOY="C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          %MSDEPLOY% -verb:sync ^
+            -source:contentPath="%SITE%/logs",computerName="https://%SITE%.siteasp.net:8172/msdeploy.axd?site=%SITE%",userName="%DEPLOY_USER%",password="%DEPLOY_PASSWORD%",authtype="Basic",includeAcls="False" ^
+            -dest:contentPath="%GITHUB_WORKSPACE%\remote-logs" ^
+            -allowUntrusted
+      - name: Show the newest startup log
+        if: failure() && steps.smoke.conclusion == 'failure'
+        shell: bash
+        run: |
+          newest=$(ls -t remote-logs/stdout*.log 2>/dev/null | head -n 1)
+          if [ -z "$newest" ]; then echo "::error title=No startup log::The hosting wrote no stdout log."; exit 0; fi
+          tail -n 80 "$newest"
+          echo "::error title=Startup log of the hosted app::$(grep -iE 'fail|error|exception|Database' "$newest" | tail -n 25 | tr '\n' '|' | cut -c1-3500)"
