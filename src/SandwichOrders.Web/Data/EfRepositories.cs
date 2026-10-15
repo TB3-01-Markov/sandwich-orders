@@ -44,6 +44,15 @@ public class EfMenuRepository(AppDbContext db) : IMenuRepository
             db.ChangeTracker.Clear();
             throw new MenuException(MenuError.StockChanged);
         }
+        catch (DbUpdateException exception) when (DbErrors.IsUniqueViolation(exception))
+        {
+            // MenuService checks names and numbers first, but two employees saving at the same moment can both pass
+            // that check. The unique indexes then refuse the second save; show a message instead of an error page.
+            var ingredientRefused = db.ChangeTracker.Entries<Ingredient>()
+                .Any(e => e.State == EntityState.Added);
+            db.ChangeTracker.Clear();
+            throw new MenuException(ingredientRefused ? MenuError.IngredientExists : MenuError.NumberTaken);
+        }
     }
 }
 
@@ -84,6 +93,13 @@ public class EfOrderRepository(AppDbContext db) : IOrderRepository
             // Forget our changes so this request leaves nothing half-done, and let the user try again.
             db.ChangeTracker.Clear();
             throw new OrderingException(OrderingError.StockChanged);
+        }
+        catch (DbUpdateException exception) when (DbErrors.IsUniqueViolation(exception))
+        {
+            // The only unique index on orders: one active order per customer per day (see AppDbContext).
+            // The stock taken in the same save is not stored either.
+            db.ChangeTracker.Clear();
+            throw new OrderingException(OrderingError.AlreadyOrdered);
         }
     }
 }

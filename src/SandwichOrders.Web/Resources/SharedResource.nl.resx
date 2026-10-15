@@ -103,7 +103,9 @@
   <data name="Add an ingredient" xml:space="preserve"><value>Ingrediënt toevoegen</value></data>
   <data name="An ingredient that is missing from the list can be added on the menu page." xml:space="preserve"><value>Ontbreekt er een ingrediënt in de lijst? Voeg het toe op de menupagina.</value></data>
   <data name="Both ingredient names are required (at most 100 characters)." xml:space="preserve"><value>Beide ingrediëntnamen zijn verplicht (maximaal 100 tekens).</value></data>
-  <data name="Both names are required (at most 100 characters) and descriptions can have at most 500 characters." xml:space="preserve"><value>Beide namen zijn verplicht (maximaal 100 tekens) en beschrijvingen mogen maximaal 500 tekens hebben.</value></data>
+  <data name="Both names are required (at most 100 characters)." xml:space="preserve"><value>Beide namen zijn verplicht (maximaal 100 tekens).</value></data>
+  <data name="A description can have at most 500 characters." xml:space="preserve"><value>Een beschrijving mag maximaal 500 tekens hebben.</value></data>
+  <data name="The canteen is closed at the weekend. You can browse the menu; ordering opens again on Monday." xml:space="preserve"><value>De kantine is gesloten in het weekend. Je kunt het menu bekijken; maandag kun je weer bestellen.</value></data>
   <data name="Cancel" xml:space="preserve"><value>Annuleren</value></data>
   <data name="Description (Dutch)" xml:space="preserve"><value>Beschrijving (Nederlands)</value></data>
   <data name="Description (English)" xml:space="preserve"><value>Beschrijving (Engels)</value></data>

@@ -28,7 +28,11 @@
     </div>
 }
 
-@if (Model.Window.ClosedToday)
+@if (Model.Window.Weekend)
+{
+    <div class="alert alert-info">@L["The canteen is closed at the weekend. You can browse the menu; ordering opens again on Monday."]</div>
+}
+else if (Model.Window.ClosedToday)
 {
     @* The reason (holidays, renovation...) is in the announcement shown at the top of the page. *@
 }
@@ -181,20 +185,33 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
 
 @section Scripts {
     <script>
-        // Copies the name typed at the top into the form of the sandwich that was clicked.
+        // Guests: copies the name typed at the top into the form of the sandwich that was clicked.
+        // Everyone: after the first click all order buttons are disabled, so a double click sends one order.
+        // (The database also refuses a second order for the same day; this just avoids the error message.)
         (function () {
             var nameInput = document.getElementById('guestName');
-            if (!nameInput) return;
-            document.querySelectorAll('form.order-form').forEach(function (form) {
+            var forms = document.querySelectorAll('form.order-form');
+            forms.forEach(function (form) {
                 form.addEventListener('submit', function (event) {
-                    var name = nameInput.value.trim();
-                    if (!name) {
-                        event.preventDefault();
-                        nameInput.focus();
-                        nameInput.classList.add('is-invalid');
-                        return;
+                    if (nameInput) {
+                        var name = nameInput.value.trim();
+                        if (!name) {
+                            event.preventDefault();
+                            nameInput.focus();
+                            nameInput.classList.add('is-invalid');
+                            return;
+                        }
+                        form.querySelector('input[name=customerName]').value = name;
                     }
-                    form.querySelector('input[name=customerName]').value = name;
+                    forms.forEach(function (f) {
+                        f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; });
+                    });
+                });
+            });
+            // Coming back with the browser's Back button shows the page from cache: switch the buttons on again.
+            window.addEventListener('pageshow', function () {
+                forms.forEach(function (f) {
+                    f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = false; });
                 });
             });
         })();

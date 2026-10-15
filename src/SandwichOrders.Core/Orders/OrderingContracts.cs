@@ -36,14 +36,18 @@ public static class OrderingRules
     // Ordering is open strictly BEFORE the deadline: 09:29:59 is open, 09:30:00 is closed.
     public static bool IsOpen(TimeOnly timeOfDay, TimeOnly deadline) => timeOfDay < deadline;
 
+    // The canteen works Monday to Friday. Closing days in the week (holidays...) come from announcements.
+    public static bool IsWorkingDay(DateOnly day) => day.DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday);
+
     // The canteen's price list says: "Bruin broodje +0,80 euro" (brown bread costs 0.80 more).
     public const decimal BrownBreadSurcharge = 0.80m;
 
     public static decimal SurchargeFor(Bread bread) => bread == Bread.WholeGrain ? BrownBreadSurcharge : 0m;
 }
 
-// ClosedToday = an announcement blocks ordering today (holidays, renovation...). Then IsOpen is false too.
-public record OrderingWindow(TimeOnly Deadline, bool IsOpen, bool ClosedToday = false);
+// ClosedToday = no ordering today: a weekend day (Weekend = true) or an announcement blocks it
+// (holidays, renovation...). Then IsOpen is false too.
+public record OrderingWindow(TimeOnly Deadline, bool IsOpen, bool ClosedToday = false, bool Weekend = false);
 
 // One line of the canteen's preparation list: how many of this sandwich on this bread (US-07).
 public record PreparationRow(Sandwich Sandwich, Bread Bread, int Quantity);

@@ -49,6 +49,17 @@ public class MenuManagementTests
         await repository.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task ATooLongDescriptionIsRefusedWithItsOwnReason()
+    {
+        var input = Input() with { DescriptionEn = new string('x', MenuLimits.MaxDescriptionLength + 1) };
+
+        var error = await Assert.ThrowsAsync<MenuException>(() => service.SaveSandwichAsync(input));
+
+        Assert.Equal(MenuError.DescriptionTooLong, error.Error);
+        await repository.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
     [Theory]
     [InlineData("0")]
     [InlineData("-1")]

@@ -58,7 +58,8 @@ public static class MenuMessages
     {
         MenuError.SandwichNotFound => localizer["This sandwich does not exist."].Value,
         MenuError.NumberTaken => localizer["This sandwich number is already used (use a number of 1 or higher)."].Value,
-        MenuError.NameRequired => localizer["Both names are required (at most 100 characters) and descriptions can have at most 500 characters."].Value,
+        MenuError.NameRequired => localizer["Both names are required (at most 100 characters)."].Value,
+        MenuError.DescriptionTooLong => localizer["A description can have at most 500 characters."].Value,
         MenuError.InvalidPrice => localizer["Enter a price above 0 with at most two decimals, for example 4.50."].Value,
         MenuError.UnknownIngredient => localizer["One of the selected ingredients does not exist."].Value,
         MenuError.IngredientNameRequired => localizer["Both ingredient names are required (at most 100 characters)."].Value,
