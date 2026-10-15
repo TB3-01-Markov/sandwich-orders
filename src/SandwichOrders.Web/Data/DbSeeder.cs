@@ -22,7 +22,7 @@ public static class DbSeeder
         }
     }
 
-    // Only when Seed:Enabled is true. All data below is INVENTED sample data, not the real canteen menu.
+    // Only when Seed:Enabled is true. The menu comes from the canteen's paper list; the ingredient stock numbers are invented demo values.
     public static async Task SeedDemoDataAsync(IServiceProvider services, IConfiguration configuration)
     {
         var db = services.GetRequiredService<AppDbContext>();
@@ -97,42 +97,106 @@ public static class DbSeeder
         await users.AddToRoleAsync(staff, Roles.Staff);
     }
 
+    // The canteen's paper list (Broodjeslijst): numbers, names and prices. Where the paper gives a description the
+    // ingredients are copied from it; for plain sandwiches (e.g. "hesp") the main filling is taken from the name, and
+    // a "smos" gets the same ingredients as the plain sandwich. The canteen employee should check and complete them.
     private static readonly (string En, string Nl)[] Ingredients =
     [
-        ("Ham", "Ham"), ("Cheese", "Kaas"), ("Chicken", "Kip"), ("Tuna", "Tonijn"), ("Egg", "Ei"),
-        ("Lettuce", "Sla"), ("Tomato", "Tomaat"), ("Cucumber", "Komkommer"), ("Carrot", "Wortel"),
-        ("Onion", "Ui"), ("Mayonnaise", "Mayonaise"), ("Curry sauce", "Currysaus"), ("Brie", "Brie"),
-        ("Honey", "Honing"), ("Salami", "Salami"), ("Pickles", "Augurk"), ("Smoked salmon", "Gerookte zalm"),
-        ("Cream cheese", "Roomkaas"), ("Turkey", "Kalkoen"), ("Hummus", "Hummus"), ("Mozzarella", "Mozzarella"),
-        ("Pesto", "Pesto"), ("Bacon", "Spek"), ("Mustard", "Mosterd")
+        ("Mayonnaise", "Mayonaise"),
+        ("Egg", "Ei"),
+        ("Cucumber", "Komkommer"),
+        ("Tomato", "Tomaat"),
+        ("Carrot", "Wortelen"),
+        ("Lettuce", "Sla"),
+        ("Ham", "Ham"),
+        ("Cheese", "Kaas"),
+        ("Goat cheese", "Romige geitenkaas"),
+        ("Beetroot", "Rode biet"),
+        ("Spring onion", "Lente-ajuin"),
+        ("Chicken", "Kip"),
+        ("Curry", "Curry"),
+        ("Curry dressing", "Currydressing"),
+        ("Apple", "Appeltjes"),
+        ("Watercress", "Cresson"),
+        ("Crab salad", "Krabsalade"),
+        ("Préparé", "Préparé"),
+        ("Mustard sauce", "Mosterdsaus"),
+        ("Pickles", "Augurk"),
+        ("Martino sauce", "Martinosaus"),
+        ("Onion", "Ui"),
+        ("Meat salad", "Vleessla"),
+        ("Egg salad", "Eiersla"),
+        ("Pesto", "Pesto"),
+        ("Italian ham", "Italiaanse ham"),
+        ("Mozzarella", "Mozzarella"),
+        ("Sun-dried tomatoes", "Gedroogde tomaten"),
+        ("Rocket", "Rucola"),
+        ("Homemade tartare sauce", "Huisgemaakte tartaarsaus"),
+        ("BBQ chicken", "BBQ-kip"),
+        ("Brie", "Brie"),
+        ("Smoked salmon", "Gerookte zalm"),
+        ("Tuna salad", "Tonijnsalade"),
+        ("Spicy tuna", "Tonijn pikant"),
+        ("Honey", "Honing"),
+        ("Nuts", "Noten"),
+        ("Homemade curry dressing", "Huisgemaakte currydressing"),
+        ("Piri-piri", "Pilipili"),
+        ("Pineapple", "Ananas"),
+        ("Herb cream cheese", "Romige kruidenkaas"),
+        ("Fried chicken", "Gebakken kip")
     ];
 
     private record SandwichSeed(int Number, string NameEn, string NameNl, decimal Price, string[] IngredientNames);
 
     private static readonly SandwichSeed[] Sandwiches =
     [
-        new(1, "Ham & cheese", "Ham en kaas", 4.20m, ["Ham", "Cheese", "Lettuce", "Tomato"]),
-        new(2, "Chicken curry", "Kip curry", 4.60m, ["Chicken", "Curry sauce", "Lettuce", "Carrot"]),
-        new(3, "Tuna crunch", "Tonijnsla", 4.50m, ["Tuna", "Mayonnaise", "Onion", "Lettuce", "Cucumber"]),
-        new(4, "Brie & honey", "Brie en honing", 4.80m, ["Brie", "Honey", "Lettuce"]),
-        new(5, "Egg mayo", "Eiersla", 3.90m, ["Egg", "Mayonnaise", "Lettuce", "Tomato"]),
-        new(6, "Salami special", "Salami speciaal", 4.30m, ["Salami", "Cheese", "Pickles", "Mustard"]),
-        new(7, "Smoked salmon", "Gerookte zalm", 5.80m, ["Smoked salmon", "Cream cheese", "Cucumber"]),
-        new(8, "Turkey club", "Kalkoen club", 5.20m, ["Turkey", "Bacon", "Lettuce", "Tomato", "Mayonnaise"]),
-        new(9, "Veggie hummus", "Veggie hummus", 4.10m, ["Hummus", "Carrot", "Cucumber", "Tomato", "Lettuce"]),
-        new(10, "Mozzarella pesto", "Mozzarella pesto", 4.70m, ["Mozzarella", "Pesto", "Tomato"]),
-        new(11, "Chicken pesto", "Kip pesto", 5.00m, ["Chicken", "Pesto", "Mozzarella", "Lettuce"]),
-        new(12, "Cheese & pickles", "Kaas en augurk", 3.60m, ["Cheese", "Pickles", "Lettuce"]),
-        new(13, "Bacon & egg", "Spek en ei", 4.90m, ["Bacon", "Egg", "Tomato"]),
-        new(14, "Ham & egg", "Ham en ei", 4.40m, ["Ham", "Egg", "Mayonnaise", "Lettuce"]),
-        new(15, "Classic cheese", "Klassieke kaas", 3.50m, ["Cheese", "Lettuce", "Tomato", "Cucumber"])
+        new(1, "Healthy", "Gezond", 4.00m, ["Mayonnaise", "Egg", "Cucumber", "Tomato", "Carrot", "Lettuce"]),
+        new(2, "Ham", "Hesp", 4.00m, ["Ham"]),
+        new(3, "Smos ham", "Smos hesp", 5.50m, ["Ham"]),
+        new(4, "Cheese", "Kaas", 4.00m, ["Cheese"]),
+        new(5, "Smos cheese", "Smos kaas", 5.50m, ["Cheese"]),
+        new(6, "Goat cheese", "Chevre", 6.00m, ["Goat cheese", "Beetroot", "Spring onion"]),
+        new(7, "Cheese and ham", "Kaas en hesp", 4.50m, ["Cheese", "Ham"]),
+        new(8, "Smos cheese and ham", "Smos kaas en hesp", 6.00m, ["Cheese", "Ham"]),
+        new(9, "Chicken curry", "Kip curry", 4.50m, ["Chicken", "Curry"]),
+        new(10, "Smos chicken curry", "Smos kip curry", 6.00m, ["Chicken", "Curry"]),
+        new(11, "Curry chicken", "Curry kip", 6.00m, ["Curry dressing", "Chicken", "Apple", "Watercress"]),
+        new(12, "Crab salad", "Krabsalade", 5.00m, ["Crab salad"]),
+        new(13, "Smos crab salad", "Smos krabsalade", 6.50m, ["Crab salad"]),
+        new(14, "Préparé", "Préparé", 4.50m, ["Préparé"]),
+        new(15, "Smos préparé", "Smos préparé", 6.00m, ["Préparé"]),
+        new(16, "Club préparé", "Club préparé", 6.00m, ["Préparé", "Mustard sauce", "Pickles", "Tomato", "Egg", "Lettuce"]),
+        new(17, "Martino", "Martino", 5.50m, ["Préparé", "Martino sauce", "Onion", "Pickles"]),
+        new(18, "Smos martino", "Smos martino", 7.00m, ["Préparé", "Martino sauce", "Onion", "Pickles"]),
+        new(19, "Meat salad", "Vleessla", 4.00m, ["Meat salad"]),
+        new(20, "Smos meat salad", "Smos vleessla", 5.50m, ["Meat salad"]),
+        new(21, "Egg salad", "Eiersla", 4.50m, ["Egg salad"]),
+        new(22, "Smos egg salad", "Smos eiersla", 6.00m, ["Egg salad"]),
+        new(23, "Italian sandwich", "Italiaans broodje", 7.00m, ["Pesto", "Italian ham", "Mozzarella", "Sun-dried tomatoes", "Rocket"]),
+        new(24, "Mystique", "Mystique", 5.10m, ["Préparé", "Homemade tartare sauce", "Watercress"]),
+        new(25, "BBQ chicken", "BBQ chicken", 6.50m, ["BBQ chicken"]),
+        new(26, "Luigi", "Luigi", 7.50m, ["Brie", "Smoked salmon", "Onion"]),
+        new(27, "Tuna salad", "Tonijnsalade", 5.00m, ["Tuna salad"]),
+        new(28, "Smos tuna salad", "Smos tonijnsalade", 6.50m, ["Tuna salad"]),
+        new(29, "Spicy tuna", "Tonijn pikant", 5.00m, ["Spicy tuna"]),
+        new(30, "Smos spicy tuna", "Smos tonijn pikant", 6.50m, ["Spicy tuna"]),
+        new(31, "Brie special", "Brie speciaal", 6.50m, ["Brie", "Honey", "Apple", "Nuts", "Lettuce"]),
+        new(32, "Tropical", "Tropical", 6.00m, ["Chicken", "Homemade curry dressing", "Piri-piri", "Pineapple", "Lettuce"]),
+        new(33, "Tkruimelhofke", "Tkruimelhofke", 7.50m, ["Herb cream cheese", "Smoked salmon", "Watercress"]),
+        new(34, "Toscane", "Toscane", 5.50m, ["Pesto", "Mozzarella", "Tomato"]),
+        new(35, "Brie", "Brie", 4.50m, ["Brie"]),
+        new(36, "Smos brie", "Smos brie", 6.00m, ["Brie"]),
+        new(37, "Fried chicken", "Gebakken kip", 4.50m, ["Fried chicken"]),
+        new(38, "Smos fried chicken", "Smos gebakken kip", 6.00m, ["Fried chicken"]),
+        new(39, "Chicken Hawaii", "Kip hawai", 5.00m, ["Chicken", "Pineapple"])
     ];
 
+    // Baked goods that are bought ready-made, so counted per piece. The stock numbers are INVENTED demo values.
     private record SuppliedSeed(int Number, string NameEn, string NameNl, decimal Price, int Stock);
 
     private static readonly SuppliedSeed[] SuppliedSandwiches =
     [
-        new(16, "Chicken wrap (supplier)", "Kipwrap (leverancier)", 5.20m, 6),
-        new(17, "Vegan bagel (supplier)", "Vegan bagel (leverancier)", 4.90m, 4)
+        new(40, "Sausage roll", "Worstenbroodje", 3.00m, 10),
+        new(41, "Rice tart", "Rijsttaartje", 2.95m, 8)
     ];
 }

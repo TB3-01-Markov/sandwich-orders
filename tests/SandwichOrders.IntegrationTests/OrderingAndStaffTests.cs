@@ -123,7 +123,7 @@ public class OrderingAndStaffTests : IntegrationTestBase
         Assert.Contains("Ada Lovelace", html);
         Assert.Contains("Ham sandwich", html);
         Assert.Contains("Whole-grain bread", html);
-        Assert.Contains("4.20", html);
+        Assert.Contains("5.00", html); // 4.20 + 0.80 for brown bread
     }
 
     [Fact]
@@ -227,7 +227,7 @@ public class OrderingAndStaffTests : IntegrationTestBase
         Assert.Contains("Grace Hopper", html);
         Assert.Contains("White bread", html);
         Assert.Contains("Whole-grain bread", html);
-        Assert.Contains("8.40", html); // two sandwiches at 4.20
+        Assert.Contains("9.20", html); // 4.20 (white) + 5.00 (brown)
     }
 
     [Fact]

@@ -123,7 +123,7 @@ public class OrderServiceTests
             && o.Lines.Single().SandwichId == 1
             && o.Lines.Single().Bread == Bread.WholeGrain
             && o.Lines.Single().Quantity == 1
-            && o.Lines.Single().UnitPrice == 4.20m));
+            && o.Lines.Single().UnitPrice == 5.00m)); // 4.20 + 0.80 for brown bread
         _ = orders.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
@@ -135,6 +135,19 @@ public class OrderServiceTests
         var order = await service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White);
 
         Assert.Equal(new DateOnly(2026, 1, 15), order.OrderDate);
+    }
+
+    [Fact]
+    public async Task Place_WhiteBreadHasNoSurcharge_BrownBreadCostsEightyCentMore()
+    {
+        var white = await service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White);
+        Assert.Equal(4.20m, white.Lines.Single().UnitPrice);
+
+        orders.GetActiveForCustomerAsync(Arg.Any<string>(), Arg.Any<DateOnly>(), Arg.Any<CancellationToken>())
+            .Returns((Order?)null);
+        var brown = await service.PlaceAsync("someone-else", "Grace Hopper", 1, Bread.WholeGrain);
+        Assert.Equal(5.00m, brown.Lines.Single().UnitPrice);
+        Assert.Equal(5.00m, brown.Total);
     }
 
     [Fact]

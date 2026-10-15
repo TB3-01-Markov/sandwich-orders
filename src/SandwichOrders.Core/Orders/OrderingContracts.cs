@@ -35,6 +35,11 @@ public static class OrderingRules
 
     // Ordering is open strictly BEFORE the deadline: 09:29:59 is open, 09:30:00 is closed.
     public static bool IsOpen(TimeOnly timeOfDay, TimeOnly deadline) => timeOfDay < deadline;
+
+    // The canteen's price list says: "Bruin broodje +0,80 euro" (brown bread costs 0.80 more).
+    public const decimal BrownBreadSurcharge = 0.80m;
+
+    public static decimal SurchargeFor(Bread bread) => bread == Bread.WholeGrain ? BrownBreadSurcharge : 0m;
 }
 
 // ClosedToday = an announcement blocks ordering today (holidays, renovation...). Then IsOpen is false too.
