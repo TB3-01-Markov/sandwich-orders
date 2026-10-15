@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,7 +56,25 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
+
+    // Pages redirect to the login page; the JSON API answers 401 / 403 instead, which JavaScript can handle.
+    static bool IsApi(HttpRequest request) => request.Path.StartsWithSegments("/api");
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (IsApi(context.Request)) context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        else context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (IsApi(context.Request)) context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        else context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
+
+// JavaScript sends the anti-forgery token of the page in this header with every POST to the API.
+builder.Services.AddAntiforgery(options => options.HeaderName = "RequestVerificationToken");
 
 // UI text lives in Resources/SharedResource.nl.resx. The English text itself is the key, so English needs no file.
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -64,7 +83,9 @@ builder.Services
     .AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
     .AddViewLocalization()
     .AddDataAnnotationsLocalization(options =>
-        options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource)));
+        options.DataAnnotationLocalizerProvider = (_, factory) => factory.Create(typeof(SharedResource)))
+    // Enums in JSON as text ("Prepared"), not as numbers.
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<IMenuRepository, EfMenuRepository>();

@@ -17,7 +17,10 @@ public class OrderService(
         var deadline = await settings.GetDeadlineAsync(ct);
         var weekend = !OrderingRules.IsWorkingDay(BrusselsTime.Today(clock));
         var closedToday = await IsClosedTodayAsync(ct);
-        return new OrderingWindow(deadline, !closedToday && OrderingRules.IsOpen(TimeOfDayNow(), deadline), closedToday, weekend);
+        var now = TimeOfDayNow();
+        var isOpen = !closedToday && OrderingRules.IsOpen(now, deadline);
+        var timeLeft = isOpen ? deadline.ToTimeSpan() - now.ToTimeSpan() : TimeSpan.Zero;
+        return new OrderingWindow(deadline, isOpen, closedToday, weekend, timeLeft);
     }
 
     // US-04: one order per person per day, only before the deadline, not at the weekend or on a closing day,

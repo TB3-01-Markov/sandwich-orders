@@ -57,7 +57,14 @@ public static class OrderingRules
 
 // ClosedToday = no ordering today: a weekend day (Weekend = true) or an announcement blocks it
 // (holidays, renovation...). Then IsOpen is false too.
-public record OrderingWindow(TimeOnly Deadline, bool IsOpen, bool ClosedToday = false, bool Weekend = false);
+// TimeLeft = how long ordering stays open (zero when closed). The browser counts down from this server value
+// instead of trusting the phone's own clock.
+public record OrderingWindow(
+    TimeOnly Deadline,
+    bool IsOpen,
+    bool ClosedToday = false,
+    bool Weekend = false,
+    TimeSpan TimeLeft = default);
 
 // One line of the canteen's preparation list: how many of this sandwich on this bread (US-07).
 public record PreparationRow(Sandwich Sandwich, Bread Bread, int Quantity);
