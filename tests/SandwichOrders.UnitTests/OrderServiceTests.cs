@@ -273,6 +273,18 @@ public class OrderServiceTests
         Assert.True(window.IsOpen);
         Assert.False(window.Weekend);
         Assert.False(window.ClosedToday);
+        Assert.Equal(TimeSpan.FromMinutes(30), window.TimeLeft); // 09:00 -> 09:30
+    }
+
+    [Fact]
+    public async Task Window_AfterTheDeadline_HasNoTimeLeft()
+    {
+        SetUtc("2026-01-14T08:45:00Z"); // 09:45 in Brussels
+
+        var window = await service.GetWindowAsync();
+
+        Assert.False(window.IsOpen);
+        Assert.Equal(TimeSpan.Zero, window.TimeLeft);
     }
 
     [Fact]
