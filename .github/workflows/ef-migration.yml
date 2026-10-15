@@ -17,6 +17,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet tool install --global dotnet-ef
+      - run: dotnet restore
       - name: Add the migration (if it does not exist yet)
         env:
           Database__Provider: SqlServer
