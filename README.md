@@ -39,6 +39,26 @@ docker compose up --build
 ```
 Open http://localhost:8080.
 
+## Hosting with Visual Studio Publish (MonsterASP, IIS)
+The hosting runs the app in the `Production` environment, where no demo data and no staff account are created
+unless the settings say so. Put those settings in `src/SandwichOrders.Web/appsettings.Production.json`.
+Publish copies this file to the hosting; it is in `.gitignore`, so the password never ends up in the repository.
+```json
+{
+  "Seed": {
+    "Enabled": true,
+    "StaffEmail": "staff-email@example.com",
+    "StaffPassword": "a-strong-password-with-a-digit-1"
+  }
+}
+```
+- The staff account is created only once (on the first start that does not find it). Change its password afterwards
+  on the site (click your e-mail address at the top).
+- On SQLite the database file is created from the model and never changed afterwards. After a change to the data model,
+  stop the site, delete `sandwich-orders.db*` on the hosting (this also deletes its orders) and publish again.
+- To use the hosting's SQL Server database instead (the migrations then update the schema and keep the data), add:
+  `"Database": { "Provider": "SqlServer" }, "ConnectionStrings": { "DefaultConnection": "<from the hosting panel>" }`.
+
 ## Staff (canteen employee)
 Sign in (Development: `staff@example.test` / `Staff-Demo-1234`). Menu: Today's orders, Manage menu, Deadline.
 Photos (JPG/PNG/WebP, max 2 MB, checked by file signature) are stored in `Uploads:Path`
