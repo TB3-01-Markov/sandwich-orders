@@ -41,6 +41,12 @@ builder.Services
         options.Password.RequireLowercase = false;
         options.Password.RequireUppercase = false;
         options.Password.RequireNonAlphanumeric = false;
+
+        // After 5 wrong passwords in a row the account is locked for 5 minutes, so a password cannot be guessed
+        // by trying many (the staff account matters most). AccountController passes lockoutOnFailure: true.
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        options.Lockout.AllowedForNewUsers = true;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -70,6 +76,10 @@ builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<AnnouncementService>();
 builder.Services.AddHostedService<DatabaseInitializer>();
+builder.Services.AddFormRateLimiting();
+
+// GET /health answers "Healthy" when the app runs and can reach its database (for Docker and monitoring later).
+builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
 
 var app = builder.Build();
 
@@ -101,9 +111,11 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 });
 
 app.UseRouting();
+app.UseRateLimiter(); // after UseRouting, so the [EnableRateLimiting] attributes on the actions are known
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapControllerRoute(name: "default", pattern: "{controller=Menu}/{action=Index}/{id?}");
 
 app.Run();

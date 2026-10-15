@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Localization;
 using SandwichOrders.Core;
 using SandwichOrders.Core.Orders;
@@ -30,6 +31,7 @@ public class OrdersController(
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimits.Forms)]
     public async Task<IActionResult> Create(int sandwichId, Bread bread, string? customerName, CancellationToken ct)
     {
         if (!Enum.IsDefined(bread))
