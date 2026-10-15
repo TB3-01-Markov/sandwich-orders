@@ -27,6 +27,8 @@
   <data name="Ingredient" xml:space="preserve"><value>Ingrediënt</value></data>
   <data name="Ingredients" xml:space="preserve"><value>Ingrediënten</value></data>
   <data name="Invalid email or password." xml:space="preserve"><value>Ongeldig e-mailadres of wachtwoord.</value></data>
+  <data name="Too many wrong passwords. This account is locked for 5 minutes." xml:space="preserve"><value>Te veel foute wachtwoorden. Dit account is 5 minuten geblokkeerd.</value></data>
+  <data name="Too many requests. Please wait a minute and try again." xml:space="preserve"><value>Te veel verzoeken. Wacht een minuut en probeer opnieuw.</value></data>
   <data name="Manage menu" xml:space="preserve"><value>Menu beheren</value></data>
   <data name="Mark in stock" xml:space="preserve"><value>Op voorraad zetten</value></data>
   <data name="Mark out of stock" xml:space="preserve"><value>Niet meer op voorraad</value></data>
