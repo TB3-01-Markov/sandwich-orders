@@ -25,6 +25,7 @@ public class DatabaseInitializer(
                 // existing database keeps its data when the model changes.
                 // SQLite (development on the laptop, most tests): created straight from the model. After a model
                 // change, delete sandwich-orders.db* and it is created again with the demo data.
+                logger.LogInformation("Database provider: {Provider}", db.Database.ProviderName);
                 if (db.Database.IsSqlServer())
                 {
                     await db.Database.MigrateAsync(cancellationToken);

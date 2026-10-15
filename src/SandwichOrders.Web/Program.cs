@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
@@ -30,7 +31,15 @@ builder.Services.AddDbContext<AppDbContext>((services, options) =>
     }
     else
     {
-        options.UseSqlite(connectionString);
+        // A relative SQLite file is put next to the app (the content root), not in whatever folder the process was
+        // started from: under IIS that can be a system folder where the app is not allowed to write.
+        var sqlite = new SqliteConnectionStringBuilder(connectionString);
+        if (sqlite.DataSource != ":memory:" && !Path.IsPathRooted(sqlite.DataSource))
+        {
+            sqlite.DataSource = Path.Combine(services.GetRequiredService<IHostEnvironment>().ContentRootPath, sqlite.DataSource);
+        }
+
+        options.UseSqlite(sqlite.ToString());
     }
 });
 
