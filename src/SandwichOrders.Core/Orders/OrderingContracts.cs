@@ -12,8 +12,12 @@ public interface IOrderRepository
     // All non-cancelled orders for that day, sorted by customer name. Lines and sandwiches are loaded.
     Task<IReadOnlyList<Order>> GetActiveForDateAsync(DateOnly date, CancellationToken ct = default);
 
+    // One order with lines, sandwiches and their ingredients loaded and tracked (to put stock back), or null.
+    Task<Order?> GetAsync(int id, CancellationToken ct = default);
+
     void Add(Order order);
 
+    // Must throw OrderingException(StockChanged) when someone else changed the same stock at the same moment.
     Task SaveChangesAsync(CancellationToken ct = default);
 }
 
@@ -33,7 +37,8 @@ public static class OrderingRules
     public static bool IsOpen(TimeOnly timeOfDay, TimeOnly deadline) => timeOfDay < deadline;
 }
 
-public record OrderingWindow(TimeOnly Deadline, bool IsOpen);
+// ClosedToday = an announcement blocks ordering today (holidays, renovation...). Then IsOpen is false too.
+public record OrderingWindow(TimeOnly Deadline, bool IsOpen, bool ClosedToday = false);
 
 // One line of the canteen's preparation list: how many of this sandwich on this bread (US-07).
 public record PreparationRow(Sandwich Sandwich, Bread Bread, int Quantity);

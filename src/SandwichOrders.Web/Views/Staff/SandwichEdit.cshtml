@@ -39,21 +39,44 @@
         <textarea asp-for="DescriptionNl" class="form-control" rows="2" maxlength="500"></textarea>
     </div>
 
+    <div class="col-12 col-md-4">
+        <label asp-for="Kind" class="form-label">@L["Type"]</label>
+        <select asp-for="Kind" class="form-select" id="kind">
+            <option value="@SandwichKind.Prepared">@L.KindName(SandwichKind.Prepared)</option>
+            <option value="@SandwichKind.Supplied">@L.KindName(SandwichKind.Supplied)</option>
+        </select>
+        <div class="form-text">@L["Made here: stock comes from the ingredients. Supplied: delivered ready-made, counted per piece."]</div>
+    </div>
+    <div class="col-6 col-md-3" id="stock-group">
+        <label asp-for="StockCount" class="form-label">@L["Pieces left"]</label>
+        <input asp-for="StockCount" type="number" min="0" class="form-control" />
+        <div class="form-text">@L["Empty = not counted."]</div>
+    </div>
+
     <div class="col-12">
         <div class="form-label">@L["Ingredients"]</div>
-        <div class="row row-cols-2 row-cols-md-4 g-1">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
             @foreach (var ingredient in Model.AllIngredients)
             {
+                var portions = Model.Portions.TryGetValue(ingredient.Id, out var p) ? p : 1;
                 <div class="col">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="IngredientIds" value="@ingredient.Id"
-                               id="ingredient-@ingredient.Id" @(Model.IngredientIds.Contains(ingredient.Id) ? "checked" : null) />
-                        <label class="form-check-label" for="ingredient-@ingredient.Id">@ingredient.Name()</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="form-check flex-grow-1 mb-0">
+                            <input class="form-check-input" type="checkbox" name="IngredientIds" value="@ingredient.Id"
+                                   id="ingredient-@ingredient.Id" @(Model.IngredientIds.Contains(ingredient.Id) ? "checked" : null) />
+                            <label class="form-check-label" for="ingredient-@ingredient.Id">@ingredient.Name()</label>
+                        </div>
+                        <input type="number" name="Portions[@ingredient.Id]" value="@portions" min="1" max="@SandwichIngredient.MaxPortions"
+                               class="form-control form-control-sm portions-input" aria-label="@L["Portions per sandwich"]: @ingredient.Name()"
+                               title="@L["Portions per sandwich"]" />
                     </div>
                 </div>
             }
         </div>
-        <div class="form-text">@L["An ingredient that is missing from the list can be added on the menu page."]</div>
+        <div class="form-text">
+            @L["The number next to an ingredient is how many portions one sandwich uses (for example 2 slices of cheese)."]
+            @L["An ingredient that is missing from the list can be added on the menu page."]
+        </div>
     </div>
 
     <div class="col-12 col-md-6">
@@ -84,3 +107,17 @@
         <a asp-action="Menu" class="btn btn-outline-secondary">@L["Cancel"]</a>
     </div>
 </form>
+
+@section Scripts {
+    <script>
+        // The "pieces left" field only makes sense for supplied sandwiches.
+        (function () {
+            var kind = document.getElementById('kind');
+            var group = document.getElementById('stock-group');
+            if (!kind || !group) return;
+            function update() { group.hidden = kind.value !== '@SandwichKind.Supplied'; }
+            kind.addEventListener('change', update);
+            update();
+        })();
+    </script>
+}

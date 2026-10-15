@@ -1,7 +1,6 @@
 @model TodayOrderViewModel
 @{
     ViewData["Title"] = L["My order"].Value;
-    var deadlineText = Model.Window.Deadline.ToString("HH:mm");
 }
 
 <h1 class="h3 mb-3">@L["My order for today"]</h1>
@@ -45,20 +44,21 @@ else
                 </tfoot>
             </table>
 
-            <p class="mb-2"><span class="badge text-bg-secondary">@L.StatusName(order.Status)</span></p>
+            @switch (order.Status)
+            {
+                case OrderStatus.Prepared:
+                    <div class="alert alert-success mb-2">✅ @L["Your sandwich is ready. You can collect it at the canteen."]</div>
+                    break;
+                case OrderStatus.Collected:
+                    <p class="mb-2"><span class="badge text-bg-secondary">@L.StatusName(order.Status)</span></p>
+                    break;
+                default:
+                    <p class="mb-2"><span class="badge text-bg-primary">@L.StatusName(order.Status)</span>
+                        <span class="text-muted small ms-1">@L["We will show here when your sandwich is ready."]</span></p>
+                    break;
+            }
             <p class="text-muted">@L["Pay at the canteen with the QR code."]</p>
-
-            @if (Model.Window.IsOpen)
-            {
-                <form asp-controller="Orders" asp-action="Cancel" method="post">
-                    <button type="submit" class="btn btn-outline-danger">@L["Cancel my order"]</button>
-                    <span class="text-muted small ms-2">@L["You can cancel until {0}.", deadlineText]</span>
-                </form>
-            }
-            else
-            {
-                <p class="text-muted small mb-0">@L["The deadline has passed, so the order can no longer be cancelled."]</p>
-            }
+            <p class="text-muted small mb-0">@L["Want to change or cancel your order? Please ask the canteen staff."]</p>
         </div>
     </div>
 }
