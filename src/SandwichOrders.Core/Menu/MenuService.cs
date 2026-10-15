@@ -10,6 +10,9 @@ public class MenuService(IMenuRepository menu)
     public Task<IReadOnlyList<Sandwich>> GetAllSandwichesAsync(CancellationToken ct = default) =>
         menu.GetAllAsync(ct);
 
+    public Task<Sandwich?> GetSandwichAsync(int sandwichId, CancellationToken ct = default) =>
+        menu.GetAsync(sandwichId, ct);
+
     public Task<IReadOnlyList<Ingredient>> GetIngredientsAsync(CancellationToken ct = default) =>
         menu.GetIngredientsAsync(ct);
 
@@ -176,10 +179,8 @@ public class MenuService(IMenuRepository menu)
         await menu.SaveChangesAsync(ct);
     }
 
-    public async Task AddIngredientAsync(string nameEn, string nameNl, CancellationToken ct = default) =>
-        await AddIngredientAsync(nameEn, nameNl, null, ct);
-
-    public async Task AddIngredientAsync(string nameEn, string nameNl, int? stockPortions, CancellationToken ct = default)
+    // stockPortions: null = the stock of this ingredient is not counted.
+    public async Task AddIngredientAsync(string nameEn, string nameNl, int? stockPortions = null, CancellationToken ct = default)
     {
         nameEn = (nameEn ?? "").Trim();
         nameNl = (nameNl ?? "").Trim();

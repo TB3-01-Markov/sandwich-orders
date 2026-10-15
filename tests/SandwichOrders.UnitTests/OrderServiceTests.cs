@@ -162,38 +162,15 @@ public class OrderServiceTests
         Assert.Equal(4.20m, order.Lines.Single().UnitPrice);
     }
 
-    // ---- US-05: cancelling -------------------------------------------------------------------------------
+    // ---- US-05: only the canteen employee cancels -----------------------------------------------------------
 
     [Fact]
-    public async Task Cancel_BeforeTheDeadline_CancelsTheOrder()
+    public async Task CancelByStaff_AnUnknownOrder_ReportsThatThereIsNone()
     {
-        var order = ExistingOrder();
-
-        await service.CancelAsync(CustomerId);
-
-        Assert.Equal(OrderStatus.Cancelled, order.Status);
-        _ = orders.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Cancel_AtTheDeadline_IsRefusedAndTheOrderStaysActive()
-    {
-        var order = ExistingOrder();
-        SetUtc("2026-01-14T08:30:00Z");
-
-        var exception = await Assert.ThrowsAsync<OrderingException>(() => service.CancelAsync(CustomerId));
-
-        Assert.Equal(OrderingError.DeadlinePassed, exception.Error);
-        Assert.Equal(OrderStatus.Placed, order.Status);
-        _ = orders.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Cancel_WithoutAnOrder_ReportsThatThereIsNone()
-    {
-        var exception = await Assert.ThrowsAsync<OrderingException>(() => service.CancelAsync(CustomerId));
+        var exception = await Assert.ThrowsAsync<OrderingException>(() => service.CancelByStaffAsync(99));
 
         Assert.Equal(OrderingError.OrderNotFound, exception.Error);
+        _ = orders.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     // ---- Stock, closing days and the canteen employee -------------------------------------------------------
@@ -243,7 +220,7 @@ public class OrderServiceTests
     [Fact]
     public async Task Place_CopiesThePhoneNumber()
     {
-        var order = await service.PlaceAsync(CustomerId, "Ada Lovelace", " +32 470 12 34 56 ", 1, Bread.White);
+        var order = await service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White, " +32 470 12 34 56 ");
 
         Assert.Equal("+32 470 12 34 56", order.CustomerPhone);
     }
@@ -389,13 +366,6 @@ public class OrderServiceTests
 
     private void SetUtc(string iso) =>
         clock.SetUtcNow(DateTimeOffset.Parse(iso, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal));
-
-    private Order ExistingOrder()
-    {
-        var order = OrderOf("Ada Lovelace", Line(HamSandwich(), Bread.White));
-        orders.GetActiveForCustomerAsync(CustomerId, Arg.Any<DateOnly>(), Arg.Any<CancellationToken>()).Returns(order);
-        return order;
-    }
 
     private static Order OrderOf(string customerName, OrderLine line)
     {

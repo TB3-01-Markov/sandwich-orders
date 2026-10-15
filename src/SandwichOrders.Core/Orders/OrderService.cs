@@ -21,20 +21,13 @@ public class OrderService(
 
     // US-04: one order per person per day, only before the deadline, not on a closing day,
     // only for an available sandwich with stock left. The stock is taken in the same save as the order.
+    // customerPhone: only registered customers can have one (guests order with a name only).
     public async Task<Order> PlaceAsync(
         string customerId,
         string customerName,
         int sandwichId,
         Bread bread,
-        CancellationToken ct = default) =>
-        await PlaceAsync(customerId, customerName, null, sandwichId, bread, ct);
-
-    public async Task<Order> PlaceAsync(
-        string customerId,
-        string customerName,
-        string? customerPhone,
-        int sandwichId,
-        Bread bread,
+        string? customerPhone = null,
         CancellationToken ct = default)
     {
         if (!Enum.IsDefined(bread))
@@ -92,27 +85,8 @@ public class OrderService(
         return order;
     }
 
-    // US-05, kept in the code but NOT offered to customers in the web app any more: once the canteen has
-    // started making a sandwich it is hard to undo, so only the canteen employee cancels (CancelByStaffAsync).
-    public async Task CancelAsync(string customerId, CancellationToken ct = default)
-    {
-        var now = BrusselsTime.Now(clock);
-        var found = await orders.GetActiveForCustomerAsync(customerId, DateOnly.FromDateTime(now), ct)
-                    ?? throw new OrderingException(OrderingError.OrderNotFound);
-
-        var deadline = await settings.GetDeadlineAsync(ct);
-        if (!OrderingRules.IsOpen(TimeOnly.FromDateTime(now), deadline))
-        {
-            throw new OrderingException(OrderingError.DeadlinePassed);
-        }
-
-        // Reload with the ingredients tracked, so the stock can be put back.
-        var order = await orders.GetAsync(found.Id, ct) ?? found;
-        order.Cancel();
-        await orders.SaveChangesAsync(ct);
-    }
-
-    // The canteen employee cancels any order that is not collected yet; the stock goes back.
+    // US-05 changed: customers cannot cancel themselves, because once the canteen has started making a sandwich it is
+    // hard to undo. The canteen employee cancels any order that is not collected yet; the stock goes back.
     public async Task CancelByStaffAsync(int orderId, CancellationToken ct = default)
     {
         var order = await orders.GetAsync(orderId, ct) ?? throw new OrderingException(OrderingError.OrderNotFound);
