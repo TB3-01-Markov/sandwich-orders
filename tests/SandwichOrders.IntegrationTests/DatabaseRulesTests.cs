@@ -14,6 +14,23 @@ public class DatabaseRulesTests : IntegrationTestBase
 {
     private static readonly DateOnly Day = new(2026, 1, 14);
 
+    // Proves which database these tests really ran on: SQL Server when CI sets TEST_SQLSERVER, otherwise SQLite.
+    [Fact]
+    public void TheTestsUseTheDatabaseTheyAreMeantFor()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var expectSqlServer = Environment.GetEnvironmentVariable("TEST_SQLSERVER") is not null;
+
+        Assert.Equal(expectSqlServer, db.Database.IsSqlServer());
+        Assert.Equal(!expectSqlServer, db.Database.IsSqlite());
+        if (expectSqlServer)
+        {
+            Assert.Empty(db.Database.GetPendingMigrations()); // the schema really came from the migrations
+            Assert.Contains(db.Database.GetAppliedMigrations(), name => name.EndsWith("_InitialCreate"));
+        }
+    }
+
     [Fact]
     public void ColumnSizes_MatchTheLimitsTheFormsCheck()
     {
