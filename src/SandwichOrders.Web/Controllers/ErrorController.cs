@@ -4,6 +4,7 @@ namespace SandwichOrders.Web.Controllers;
 
 // The error pages are also shown for a failed POST; they must not ask for an anti-forgery token themselves.
 [IgnoreAntiforgeryToken]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class ErrorController : Controller
 {
     // An exception that was not handled (production only, see Program.cs).

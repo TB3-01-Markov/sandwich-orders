@@ -86,6 +86,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 // The keys that encrypt the login cookie and the anti-forgery tokens are kept in the database. By default they live in
 // memory or in the user profile; on shared hosting the app is restarted often (and a new Docker container has no
 // profile), which would sign everybody out and make open forms fail with "400 Bad Request".
+// The keys themselves are not encrypted in the table (the log warns "No XML encryptor configured" when a new key is
+// made, about every 90 days). Accepted: whoever can read the database can change all its data anyway, and the free
+// hosting has no safe place for a certificate to encrypt them with.
 builder.Services.AddDataProtection()
     .SetApplicationName("SandwichOrders")
     .PersistKeysToDbContext<AppDbContext>();
@@ -120,6 +123,10 @@ builder.Services.AddFormRateLimiting();
 
 // GET /health answers "Healthy" when the app runs and can reach its database (for Docker and monitoring later).
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+
+// Machine-readable description of the JSON API (OpenAPI 3) at /openapi/v1.json. Only the controllers with
+// [ApiController] are in it; the HTML pages are left out.
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
@@ -184,6 +191,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health");
+if (!app.Environment.IsProduction())
+{
+    // Development and tests only: the live site does not publish its API description.
+    app.MapOpenApi();
+}
 app.MapControllerRoute(name: "default", pattern: "{controller=Menu}/{action=Index}/{id?}");
 
 app.Run();

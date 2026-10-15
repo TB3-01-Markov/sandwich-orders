@@ -5,4 +5,9 @@
     <RootNamespace>SandwichOrders.Core</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Only the ILogger interfaces: the web app decides where the log goes (console, IIS log...). -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.*" />
+  </ItemGroup>
+
 </Project>

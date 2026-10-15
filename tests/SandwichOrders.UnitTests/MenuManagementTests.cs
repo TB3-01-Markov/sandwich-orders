@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using SandwichOrders.Core.Menu;
 
@@ -11,7 +12,7 @@ public class MenuManagementTests
 
     public MenuManagementTests()
     {
-        service = new MenuService(repository);
+        service = new MenuService(repository, NullLogger<MenuService>.Instance);
         repository.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Sandwich>
         {
             new() { Id = 1, Number = 1, NameEn = "Ham", NameNl = "Ham", Price = 4m }
