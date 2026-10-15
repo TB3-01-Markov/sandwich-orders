@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -106,4 +107,45 @@ public class AccountController(
 
     [HttpGet]
     public IActionResult AccessDenied() => View();
+
+    // Every signed-in user (also the canteen employee, whose first password comes from the deployment settings)
+    // can choose a new password. The current password is asked again, so an unlocked phone is not enough.
+    [HttpGet]
+    [Authorize]
+    public IActionResult ChangePassword() => View(new ChangePasswordViewModel());
+
+    [HttpPost]
+    [Authorize]
+    [EnableRateLimiting(RateLimits.Forms)]
+    public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await users.GetUserAsync(User);
+        if (user is null)
+        {
+            return Challenge();
+        }
+
+        var changed = await users.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+        if (!changed.Succeeded)
+        {
+            foreach (var error in changed.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Code == "PasswordMismatch"
+                    ? L["The current password is not correct."].Value
+                    : error.Description);
+            }
+
+            return View(model);
+        }
+
+        // The security stamp changed: sign in again so this browser stays signed in (other sessions are not).
+        await signInManager.RefreshSignInAsync(user);
+        TempData["Success"] = L["Your password has been changed."].Value;
+        return RedirectToAction("Index", "Menu");
+    }
 }

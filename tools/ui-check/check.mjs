@@ -226,6 +226,10 @@ for (const vp of viewports) {
   await shot(s, vp, '15-staff-announcement-edit', { fullPage: true });
   await s.goto(`${BASE}/Staff/History`);
   await shot(s, vp, '17-staff-history', { fullPage: true });
+  await s.goto(`${BASE}/Account/ChangePassword`);
+  await shot(s, vp, '22-change-password', { fullPage: true });
+  await s.goto(`${BASE}/this-page-does-not-exist`);
+  await shot(s, vp, '23-not-found', { fullPage: true });
   await sCtx.close();
 }
 

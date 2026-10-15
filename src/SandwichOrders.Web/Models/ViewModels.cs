@@ -75,6 +75,22 @@ public class LoginViewModel
     public bool RememberMe { get; set; }
 }
 
+public class ChangePasswordViewModel
+{
+    [Required(ErrorMessage = "Password is required.")]
+    [DataType(DataType.Password)]
+    public string CurrentPassword { get; set; } = "";
+
+    [Required(ErrorMessage = "Password is required.")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "At least 8 characters, with a digit.")]
+    [DataType(DataType.Password)]
+    public string NewPassword { get; set; } = "";
+
+    [Compare(nameof(NewPassword), ErrorMessage = "The passwords do not match.")]
+    [DataType(DataType.Password)]
+    public string ConfirmNewPassword { get; set; } = "";
+}
+
 public class RegisterViewModel
 {
     [Required(ErrorMessage = "Name is required.")]
