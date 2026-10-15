@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.Localization;
 using SandwichOrders.Core;
+using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 using SandwichOrders.Core.Orders;
 
@@ -32,8 +33,23 @@ public static class LocalizedExtensions
         OrderingError.OrderNotFound => localizer["You have no order for today."].Value,
         OrderingError.SandwichNotFound => localizer["This sandwich does not exist."].Value,
         OrderingError.IngredientNotFound => localizer["This ingredient does not exist."].Value,
+        OrderingError.CanteenClosed => localizer["The canteen is closed today, so ordering is not possible."].Value,
+        OrderingError.StockChanged => localizer["Someone else just ordered the same thing. Please try again."].Value,
+        OrderingError.InvalidStatusChange => localizer["This status change is not possible for this order."].Value,
         _ => localizer["Something went wrong."].Value
     };
+
+    public static string Describe(this IStringLocalizer localizer, AnnouncementError error) => error switch
+    {
+        AnnouncementError.NotFound => localizer["This announcement does not exist."].Value,
+        AnnouncementError.MessageRequired => localizer["Enter the text in at least one language."].Value,
+        AnnouncementError.MessageTooLong => localizer["The text is too long."].Value,
+        AnnouncementError.InvalidDates => localizer["The dates must be in order: shown from ≤ period start ≤ period end."].Value,
+        _ => localizer["Something went wrong."].Value
+    };
+
+    public static string KindName(this IStringLocalizer localizer, SandwichKind kind) =>
+        kind == SandwichKind.Supplied ? localizer["Supplied"].Value : localizer["Made here"].Value;
 }
 
 public static class MenuMessages
@@ -47,6 +63,10 @@ public static class MenuMessages
         MenuError.UnknownIngredient => localizer["One of the selected ingredients does not exist."].Value,
         MenuError.IngredientNameRequired => localizer["Both ingredient names are required (at most 100 characters)."].Value,
         MenuError.IngredientExists => localizer["This ingredient already exists."].Value,
+        MenuError.IngredientNotFound => localizer["This ingredient does not exist."].Value,
+        MenuError.InvalidStock => localizer["Enter a stock of 0 or more (empty = not counted)."].Value,
+        MenuError.InvalidPortions => localizer["Portions per sandwich must be between 1 and 20."].Value,
+        MenuError.StockChanged => localizer["The stock changed in the meantime (someone ordered). Please check and save again."].Value,
         _ => localizer["Something went wrong."].Value
     };
 

@@ -1,0 +1,24 @@
+@using System.Globalization
+@using SandwichOrders.Core.Announcements
+@model AnnouncementBannerViewModel
+@{
+    var culture = CultureInfo.CurrentUICulture.Name;
+}
+@foreach (var announcement in Model.Announcements)
+{
+    var active = announcement.PhaseOn(Model.Today) == AnnouncementPhase.Active;
+    var blocking = active && announcement.BlocksOrdering;
+    <div class="alert @(blocking ? "alert-danger" : "alert-warning") d-flex gap-2 align-items-start" role="status">
+        <span aria-hidden="true">@(blocking ? "⛔" : "📢")</span>
+        <div>
+            <div>@announcement.MessageFor(culture, Model.Today)</div>
+            <div class="small text-body-secondary">
+                @announcement.PeriodStart.ToString("d") – @announcement.PeriodEnd.ToString("d")
+                @if (announcement.BlocksOrdering)
+                {
+                    <text>· @L["Ordering is not possible in this period."]</text>
+                }
+            </div>
+        </div>
+    </div>
+}

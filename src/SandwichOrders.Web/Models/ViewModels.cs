@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using SandwichOrders.Core;
+using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 using SandwichOrders.Core.Orders;
 
@@ -60,6 +62,11 @@ public class RegisterViewModel
 
     [Compare(nameof(Password), ErrorMessage = "The passwords do not match.")]
     public string ConfirmPassword { get; set; } = "";
+
+    // Optional (from ContactManager): only used by the canteen to contact the customer about an order.
+    [Phone(ErrorMessage = "Enter a valid phone number.")]
+    [StringLength(30, ErrorMessage = "The phone number is too long.")]
+    public string? PhoneNumber { get; set; }
 }
 
 public class SandwichEditViewModel
@@ -89,6 +96,15 @@ public class SandwichEditViewModel
     public string? PriceText { get; set; }
 
     public List<int> IngredientIds { get; set; } = new();
+
+    // Ingredient id -> portions per sandwich. Posted as Portions[5]=2.
+    public Dictionary<int, int> Portions { get; set; } = new();
+
+    public SandwichKind Kind { get; set; } = SandwichKind.Prepared;
+
+    // Only for supplied sandwiches. Empty = do not count.
+    [Range(0, MenuLimits.MaxStock, ErrorMessage = "The stock must be 0 or more.")]
+    public int? StockCount { get; set; }
     public bool IsActive { get; set; } = true;
     public string? ExistingImagePath { get; set; }
     public bool RemovePhoto { get; set; }
@@ -96,4 +112,44 @@ public class SandwichEditViewModel
 
     [BindNever, ValidateNever]
     public IReadOnlyList<Ingredient> AllIngredients { get; set; } = Array.Empty<Ingredient>();
+}
+
+public class AnnouncementEditViewModel
+{
+    public int? Id { get; set; }
+
+    [StringLength(Announcement.MaxMessageLength, ErrorMessage = "The text is too long.")]
+    public string? MessageEn { get; set; }
+
+    [StringLength(Announcement.MaxMessageLength, ErrorMessage = "The text is too long.")]
+    public string? MessageNl { get; set; }
+
+    [StringLength(Announcement.MaxMessageLength, ErrorMessage = "The text is too long.")]
+    public string? PeriodMessageEn { get; set; }
+
+    [StringLength(Announcement.MaxMessageLength, ErrorMessage = "The text is too long.")]
+    public string? PeriodMessageNl { get; set; }
+
+    [Required(ErrorMessage = "Please enter a valid date.")]
+    public DateOnly? ShowFrom { get; set; }
+
+    [Required(ErrorMessage = "Please enter a valid date.")]
+    public DateOnly? PeriodStart { get; set; }
+
+    [Required(ErrorMessage = "Please enter a valid date.")]
+    public DateOnly? PeriodEnd { get; set; }
+
+    public bool BlocksOrdering { get; set; } = true;
+}
+
+public class StaffAnnouncementsViewModel
+{
+    public IReadOnlyList<Announcement> Announcements { get; init; } = Array.Empty<Announcement>();
+    public DateOnly Today { get; init; }
+}
+
+public class AnnouncementBannerViewModel
+{
+    public IReadOnlyList<Announcement> Announcements { get; init; } = Array.Empty<Announcement>();
+    public DateOnly Today { get; init; }
 }

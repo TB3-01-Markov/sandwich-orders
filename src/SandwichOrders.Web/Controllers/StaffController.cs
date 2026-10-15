@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using SandwichOrders.Core;
+using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 using SandwichOrders.Core.Orders;
 using SandwichOrders.Web.Infrastructure;
@@ -14,6 +15,8 @@ namespace SandwichOrders.Web.Controllers;
 public class StaffController(
     OrderService orders,
     MenuService menu,
+    AnnouncementService announcements,
+    TimeProvider clock,
     PhotoStorage photos,
     IStringLocalizer<SharedResource> L) : Controller
 {
@@ -21,6 +24,39 @@ public class StaffController(
     [HttpGet]
     public async Task<IActionResult> Today(CancellationToken ct) =>
         View(await orders.GetPreparationOverviewAsync(ct));
+
+    // The canteen employee marks an order as ready or collected; the customer sees it on "My order".
+    [HttpPost]
+    public async Task<IActionResult> SetOrderStatus(int id, OrderStatus status, CancellationToken ct)
+    {
+        try
+        {
+            await orders.SetStatusAsync(id, status, ct);
+        }
+        catch (OrderingException exception)
+        {
+            TempData["Error"] = L.Describe(exception.Error);
+        }
+
+        return RedirectToAction(nameof(Today));
+    }
+
+    // Only the canteen employee can cancel (customers cannot); the ingredients or pieces go back into stock.
+    [HttpPost]
+    public async Task<IActionResult> CancelOrder(int id, CancellationToken ct)
+    {
+        try
+        {
+            await orders.CancelByStaffAsync(id, ct);
+            TempData["Success"] = L["The order has been cancelled and the stock was put back."].Value;
+        }
+        catch (OrderingException exception)
+        {
+            TempData["Error"] = L.Describe(exception.Error);
+        }
+
+        return RedirectToAction(nameof(Today));
+    }
 
     [HttpGet]
     public async Task<IActionResult> Menu(CancellationToken ct) =>
@@ -42,6 +78,10 @@ public class StaffController(
         {
             TempData["Error"] = L.Describe(exception.Error);
         }
+        catch (MenuException exception)
+        {
+            TempData["Error"] = L.Describe(exception.Error);
+        }
 
         return RedirectToAction(nameof(Menu));
     }
@@ -55,6 +95,44 @@ public class StaffController(
             await menu.SetIngredientAvailableAsync(id, available, ct);
         }
         catch (OrderingException exception)
+        {
+            TempData["Error"] = L.Describe(exception.Error);
+        }
+        catch (MenuException exception)
+        {
+            TempData["Error"] = L.Describe(exception.Error);
+        }
+
+        return RedirectToAction(nameof(Menu));
+    }
+
+    // Counted stock of an ingredient, in portions. An empty field = stop counting this ingredient.
+    [HttpPost]
+    public async Task<IActionResult> SetIngredientStock(int id, int? portions, CancellationToken ct)
+    {
+        try
+        {
+            await menu.SetIngredientStockAsync(id, portions, ct);
+            TempData["Success"] = L["The stock has been saved."].Value;
+        }
+        catch (MenuException exception)
+        {
+            TempData["Error"] = L.Describe(exception.Error);
+        }
+
+        return RedirectToAction(nameof(Menu));
+    }
+
+    // Pieces left of a supplied sandwich (after a delivery). An empty field = stop counting.
+    [HttpPost]
+    public async Task<IActionResult> SetSandwichStock(int id, int? count, CancellationToken ct)
+    {
+        try
+        {
+            await menu.SetSandwichStockAsync(id, count, ct);
+            TempData["Success"] = L["The stock has been saved."].Value;
+        }
+        catch (MenuException exception)
         {
             TempData["Error"] = L.Describe(exception.Error);
         }
@@ -93,6 +171,9 @@ public class StaffController(
             model.IsActive = sandwich.IsActive;
             model.ExistingImagePath = sandwich.ImagePath;
             model.IngredientIds = sandwich.SandwichIngredients.Select(si => si.IngredientId).ToList();
+            model.Portions = sandwich.SandwichIngredients.ToDictionary(si => si.IngredientId, si => si.Portions);
+            model.Kind = sandwich.Kind;
+            model.StockCount = sandwich.StockCount;
         }
 
         model.AllIngredients = await menu.GetIngredientsAsync(ct);
@@ -127,7 +208,8 @@ public class StaffController(
                 var saved = await menu.SaveSandwichAsync(new SandwichInput(
                     model.Id, model.Number!.Value, model.NameEn!, model.NameNl!,
                     model.DescriptionEn, model.DescriptionNl, price,
-                    model.IngredientIds, model.IsActive, keepImage, photo?.Path), ct);
+                    model.IngredientIds, model.IsActive, keepImage, photo?.Path,
+                    model.Kind, model.StockCount, model.Portions), ct);
 
                 photos.Delete(saved.OldImagePath);
                 TempData["Success"] = L["The sandwich has been saved."].Value;
@@ -161,11 +243,11 @@ public class StaffController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddIngredient(string? nameEn, string? nameNl, CancellationToken ct)
+    public async Task<IActionResult> AddIngredient(string? nameEn, string? nameNl, int? stockPortions, CancellationToken ct)
     {
         try
         {
-            await menu.AddIngredientAsync(nameEn ?? "", nameNl ?? "", ct);
+            await menu.AddIngredientAsync(nameEn ?? "", nameNl ?? "", stockPortions, ct);
             TempData["Success"] = L["The ingredient has been added."].Value;
         }
         catch (MenuException exception)
@@ -192,5 +274,90 @@ public class StaffController(
         await orders.SetDeadlineAsync(model.Deadline.Value, ct);
         TempData["Success"] = L["The deadline has been saved."].Value;
         return RedirectToAction(nameof(Deadline));
+    }
+
+    // ---- Announcements: "closed from ... to ...", informing first, blocking during the period -----------------
+
+    [HttpGet]
+    public async Task<IActionResult> Announcements(CancellationToken ct) =>
+        View(new StaffAnnouncementsViewModel
+        {
+            Announcements = await announcements.GetAllAsync(ct),
+            Today = BrusselsTime.Today(clock)
+        });
+
+    [HttpGet]
+    public async Task<IActionResult> AnnouncementEdit(int? id, CancellationToken ct)
+    {
+        if (id is null)
+        {
+            var today = BrusselsTime.Today(clock);
+            return View(new AnnouncementEditViewModel
+            {
+                ShowFrom = today,
+                PeriodStart = today.AddDays(7),
+                PeriodEnd = today.AddDays(7),
+                BlocksOrdering = true
+            });
+        }
+
+        var announcement = await announcements.GetAsync(id.Value, ct);
+        if (announcement is null)
+        {
+            return NotFound();
+        }
+
+        return View(new AnnouncementEditViewModel
+        {
+            Id = announcement.Id,
+            MessageEn = announcement.MessageEn,
+            MessageNl = announcement.MessageNl,
+            PeriodMessageEn = announcement.PeriodMessageEn,
+            PeriodMessageNl = announcement.PeriodMessageNl,
+            ShowFrom = announcement.ShowFrom,
+            PeriodStart = announcement.PeriodStart,
+            PeriodEnd = announcement.PeriodEnd,
+            BlocksOrdering = announcement.BlocksOrdering
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AnnouncementEdit(AnnouncementEditViewModel model, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            await announcements.SaveAsync(new AnnouncementInput(
+                model.Id, model.MessageEn, model.MessageNl, model.PeriodMessageEn, model.PeriodMessageNl,
+                model.ShowFrom!.Value, model.PeriodStart!.Value, model.PeriodEnd!.Value, model.BlocksOrdering), ct);
+
+            TempData["Success"] = L["The announcement has been saved."].Value;
+            return RedirectToAction(nameof(Announcements));
+        }
+        catch (AnnouncementException exception)
+        {
+            ModelState.AddModelError("", L.Describe(exception.Error));
+            return View(model);
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AnnouncementDelete(int id, CancellationToken ct)
+    {
+        try
+        {
+            await announcements.DeleteAsync(id, ct);
+            TempData["Success"] = L["The announcement has been deleted."].Value;
+        }
+        catch (AnnouncementException exception)
+        {
+            TempData["Error"] = L.Describe(exception.Error);
+        }
+
+        return RedirectToAction(nameof(Announcements));
     }
 }

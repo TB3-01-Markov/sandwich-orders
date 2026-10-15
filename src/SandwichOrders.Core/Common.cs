@@ -12,6 +12,15 @@ public enum Bread
     WholeGrain
 }
 
+// Prepared = the canteen makes it from ingredients (stock counted per ingredient).
+// Supplied = delivered ready-made by a supplier (stock counted per piece).
+public enum SandwichKind
+{
+    Prepared,
+    Supplied
+}
+
+// Placed -> Prepared ("ready, come and get it") -> Collected. Only the canteen employee changes the status.
 public enum OrderStatus
 {
     Placed,
@@ -27,6 +36,17 @@ public static class Localized
         culture.StartsWith("nl", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(dutch)
             ? dutch
             : english;
+
+    // Like Pick, but also falls back to Dutch when only the Dutch text was filled in (used for announcements).
+    public static string PickAny(string culture, string? english, string? dutch)
+    {
+        english ??= "";
+        dutch ??= "";
+        var preferDutch = culture.StartsWith("nl", StringComparison.OrdinalIgnoreCase);
+        var first = preferDutch ? dutch : english;
+        var second = preferDutch ? english : dutch;
+        return string.IsNullOrWhiteSpace(first) ? second : first;
+    }
 }
 
 public static class BrusselsTime
@@ -56,4 +76,6 @@ public static class BrusselsTime
     // Wall-clock time in Belgium for the instant given by the clock.
     public static DateTime Now(TimeProvider clock) =>
         TimeZoneInfo.ConvertTime(clock.GetUtcNow(), Zone).DateTime;
+
+    public static DateOnly Today(TimeProvider clock) => DateOnly.FromDateTime(Now(clock));
 }

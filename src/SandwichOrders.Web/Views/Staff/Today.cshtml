@@ -44,30 +44,68 @@ else
     </table>
 
     <h2 class="h5">@L["Who ordered what"]</h2>
+    <div class="table-responsive">
     <table class="table table-sm align-middle">
         <thead>
         <tr>
             <th>@L["Name"]</th>
+            <th>@L["Phone"]</th>
             <th>@L["Sandwich"]</th>
             <th>@L["Bread"]</th>
             <th class="text-end">@L["Price"]</th>
             <th>@L["Status"]</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         @foreach (var order in Model.Orders)
         {
+            var first = true;
             foreach (var line in order.Lines)
             {
-                <tr>
+                <tr class="@(order.Status == OrderStatus.Collected ? "text-body-secondary" : "")">
                     <td>@order.CustomerName</td>
+                    <td class="text-nowrap">
+                        @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
+                        {
+                            <a href="tel:@order.CustomerPhone">@order.CustomerPhone</a>
+                        }
+                    </td>
                     <td>#@line.Sandwich.Number @line.Sandwich.Name()</td>
                     <td>@L.BreadName(line.Bread)</td>
                     <td class="text-end">@Money.Format(line.UnitPrice * line.Quantity)</td>
                     <td>@L.StatusName(order.Status)</td>
+                    <td class="text-end text-nowrap">
+                        @if (first)
+                        {
+                            if (order.Status == OrderStatus.Placed)
+                            {
+                                <form asp-action="SetOrderStatus" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@order.Id" />
+                                    <input type="hidden" name="status" value="@OrderStatus.Prepared" />
+                                    <button type="submit" class="btn btn-sm btn-success">@L["Ready"]</button>
+                                </form>
+                            }
+                            if (order.Status is OrderStatus.Placed or OrderStatus.Prepared)
+                            {
+                                <form asp-action="SetOrderStatus" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@order.Id" />
+                                    <input type="hidden" name="status" value="@OrderStatus.Collected" />
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">@L["Collected"]</button>
+                                </form>
+                                <form asp-action="CancelOrder" method="post" class="d-inline"
+                                      onsubmit="return confirm('@L["Cancel this order and put the stock back?"]');">
+                                    <input type="hidden" name="id" value="@order.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">@L["Cancel"]</button>
+                                </form>
+                            }
+                        }
+                    </td>
                 </tr>
+                first = false;
             }
         }
         </tbody>
     </table>
+    </div>
 }

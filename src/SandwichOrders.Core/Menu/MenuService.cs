@@ -68,6 +68,19 @@ public class MenuService(IMenuRepository menu)
             throw new MenuException(MenuError.UnknownIngredient);
         }
 
+        int PortionsFor(int ingredientId) =>
+            input.Portions is not null && input.Portions.TryGetValue(ingredientId, out var portions) ? portions : 1;
+
+        if (ingredientIds.Any(id => PortionsFor(id) is < 1 or > SandwichIngredient.MaxPortions))
+        {
+            throw new MenuException(MenuError.InvalidPortions);
+        }
+
+        if (!Enum.IsDefined(input.Kind) || input.StockCount is < 0 or > MenuLimits.MaxStock)
+        {
+            throw new MenuException(MenuError.InvalidStock);
+        }
+
         Sandwich sandwich;
         if (input.Id is null)
         {
@@ -86,6 +99,14 @@ public class MenuService(IMenuRepository menu)
         sandwich.DescriptionNl = descriptionNl;
         sandwich.Price = input.Price;
         sandwich.IsActive = input.IsActive;
+        sandwich.Kind = input.Kind;
+
+        // Only a supplied sandwich counts pieces; a prepared one is limited by its ingredients.
+        var stock = input.Kind == SandwichKind.Supplied ? input.StockCount : null;
+        if (sandwich.StockCount != stock)
+        {
+            sandwich.SetStock(stock);
+        }
 
         string? oldImage = null;
         if (!input.KeepImage)
@@ -100,10 +121,15 @@ public class MenuService(IMenuRepository menu)
             sandwich.SandwichIngredients.Remove(link);
         }
 
+        foreach (var link in sandwich.SandwichIngredients)
+        {
+            link.Portions = PortionsFor(link.IngredientId);
+        }
+
         var current = sandwich.SandwichIngredients.Select(si => si.IngredientId).ToHashSet();
         foreach (var id in ingredientIds.Where(id => !current.Contains(id)))
         {
-            sandwich.SandwichIngredients.Add(new SandwichIngredient { IngredientId = id });
+            sandwich.SandwichIngredients.Add(new SandwichIngredient { IngredientId = id, Portions = PortionsFor(id) });
         }
 
         await menu.SaveChangesAsync(ct);
@@ -118,7 +144,42 @@ public class MenuService(IMenuRepository menu)
         await menu.SaveChangesAsync(ct);
     }
 
-    public async Task AddIngredientAsync(string nameEn, string nameNl, CancellationToken ct = default)
+    // The canteen employee counts what is in the fridge. null = do not count this ingredient.
+    public async Task SetIngredientStockAsync(int ingredientId, int? portions, CancellationToken ct = default)
+    {
+        if (portions is < 0 or > MenuLimits.MaxStock)
+        {
+            throw new MenuException(MenuError.InvalidStock);
+        }
+
+        var ingredient = await menu.GetIngredientAsync(ingredientId, ct)
+                         ?? throw new MenuException(MenuError.IngredientNotFound);
+        ingredient.SetStock(portions);
+        await menu.SaveChangesAsync(ct);
+    }
+
+    // A delivery arrived (or was counted again) for a supplied sandwich.
+    public async Task SetSandwichStockAsync(int sandwichId, int? count, CancellationToken ct = default)
+    {
+        if (count is < 0 or > MenuLimits.MaxStock)
+        {
+            throw new MenuException(MenuError.InvalidStock);
+        }
+
+        var sandwich = await menu.GetAsync(sandwichId, ct) ?? throw new MenuException(MenuError.SandwichNotFound);
+        if (sandwich.Kind != SandwichKind.Supplied)
+        {
+            throw new MenuException(MenuError.InvalidStock);
+        }
+
+        sandwich.SetStock(count);
+        await menu.SaveChangesAsync(ct);
+    }
+
+    public async Task AddIngredientAsync(string nameEn, string nameNl, CancellationToken ct = default) =>
+        await AddIngredientAsync(nameEn, nameNl, null, ct);
+
+    public async Task AddIngredientAsync(string nameEn, string nameNl, int? stockPortions, CancellationToken ct = default)
     {
         nameEn = (nameEn ?? "").Trim();
         nameNl = (nameNl ?? "").Trim();
@@ -133,7 +194,18 @@ public class MenuService(IMenuRepository menu)
             throw new MenuException(MenuError.IngredientExists);
         }
 
-        menu.Add(new Ingredient { NameEn = nameEn, NameNl = nameNl });
+        if (stockPortions is < 0 or > MenuLimits.MaxStock)
+        {
+            throw new MenuException(MenuError.InvalidStock);
+        }
+
+        var ingredient = new Ingredient { NameEn = nameEn, NameNl = nameNl };
+        if (stockPortions is not null)
+        {
+            ingredient.SetStock(stockPortions);
+        }
+
+        menu.Add(ingredient);
         await menu.SaveChangesAsync(ct);
     }
 }

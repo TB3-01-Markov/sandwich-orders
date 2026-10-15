@@ -34,6 +34,11 @@ public static class DbSeeder
                 pair => new Ingredient { NameEn = pair.En, NameNl = pair.Nl });
             db.Ingredients.AddRange(ingredients.Values);
 
+            // A few counted ingredients, so the stock feature is visible in the demo. The rest is not counted.
+            ingredients["Cheese"].SetStock(20);
+            ingredients["Ham"].SetStock(12);
+            ingredients["Smoked salmon"].SetStock(3);
+
             db.Sandwiches.AddRange(Sandwiches.Select(s => new Sandwich
             {
                 Number = s.Number,
@@ -44,6 +49,21 @@ public static class DbSeeder
                     .Select(name => new SandwichIngredient { Ingredient = ingredients[name] })
                     .ToList()
             }));
+
+            // Delivered ready-made by a supplier: counted per piece instead of per ingredient.
+            foreach (var seed in SuppliedSandwiches)
+            {
+                var supplied = new Sandwich
+                {
+                    Number = seed.Number,
+                    NameEn = seed.NameEn,
+                    NameNl = seed.NameNl,
+                    Price = seed.Price,
+                    Kind = SandwichKind.Supplied
+                };
+                supplied.SetStock(seed.Stock);
+                db.Sandwiches.Add(supplied);
+            }
 
             await db.SaveChangesAsync();
         }
@@ -106,5 +126,13 @@ public static class DbSeeder
         new(13, "Bacon & egg", "Spek en ei", 4.90m, ["Bacon", "Egg", "Tomato"]),
         new(14, "Ham & egg", "Ham en ei", 4.40m, ["Ham", "Egg", "Mayonnaise", "Lettuce"]),
         new(15, "Classic cheese", "Klassieke kaas", 3.50m, ["Cheese", "Lettuce", "Tomato", "Cucumber"])
+    ];
+
+    private record SuppliedSeed(int Number, string NameEn, string NameNl, decimal Price, int Stock);
+
+    private static readonly SuppliedSeed[] SuppliedSandwiches =
+    [
+        new(16, "Chicken wrap (supplier)", "Kipwrap (leverancier)", 5.20m, 6),
+        new(17, "Vegan bagel (supplier)", "Vegan bagel (leverancier)", 4.90m, 4)
     ];
 }

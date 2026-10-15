@@ -8,8 +8,10 @@ using SandwichOrders.Web.Models;
 
 namespace SandwichOrders.Web.Controllers;
 
-// US-04 and US-05. The business rules live in OrderService; this class only translates HTTP to those calls.
+// US-04. The business rules live in OrderService; this class only translates HTTP to those calls.
 // Ordering does not require an account: a visitor types his name and is remembered by a guest cookie.
+// Customers cannot cancel here: once the canteen starts making a sandwich it is hard to undo, so only the
+// canteen employee cancels (StaffController.CancelOrder).
 public class OrdersController(
     OrderService orders,
     UserManager<ApplicationUser> users,
@@ -37,6 +39,7 @@ public class OrdersController(
 
         string customerId;
         string name;
+        string? phone = null;
 
         var userId = CustomerIdentity.SignedInUserId(User);
         if (userId is not null)
@@ -49,6 +52,7 @@ public class OrdersController(
 
             customerId = user.Id;
             name = user.DisplayName;
+            phone = user.PhoneNumber;
         }
         else
         {
@@ -64,7 +68,7 @@ public class OrdersController(
 
         try
         {
-            await orders.PlaceAsync(customerId, name, sandwichId, bread, ct);
+            await orders.PlaceAsync(customerId, name, phone, sandwichId, bread, ct);
             TempData["Success"] = L["Your order has been placed."].Value;
             return RedirectToAction(nameof(Today));
         }
@@ -73,28 +77,5 @@ public class OrdersController(
             TempData["Error"] = L.Describe(exception.Error);
             return RedirectToAction("Index", "Menu");
         }
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Cancel(CancellationToken ct)
-    {
-        var customerId = CustomerIdentity.CurrentId(HttpContext);
-        if (customerId is null)
-        {
-            TempData["Error"] = L["You have no order for today."].Value;
-            return RedirectToAction(nameof(Today));
-        }
-
-        try
-        {
-            await orders.CancelAsync(customerId, ct);
-            TempData["Success"] = L["Your order has been cancelled."].Value;
-        }
-        catch (OrderingException exception)
-        {
-            TempData["Error"] = L.Describe(exception.Error);
-        }
-
-        return RedirectToAction(nameof(Today));
     }
 }

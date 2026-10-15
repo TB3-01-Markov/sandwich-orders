@@ -12,6 +12,10 @@ public class Order
     // The name the canteen reads out, copied at order time (replaces the name written on paper).
     public string CustomerName { get; set; } = "";
 
+    // Optional phone number of a registered customer, copied at order time so the canteen can call
+    // ("did you forget your sandwich?"). Guests have none.
+    public string? CustomerPhone { get; set; }
+
     // The Belgian calendar day the order is for.
     public DateOnly OrderDate { get; set; }
 
@@ -22,14 +26,31 @@ public class Order
     public decimal Total => Lines.Sum(line => line.UnitPrice * line.Quantity);
     public bool IsCancelled => Status == OrderStatus.Cancelled;
 
+    // Cancels the order and puts the sandwiches back into stock. The lines' sandwiches (and for prepared
+    // sandwiches their ingredients) must be loaded and tracked.
     public void Cancel()
     {
-        if (Status == OrderStatus.Collected)
+        if (Status is OrderStatus.Collected or OrderStatus.Cancelled)
         {
-            throw new InvalidOperationException("A collected order cannot be cancelled.");
+            throw new OrderingException(OrderingError.InvalidStatusChange);
         }
 
         Status = OrderStatus.Cancelled;
+        foreach (var line in Lines)
+        {
+            line.Sandwich.ReturnToStock(line.Quantity);
+        }
+    }
+
+    // Only forward: Placed -> Prepared -> Collected (a step may be skipped). Cancelling goes through Cancel().
+    public void MoveTo(OrderStatus status)
+    {
+        if (status == OrderStatus.Cancelled || status <= Status || Status == OrderStatus.Cancelled)
+        {
+            throw new OrderingException(OrderingError.InvalidStatusChange);
+        }
+
+        Status = status;
     }
 }
 

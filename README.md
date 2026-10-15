@@ -6,9 +6,12 @@ No account is needed: a visitor types his name (an account is optional).
 Staff see what to prepare, switch sandwiches on/off, set the deadline, and add/edit sandwiches, ingredients and photos.
 Payment stays at the canteen. Built for one canteen (Sint-Niklaas); several canteens are a possible future step.
 
-> **Status: written with AI assistance, NOT yet compiled or run.**
-> The code and tests were produced in an environment without the .NET SDK. Run the commands below and fix what fails
-> before relying on anything in this README.
+> **Status: written with AI assistance, NOT yet fully compiled or run.**
+> The stock/announcements update was checked like this (NuGet was not reachable, so EF Core and xUnit could not be restored):
+> `SandwichOrders.Core` compiles without warnings and its new logic passed a 38-check harness; the web project
+> (controllers, view models, all Razor views) compiles and passed a 33-check run with in-memory repositories.
+> **Not run:** the EF Core mapping, `dotnet test` (unit + integration tests were updated but never executed).
+> Run the commands below and fix what fails before relying on anything in this README.
 
 ## Stack
 .NET 8, ASP.NET Core MVC (Razor), ASP.NET Core Identity (cookie auth, roles Customer/Staff), EF Core 8
@@ -43,10 +46,40 @@ Sign in (Development: `staff@example.test` / `Staff-Demo-1234`). Menu: Today's o
 Photos (JPG/PNG/WebP, max 2 MB, checked by file signature) are stored in `Uploads:Path`
 (default `src/SandwichOrders.Web/uploads`; in Docker a volume at `/data/uploads`).
 
+## What changed in the stock / announcements update
+
+> **Database:** the app uses `EnsureCreated`, which does not add new columns to an existing database.
+> Delete `src/SandwichOrders.Web/sandwich-orders.db` (or the Docker SQL Server volume) once, so it is created again.
+
+**Two kinds of sandwiches**
+- *Made here* (prepared): stock comes from the ingredients. Each ingredient on a sandwich has a number of
+  portions (e.g. 2 slices of cheese). The menu calculates how many can still be made: the scarcest counted
+  ingredient decides. Same idea as RecipeMatcher, but with quantities.
+- *Supplied* (delivered ready-made): counted per piece.
+- An ingredient or supplied sandwich with an **empty** stock field is not counted and never limits ordering.
+- Placing an order takes the stock in the same save as the order. A concurrency token (`StockVersion`) makes sure
+  two people cannot both take the last portion; the second gets "please try again".
+- Sold-out sandwiches are greyed out with "Sold out"; "Only N left" is shown from 5 down.
+
+**Only staff can cancel** — customers have no cancel button and no cancel endpoint any more
+(`OrderService.CancelAsync` stays in the code). Staff cancel on *Today's orders*; the stock goes back.
+
+**Order status** — staff press *Ready* and *Collected*; the customer sees "Your sandwich is ready" on *My order*.
+This replaces WhatsApp notifications (no paid API, no consent for messages needed).
+
+**Contact** (from ContactManager) — registration has an optional phone number. It is copied into the order and
+shown to staff as a `tel:` link. Guests have no phone number.
+
+**Announcements** (*Staff → Announcements*) — one record that changes role by itself:
+shown from `ShowFrom`, informs until `PeriodStart`, blocks ordering from `PeriodStart` to `PeriodEnd` (inclusive)
+when "Block ordering" is ticked, then disappears. An optional second text is shown during the period;
+when it is empty the normal text is used. One language is enough; the other falls back to it.
+
 ## Rules implemented
 - Orders are accepted strictly before the deadline (09:29:59 open, 09:30:00 closed), Brussels time, DST-aware.
-- One active order per customer per day; cancelling is possible until the deadline.
-- Unavailable sandwiches (switched off, or with an unavailable ingredient) cannot be ordered.
+- One active order per customer per day. Only the canteen employee cancels (any time before collection).
+- No orders on a day blocked by an announcement.
+- Unavailable sandwiches (switched off, an ingredient switched off, or no stock left) cannot be ordered.
 - The price is copied into the order line when ordering.
 
 ## Not built yet
