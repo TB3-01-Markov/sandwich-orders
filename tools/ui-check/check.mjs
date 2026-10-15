@@ -138,6 +138,13 @@ await staff.fill('#MessageNl', 'De kantine is volgende week gesloten wegens vaka
 await staff.click('main form button[type=submit].btn-primary');
 await staff.waitForLoadState('networkidle');
 
+// One supplied sandwich sold out, so the menu also shows (and axe checks) a sold-out card.
+await staff.goto(`${BASE}/Staff/Menu`);
+const stockForm = staff.locator('form[action*="SetSandwichStock"]').first();
+await stockForm.locator('input[name=count]').fill('0');
+await stockForm.locator('button[type=submit]').click();
+await staff.waitForLoadState('networkidle');
+
 const guestNames = ['Ada Lovelace', 'Grace Hopper', 'Alan Turing'];
 let firstGuestState;
 for (let i = 0; i < guestNames.length; i++) {
@@ -307,6 +314,7 @@ if (a11y.length === 0) {
   }
 }
 fs.writeFileSync(`${OUT}/a11y.json`, JSON.stringify(a11y, null, 2));
+if (a11y.some(v => v.impact === 'serious' || v.impact === 'critical')) process.exitCode = 1;
 lines.push('', '## Live behaviour', '', '| Check | Result |', '|---|---|', ...live);
 fs.writeFileSync(`${OUT}/report.md`, lines.join('\n') + '\n');
 console.log(lines.join('\n'));

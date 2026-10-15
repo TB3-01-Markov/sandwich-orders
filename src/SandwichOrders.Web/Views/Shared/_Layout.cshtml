@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
+@* Keyboard and screen reader users can jump over the navigation straight to the content. *@
+<a href="#main" class="visually-hidden-focusable btn btn-primary position-absolute m-2" style="z-index: 1100">@L["Skip to content"]</a>
 <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
     <div class="container">
         <a class="navbar-brand" asp-controller="Menu" asp-action="Index">🥖 @L["Sandwich Orders"]</a>
@@ -59,7 +61,7 @@
     </div>
 </nav>
 
-<main class="container py-4">
+<main id="main" class="container py-4" tabindex="-1">
     @await Component.InvokeAsync("Announcements")
     @if (TempData["Success"] is string success)
     {

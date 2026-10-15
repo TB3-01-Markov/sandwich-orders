@@ -231,4 +231,5 @@
   <data name="Closes in {0}" xml:space="preserve"><value>Sluit over {0}</value></data>
   <data name="Something went wrong. Please try again." xml:space="preserve"><value>Er ging iets mis. Probeer het opnieuw.</value></data>
   <data name="Updated {0}" xml:space="preserve"><value>Bijgewerkt om {0}</value></data>
+  <data name="Skip to content" xml:space="preserve"><value>Naar de inhoud</value></data>
 </root>

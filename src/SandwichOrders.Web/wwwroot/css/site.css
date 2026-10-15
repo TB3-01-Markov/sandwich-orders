@@ -62,3 +62,28 @@ tr.live-new > td,
 .card.live-new {
     animation: live-new 4s ease-out;
 }
+
+/* ---- Accessibility -------------------------------------------------------------------------------------------- */
+
+/* The navigation bar is light grey (#f8f9fa). Bootstrap's grey and blue outline buttons reach only 4.4:1 there;
+   WCAG AA asks 4.5:1 for normal text, so the navigation uses darker shades (about 7:1 and 6:1). */
+.navbar .btn-outline-secondary {
+    --bs-btn-color: #495057;
+    --bs-btn-border-color: #6c757d;
+}
+
+.navbar .btn-outline-primary {
+    --bs-btn-color: #0a58ca;
+    --bs-btn-border-color: #0a58ca;
+}
+
+/* A sold-out or switched-off sandwich: the photo is greyed out, the text keeps its full contrast
+   (making the whole card transparent made the grey text too light to read). */
+.card-unavailable {
+    background-color: var(--bs-tertiary-bg);
+}
+
+.card-unavailable .sandwich-image {
+    filter: grayscale(1);
+    opacity: 0.6;
+}

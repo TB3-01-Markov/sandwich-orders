@@ -71,7 +71,7 @@
             span.textContent = wanted[1]; // textContent, never innerHTML: no way to inject HTML
             holder.append(span);
         }
-        card.classList.toggle('opacity-75', !sandwich.available);
+        card.classList.toggle('card-unavailable', !sandwich.available);
         const form = card.querySelector('form.order-form');
         if (form && isOpen) form.classList.toggle('d-none', !sandwich.available);
     }
