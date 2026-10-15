@@ -1,16 +1,27 @@
-@model PreparationOverview
+@model StaffDayViewModel
+@* Today's orders (with the status buttons) and, from the history, the orders of an earlier day (read only). *@
 @{
-    ViewData["Title"] = L["Today's orders"].Value;
+    var overview = Model.Overview;
+    ViewData["Title"] = Model.IsToday ? L["Today's orders"].Value : L["Orders on {0}", Dates.Format(overview.Date)].Value;
 }
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">@L["Today's orders"] <small class="text-muted">@Dates.Format(Model.Date)</small></h1>
-    <a asp-action="Today" class="btn btn-outline-secondary btn-sm">@L["Refresh"]</a>
+    @if (Model.IsToday)
+    {
+        <h1 class="h3 mb-0">@L["Today's orders"] <small class="text-muted">@Dates.Format(overview.Date)</small></h1>
+        <a asp-action="Today" class="btn btn-outline-secondary btn-sm">@L["Refresh"]</a>
+    }
+    else
+    {
+        <h1 class="h3 mb-0">@L["Orders on {0}", Dates.Format(overview.Date)]</h1>
+        <a asp-action="History" asp-route-year="@overview.Date.Year" asp-route-month="@overview.Date.Month"
+           class="btn btn-outline-secondary btn-sm">@L["Back to the history"]</a>
+    }
 </div>
 
-@if (!Model.Orders.Any())
+@if (!overview.Orders.Any())
 {
-    <p class="text-muted">@L["No orders yet."]</p>
+    <p class="text-muted">@(Model.IsToday ? L["No orders yet."] : L["No orders on this day."])</p>
 }
 else
 {
@@ -25,7 +36,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var row in Model.Rows)
+        @foreach (var row in overview.Rows)
         {
             <tr>
                 <td>@row.Sandwich.Number</td>
@@ -38,7 +49,7 @@ else
         <tfoot>
         <tr>
             <th colspan="3">@L["Total"]</th>
-            <th class="text-end">@Model.TotalSandwiches &middot; @Money.Format(Model.TotalAmount)</th>
+            <th class="text-end">@overview.TotalSandwiches &middot; @Money.Format(overview.TotalAmount)</th>
         </tr>
         </tfoot>
     </table>
@@ -60,7 +71,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var order in Model.Orders)
+        @foreach (var order in overview.Orders)
         {
             var first = true;
             foreach (var line in order.Lines)
@@ -78,7 +89,7 @@ else
                     <td class="text-end">@Money.Format(line.UnitPrice * line.Quantity)</td>
                     <td>@L.StatusName(order.Status)</td>
                     <td class="text-end text-nowrap">
-                        @if (first)
+                        @if (first && Model.IsToday)
                         {
                             <partial name="_OrderActions" model="order" />
                         }
@@ -92,7 +103,7 @@ else
     </div>
 
     <div class="d-md-none vstack gap-2">
-        @foreach (var order in Model.Orders)
+        @foreach (var order in overview.Orders)
         {
             var badge = order.Status switch
             {
@@ -117,7 +128,7 @@ else
                             · @Money.Format(line.UnitPrice * line.Quantity)
                         </div>
                     }
-                    @if (order.Status is OrderStatus.Placed or OrderStatus.Prepared)
+                    @if (Model.IsToday && (order.Status is OrderStatus.Placed or OrderStatus.Prepared))
                     {
                         <div class="d-flex flex-wrap gap-2 mt-2">
                             <partial name="_OrderActions" model="order" />

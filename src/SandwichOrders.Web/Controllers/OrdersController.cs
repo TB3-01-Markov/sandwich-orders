@@ -30,6 +30,19 @@ public class OrdersController(
         });
     }
 
+    // "My previous orders": for a signed-in customer the account's orders, for a guest the orders of this browser.
+    [HttpGet]
+    public async Task<IActionResult> History(CancellationToken ct)
+    {
+        var customerId = CustomerIdentity.CurrentId(HttpContext);
+
+        return View(new OrderHistoryViewModel
+        {
+            Orders = customerId is null ? Array.Empty<Order>() : await orders.GetHistoryAsync(customerId, ct),
+            IsGuest = CustomerIdentity.SignedInUserId(User) is null
+        });
+    }
+
     [HttpPost]
     [EnableRateLimiting(RateLimits.Forms)]
     public async Task<IActionResult> Create(int sandwichId, Bread bread, string? customerName, CancellationToken ct)

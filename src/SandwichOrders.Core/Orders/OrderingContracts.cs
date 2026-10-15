@@ -12,6 +12,13 @@ public interface IOrderRepository
     // All non-cancelled orders for that day, sorted by customer name. Lines and sandwiches are loaded.
     Task<IReadOnlyList<Order>> GetActiveForDateAsync(DateOnly date, CancellationToken ct = default);
 
+    // History: the customer's orders before that day (cancelled ones too), newest first, at most `max`.
+    // Lines and sandwiches are loaded.
+    Task<IReadOnlyList<Order>> GetForCustomerBeforeAsync(string customerId, DateOnly before, int max, CancellationToken ct = default);
+
+    // History for the canteen: every order (cancelled ones too) from `from` to `to`, both days included. Lines are loaded.
+    Task<IReadOnlyList<Order>> GetForPeriodAsync(DateOnly from, DateOnly to, CancellationToken ct = default);
+
     // One order with lines, sandwiches and their ingredients loaded and tracked (to put stock back), or null.
     Task<Order?> GetAsync(int id, CancellationToken ct = default);
 
@@ -43,6 +50,9 @@ public static class OrderingRules
     public const decimal BrownBreadSurcharge = 0.80m;
 
     public static decimal SurchargeFor(Bread bread) => bread == Bread.WholeGrain ? BrownBreadSurcharge : 0m;
+
+    // "My previous orders" shows at most this many (one order a day = about five months).
+    public const int CustomerHistoryLimit = 100;
 }
 
 // ClosedToday = no ordering today: a weekend day (Weekend = true) or an announcement blocks it
@@ -58,3 +68,15 @@ public record PreparationOverview(
     IReadOnlyList<PreparationRow> Rows,
     int TotalSandwiches,
     decimal TotalAmount);
+
+// One day in the canteen's history. Orders, Sandwiches and Amount count only orders that were not cancelled.
+public record DaySummary(DateOnly Date, int Orders, int Sandwiches, decimal Amount, int Cancelled);
+
+// One month in the canteen's history: only the days with at least one order, oldest first.
+public record MonthSummary(int Year, int Month, IReadOnlyList<DaySummary> Days)
+{
+    public int Orders => Days.Sum(day => day.Orders);
+    public int Sandwiches => Days.Sum(day => day.Sandwiches);
+    public decimal Amount => Days.Sum(day => day.Amount);
+    public int Cancelled => Days.Sum(day => day.Cancelled);
+}

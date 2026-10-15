@@ -173,6 +173,8 @@ for (const vp of viewports) {
   await shot(o, vp, '08-my-order', { fullPage: true });
   await o.goto(`${BASE}/`);
   await shot(o, vp, '09-menu-after-ordering');
+  await o.goto(`${BASE}/Orders/History`);
+  await shot(o, vp, '16-my-previous-orders', { fullPage: true });
   await orderedCtx.close();
 
   const sCtx = await newContext(vp, staffState);
@@ -191,6 +193,8 @@ for (const vp of viewports) {
   await shot(s, vp, '14-staff-announcements', { fullPage: true });
   await s.goto(`${BASE}/Staff/AnnouncementEdit`);
   await shot(s, vp, '15-staff-announcement-edit', { fullPage: true });
+  await s.goto(`${BASE}/Staff/History`);
+  await shot(s, vp, '17-staff-history', { fullPage: true });
   await sCtx.close();
 }
 

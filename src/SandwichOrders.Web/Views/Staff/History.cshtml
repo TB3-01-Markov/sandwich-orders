@@ -1,0 +1,73 @@
+@model StaffHistoryViewModel
+@* The canteen's history: one row per day with orders, the totals of the month at the bottom. *@
+@{
+    var month = Model.Month;
+    var first = new DateOnly(month.Year, month.Month, 1);
+    var previous = first.AddMonths(-1);
+    var next = first.AddMonths(1);
+    var monthName = Dates.Month(month.Year, month.Month);
+    ViewData["Title"] = L["Order history"].Value;
+}
+
+<h1 class="h3 mb-3">@L["Order history"]</h1>
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <a asp-action="History" asp-route-year="@previous.Year" asp-route-month="@previous.Month"
+       class="btn btn-outline-secondary" aria-label="@L["Previous month"]">&lsaquo;</a>
+    <span class="fw-semibold text-capitalize px-2">@monthName</span>
+    @if (next <= Model.Today)
+    {
+        <a asp-action="History" asp-route-year="@next.Year" asp-route-month="@next.Month"
+           class="btn btn-outline-secondary" aria-label="@L["Next month"]">&rsaquo;</a>
+    }
+    else
+    {
+        <span class="btn btn-outline-secondary disabled" aria-hidden="true">&rsaquo;</span>
+    }
+</div>
+
+@if (!month.Days.Any())
+{
+    <p class="text-muted">@L["No orders in this month."]</p>
+}
+else
+{
+    @* On phones the sandwich count is hidden (one sandwich per order, so it is almost always the order count). *@
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr>
+                <th>@L["Day"]</th>
+                <th class="text-end">@L["Orders"]</th>
+                <th class="text-end d-none d-sm-table-cell">@L["Sandwiches"]</th>
+                <th class="text-end">@L["Amount"]</th>
+                <th class="text-end">@L["Cancelled"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var day in month.Days)
+            {
+                <tr>
+                    <td class="text-nowrap">
+                        <a asp-action="Day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">@Dates.DayInMonth(day.Date)</a>
+                    </td>
+                    <td class="text-end">@day.Orders</td>
+                    <td class="text-end d-none d-sm-table-cell">@day.Sandwiches</td>
+                    <td class="text-end text-nowrap">@Money.Format(day.Amount)</td>
+                    <td class="text-end">@(day.Cancelled == 0 ? "" : day.Cancelled.ToString())</td>
+                </tr>
+            }
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>@L["Total"]</th>
+                <th class="text-end">@month.Orders</th>
+                <th class="text-end d-none d-sm-table-cell">@month.Sandwiches</th>
+                <th class="text-end text-nowrap">@Money.Format(month.Amount)</th>
+                <th class="text-end">@(month.Cancelled == 0 ? "" : month.Cancelled.ToString())</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+    <p class="text-muted small">@L["Amounts do not include cancelled orders."]</p>
+}

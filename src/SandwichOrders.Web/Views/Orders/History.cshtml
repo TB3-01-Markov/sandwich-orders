@@ -1,0 +1,61 @@
+@model OrderHistoryViewModel
+@* "My previous orders", grouped by month with the month's total. *@
+@{
+    ViewData["Title"] = L["My previous orders"].Value;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">@L["My previous orders"]</h1>
+    <a asp-action="Today" class="btn btn-outline-secondary btn-sm">@L["My order for today"]</a>
+</div>
+
+@if (Model.IsGuest)
+{
+    <div class="alert alert-info small">
+        @L["Your history is kept in this browser only. With an account it stays when you use another phone or clear your cookies."]
+        <a asp-controller="Account" asp-action="Register" class="alert-link">@L["Register"]</a>
+    </div>
+}
+
+@if (!Model.Orders.Any())
+{
+    <p class="text-muted">@L["You have no previous orders."]</p>
+}
+else
+{
+    foreach (var month in Model.Orders.GroupBy(o => (o.OrderDate.Year, o.OrderDate.Month)))
+    {
+        <div class="d-flex justify-content-between align-items-baseline mt-3 mb-2">
+            <h2 class="h6 mb-0 text-capitalize">@Dates.Month(month.Key.Year, month.Key.Month)</h2>
+            <span class="fw-semibold">@Money.Format(month.Where(o => !o.IsCancelled).Sum(o => o.Total))</span>
+        </div>
+        <ul class="list-group mb-2">
+            @foreach (var order in month)
+            {
+                var badge = order.Status switch
+                {
+                    OrderStatus.Collected => "text-bg-success",
+                    OrderStatus.Cancelled => "text-bg-secondary",
+                    OrderStatus.Prepared => "text-bg-info",
+                    _ => "text-bg-light border"
+                };
+                foreach (var line in order.Lines)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-start gap-2 @(order.IsCancelled ? "text-body-secondary" : "")">
+                        <div>
+                            <div class="fw-semibold">@Dates.Format(order.OrderDate)</div>
+                            <div class="@(order.IsCancelled ? "text-decoration-line-through" : "")">
+                                #@line.Sandwich.Number @line.Sandwich.Name() · @L.BreadName(line.Bread)
+                            </div>
+                        </div>
+                        <div class="text-end text-nowrap">
+                            <div>@Money.Format(line.UnitPrice * line.Quantity)</div>
+                            <span class="badge @badge">@L.StatusName(order.Status)</span>
+                        </div>
+                    </li>
+                }
+            }
+        </ul>
+    }
+    <p class="text-muted small">@L["Amounts do not include cancelled orders."]</p>
+}

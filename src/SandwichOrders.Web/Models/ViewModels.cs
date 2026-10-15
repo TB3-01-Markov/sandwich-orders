@@ -30,6 +30,27 @@ public class TodayOrderViewModel
     public OrderingWindow Window { get; init; } = new(OrderingRules.DefaultDeadline, true);
 }
 
+// "My previous orders". IsGuest: the history belongs to the guest cookie of this browser only.
+public class OrderHistoryViewModel
+{
+    public IReadOnlyList<Order> Orders { get; init; } = Array.Empty<Order>();
+    public bool IsGuest { get; init; }
+}
+
+// The canteen's order list for one day. IsToday = false for an earlier day: read only, no status buttons.
+public class StaffDayViewModel
+{
+    public required PreparationOverview Overview { get; init; }
+    public bool IsToday { get; init; }
+}
+
+// The canteen's history for one month; Today decides whether "next month" makes sense.
+public class StaffHistoryViewModel
+{
+    public required MonthSummary Month { get; init; }
+    public DateOnly Today { get; init; }
+}
+
 public class StaffMenuViewModel
 {
     public IReadOnlyList<Sandwich> Sandwiches { get; init; } = Array.Empty<Sandwich>();

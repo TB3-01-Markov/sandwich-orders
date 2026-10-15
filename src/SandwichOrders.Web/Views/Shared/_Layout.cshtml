@@ -28,6 +28,7 @@
                 @if (User.IsInRole(Roles.Staff))
                 {
                     <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="Today">@L["Today's orders"]</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="History">@L["History"]</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="Menu">@L["Manage menu"]</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="Deadline">@L["Deadline"]</a></li>
                     <li class="nav-item"><a class="nav-link" asp-controller="Staff" asp-action="Announcements">@L["Announcements"]</a></li>
