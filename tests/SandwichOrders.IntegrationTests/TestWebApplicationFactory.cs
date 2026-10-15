@@ -35,7 +35,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 ["Seed:Enabled"] = "false",
                 // EF Core logs every SQL command at Information level, which buries test failures in the CI log.
                 ["Logging:LogLevel:Default"] = "Warning",
-                ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
+                ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning",
+                // The in-memory test server cannot apply [RequestSizeLimit]; the warning is expected and harmless there.
+                ["Logging:LogLevel:Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware"] = "Error",
+                ["Logging:LogLevel:Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter"] = "Error"
             }));
 
         builder.ConfigureServices(services =>

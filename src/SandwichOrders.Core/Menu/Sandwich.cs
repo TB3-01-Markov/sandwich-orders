@@ -26,7 +26,7 @@ public class Sandwich
     public bool IsActive { get; set; } = true;
     public bool IsTemporarilyUnavailable { get; set; }
 
-    public ICollection<SandwichIngredient> SandwichIngredients { get; set; } = new List<SandwichIngredient>();
+    public ICollection<SandwichIngredient> SandwichIngredients { get; set; } = [];
 
     // How many can still be ordered. null = no limit (nothing is counted).
     //   Supplied: the delivered pieces that are left.

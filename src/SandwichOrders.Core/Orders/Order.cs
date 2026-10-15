@@ -21,7 +21,7 @@ public class Order
 
     public DateTime CreatedAtUtc { get; set; }
     public OrderStatus Status { get; set; } = OrderStatus.Placed;
-    public ICollection<OrderLine> Lines { get; set; } = new List<OrderLine>();
+    public ICollection<OrderLine> Lines { get; set; } = [];
 
     public decimal Total => Lines.Sum(line => line.UnitPrice * line.Quantity);
     public bool IsCancelled => Status == OrderStatus.Cancelled;
