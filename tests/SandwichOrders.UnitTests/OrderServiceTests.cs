@@ -270,6 +270,34 @@ public class OrderServiceTests
         Assert.True((await service.GetWindowAsync()).ClosedToday);
     }
 
+    [Theory]
+    [InlineData("2026-01-17T08:00:00Z")] // Saturday 09:00 in Brussels
+    [InlineData("2026-01-18T08:00:00Z")] // Sunday 09:00 in Brussels
+    public async Task Place_AtTheWeekend_IsRefused(string utc)
+    {
+        SetUtc(utc);
+
+        var exception = await Assert.ThrowsAsync<OrderingException>(
+            () => service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White));
+
+        Assert.Equal(OrderingError.CanteenClosed, exception.Error);
+        orders.DidNotReceive().Add(Arg.Any<Order>());
+        var window = await service.GetWindowAsync();
+        Assert.True(window.Weekend);
+        Assert.True(window.ClosedToday);
+        Assert.False(window.IsOpen);
+    }
+
+    [Fact]
+    public async Task Window_OnAWeekdayMorning_IsOpenAndNotWeekend()
+    {
+        var window = await service.GetWindowAsync(); // Wednesday 09:00 in Brussels
+
+        Assert.True(window.IsOpen);
+        Assert.False(window.Weekend);
+        Assert.False(window.ClosedToday);
+    }
+
     [Fact]
     public async Task Place_BeforeTheClosingPeriod_IsStillAccepted()
     {

@@ -6,6 +6,7 @@ public enum MenuError
     SandwichNotFound,
     NumberTaken,
     NameRequired,
+    DescriptionTooLong,
     InvalidPrice,
     UnknownIngredient,
     IngredientNameRequired,

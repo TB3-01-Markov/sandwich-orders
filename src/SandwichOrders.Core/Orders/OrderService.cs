@@ -15,11 +15,12 @@ public class OrderService(
     public async Task<OrderingWindow> GetWindowAsync(CancellationToken ct = default)
     {
         var deadline = await settings.GetDeadlineAsync(ct);
+        var weekend = !OrderingRules.IsWorkingDay(BrusselsTime.Today(clock));
         var closedToday = await IsClosedTodayAsync(ct);
-        return new OrderingWindow(deadline, !closedToday && OrderingRules.IsOpen(TimeOfDayNow(), deadline), closedToday);
+        return new OrderingWindow(deadline, !closedToday && OrderingRules.IsOpen(TimeOfDayNow(), deadline), closedToday, weekend);
     }
 
-    // US-04: one order per person per day, only before the deadline, not on a closing day,
+    // US-04: one order per person per day, only before the deadline, not at the weekend or on a closing day,
     // only for an available sandwich with stock left. The stock is taken in the same save as the order.
     public async Task<Order> PlaceAsync(
         string customerId,
@@ -157,10 +158,12 @@ public class OrderService(
     public Task SetDeadlineAsync(TimeOnly deadline, CancellationToken ct = default) =>
         settings.SetDeadlineAsync(deadline, ct);
 
+    // Closed at the weekend, and on days an announcement blocks ordering.
     private async Task<bool> IsClosedTodayAsync(CancellationToken ct)
     {
         var today = BrusselsTime.Today(clock);
-        return (await announcements.GetAllAsync(ct)).Any(a => a.BlocksOrderingOn(today));
+        return !OrderingRules.IsWorkingDay(today)
+               || (await announcements.GetAllAsync(ct)).Any(a => a.BlocksOrderingOn(today));
     }
 
     private TimeOnly TimeOfDayNow() => TimeOnly.FromDateTime(BrusselsTime.Now(clock));

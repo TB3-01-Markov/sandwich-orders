@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SandwichOrders.Core;
 using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 using SandwichOrders.Core.Orders;
@@ -21,10 +22,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     {
         base.OnModelCreating(modelBuilder);
 
+        // The column sizes come from MenuLimits, the same numbers the forms and MenuService check, so a text the
+        // form accepts always fits. (SQLite ignores sizes; SQL Server would refuse a longer text with an error.)
         modelBuilder.Entity<Ingredient>(entity =>
         {
-            entity.Property(i => i.NameEn).HasMaxLength(60).IsRequired();
-            entity.Property(i => i.NameNl).HasMaxLength(60).IsRequired();
+            entity.Property(i => i.NameEn).HasMaxLength(MenuLimits.MaxNameLength).IsRequired();
+            entity.Property(i => i.NameNl).HasMaxLength(MenuLimits.MaxNameLength).IsRequired();
             entity.HasIndex(i => i.NameEn).IsUnique();
 
             // Two orders that take the last portion at the same moment: the second save fails instead of
@@ -34,10 +37,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
 
         modelBuilder.Entity<Sandwich>(entity =>
         {
-            entity.Property(s => s.NameEn).HasMaxLength(80).IsRequired();
-            entity.Property(s => s.NameNl).HasMaxLength(80).IsRequired();
-            entity.Property(s => s.DescriptionEn).HasMaxLength(300);
-            entity.Property(s => s.DescriptionNl).HasMaxLength(300);
+            entity.Property(s => s.NameEn).HasMaxLength(MenuLimits.MaxNameLength).IsRequired();
+            entity.Property(s => s.NameNl).HasMaxLength(MenuLimits.MaxNameLength).IsRequired();
+            entity.Property(s => s.DescriptionEn).HasMaxLength(MenuLimits.MaxDescriptionLength);
+            entity.Property(s => s.DescriptionNl).HasMaxLength(MenuLimits.MaxDescriptionLength);
             entity.Property(s => s.ImagePath).HasMaxLength(300);
             entity.Property(s => s.Price).HasPrecision(8, 2);
             entity.HasIndex(s => s.Number).IsUnique();
@@ -58,7 +61,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             entity.Property(o => o.CustomerId).HasMaxLength(450).IsRequired();
             entity.Property(o => o.CustomerName).HasMaxLength(100).IsRequired();
             entity.Property(o => o.CustomerPhone).HasMaxLength(30);
-            entity.HasIndex(o => new { o.CustomerId, o.OrderDate });
+
+            // One active order per customer per day, guaranteed by the database. OrderService checks this too, but two
+            // requests at the same moment (a double click) could both pass that check; the second save then fails here.
+            // Cancelled orders are left out, so after a cancellation the customer can order again.
+            entity.HasIndex(o => new { o.CustomerId, o.OrderDate })
+                .IsUnique()
+                .HasFilter($"{nameof(Order.Status)} <> {(int)OrderStatus.Cancelled}");
             entity.HasMany(o => o.Lines).WithOne(l => l.Order).HasForeignKey(l => l.OrderId).OnDelete(DeleteBehavior.Cascade);
         });
 

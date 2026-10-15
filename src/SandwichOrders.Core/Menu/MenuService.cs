@@ -47,7 +47,7 @@ public class MenuService(IMenuRepository menu)
         var descriptionNl = (input.DescriptionNl ?? "").Trim();
         if (descriptionEn.Length > MenuLimits.MaxDescriptionLength || descriptionNl.Length > MenuLimits.MaxDescriptionLength)
         {
-            throw new MenuException(MenuError.NameRequired);
+            throw new MenuException(MenuError.DescriptionTooLong);
         }
 
         if (input.Price <= 0 || input.Price > MenuLimits.MaxPrice || decimal.Round(input.Price, 2) != input.Price)

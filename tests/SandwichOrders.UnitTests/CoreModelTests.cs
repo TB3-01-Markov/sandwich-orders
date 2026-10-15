@@ -116,6 +116,16 @@ public class OrderingRulesTests
     {
         Assert.Equal(new TimeOnly(9, 30), OrderingRules.DefaultDeadline);
     }
+
+    [Theory]
+    [InlineData("2026-01-12", true)]  // Monday
+    [InlineData("2026-01-16", true)]  // Friday
+    [InlineData("2026-01-17", false)] // Saturday
+    [InlineData("2026-01-18", false)] // Sunday
+    public void OnlyMondayToFridayAreWorkingDays(string day, bool expected)
+    {
+        Assert.Equal(expected, OrderingRules.IsWorkingDay(DateOnly.Parse(day, System.Globalization.CultureInfo.InvariantCulture)));
+    }
 }
 
 public class BrusselsTimeTests
