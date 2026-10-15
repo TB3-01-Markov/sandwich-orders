@@ -1,0 +1,1215 @@
+[
+  {
+    "viewport": "phone-360",
+    "page": "01-menu",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "02-menu-first-sandwich",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "03-menu-filter-open",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary \"Filter\" 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "04-navigation-open",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "05-menu-dutch",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Naar de inhoud\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "06-login",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#Email.form-control 38px",
+      "input#Password.form-control 38px",
+      "button.btn.btn-primary.w-100 \"Sign in\" 38px"
+    ],
+    "smallTargetCount": 4,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "07-register",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#DisplayName.form-control 38px",
+      "input#Email.form-control 38px",
+      "input#PhoneNumber.form-control 38px",
+      "input#Password.form-control 38px",
+      "input#ConfirmPassword.form-control 38px",
+      "button.btn.btn-primary.w-100 \"Register\" 38px"
+    ],
+    "smallTargetCount": 7,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "08-my-order",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-outline-secondary \"My previous orders\" 38px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "09-menu-after-ordering",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "16-my-previous-orders",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-outline-secondary.btn-sm \"My order for today\" 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "10-staff-today",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a#refresh-button.btn.btn-outline-secondary.btn-sm \"Refresh\" 35px",
+      "button.btn.btn-sm.btn-outline-secondary \"Collected\" 35px",
+      "button.btn.btn-sm.btn-outline-danger \"Cancel\" 35px",
+      "button.btn.btn-sm.btn-success \"Ready\" 35px"
+    ],
+    "smallTargetCount": 10,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "11-staff-menu",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [
+      "th \"#\": 862px in 336px",
+      "th \"Ingredient\": 404px in 336px"
+    ],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-primary \"Add a sandwich\" 38px",
+      "a.btn.btn-sm.btn-outline-primary \"Edit\" 35px",
+      "button.btn.btn-sm.btn-outline-secondary \"Remove from the menu\" 35px",
+      "button.btn.btn-sm.btn-outline-danger \"Switch off\" 35px",
+      "input.form-control.form-control-sm \"0\" 35px",
+      "button.btn.btn-sm.btn-outline-primary \"Save\" 35px",
+      "input.form-control.form-control-sm \"8\" 35px"
+    ],
+    "smallTargetCount": 217,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "12-staff-sandwich-edit",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#Number.form-control \"1\" 38px",
+      "input#PriceText.form-control \"4.00\" 38px",
+      "input#NameEn.form-control \"Healthy\" 38px",
+      "input#NameNl.form-control \"Gezond\" 38px",
+      "select#Kind.form-select \"Made here Supplied\" 38px",
+      "input.form-control.form-control-sm.portions-input \"1\" 34px",
+      "input#Photo.form-control 38px"
+    ],
+    "smallTargetCount": 51,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "13-staff-deadline",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#Deadline.form-control \"23:59\" 38px",
+      "button.btn.btn-primary \"Save\" 38px"
+    ],
+    "smallTargetCount": 3,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "14-staff-announcements",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [
+      "th \"Text\": 577px in 336px"
+    ],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-primary \"New announcement\" 38px",
+      "a.btn.btn-sm.btn-outline-primary \"Edit\" 35px",
+      "button.btn.btn-sm.btn-outline-danger \"Delete\" 35px"
+    ],
+    "smallTargetCount": 4,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "15-staff-announcement-edit",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#ShowFrom.form-control \"2026-10-15\" 38px",
+      "input#PeriodStart.form-control \"2026-10-22\" 38px",
+      "input#PeriodEnd.form-control \"2026-10-22\" 38px",
+      "button.btn.btn-primary \"Save\" 38px",
+      "a.btn.btn-outline-secondary \"Cancel\" 38px"
+    ],
+    "smallTargetCount": 6,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "17-staff-history",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-outline-secondary \"‹\" 38px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "22-change-password",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#CurrentPassword.form-control 38px",
+      "input#NewPassword.form-control 38px",
+      "input#ConfirmNewPassword.form-control 38px",
+      "button.btn.btn-primary.w-100 \"Change password\" 38px"
+    ],
+    "smallTargetCount": 5,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-360",
+    "page": "23-not-found",
+    "width": 360,
+    "scrollWidth": 360,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-primary \"Back to the menu\" 38px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "01-menu",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "02-menu-first-sandwich",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "03-menu-filter-open",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary \"Filter\" 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "04-navigation-open",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "05-menu-dutch",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Naar de inhoud\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "06-login",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#Email.form-control 38px",
+      "input#Password.form-control 38px",
+      "button.btn.btn-primary.w-100 \"Sign in\" 38px"
+    ],
+    "smallTargetCount": 4,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "07-register",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#DisplayName.form-control 38px",
+      "input#Email.form-control 38px",
+      "input#PhoneNumber.form-control 38px",
+      "input#Password.form-control 38px",
+      "input#ConfirmPassword.form-control 38px",
+      "button.btn.btn-primary.w-100 \"Register\" 38px"
+    ],
+    "smallTargetCount": 7,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "08-my-order",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-outline-secondary \"My previous orders\" 38px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "09-menu-after-ordering",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "button.btn.btn-sm.btn-primary 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "16-my-previous-orders",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-outline-secondary.btn-sm \"My order for today\" 35px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "10-staff-today",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a#refresh-button.btn.btn-outline-secondary.btn-sm \"Refresh\" 35px",
+      "button.btn.btn-sm.btn-outline-secondary \"Collected\" 35px",
+      "button.btn.btn-sm.btn-outline-danger \"Cancel\" 35px",
+      "button.btn.btn-sm.btn-success \"Ready\" 35px"
+    ],
+    "smallTargetCount": 10,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "11-staff-menu",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [
+      "th \"#\": 862px in 366px",
+      "th \"Ingredient\": 404px in 366px"
+    ],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-primary \"Add a sandwich\" 38px",
+      "a.btn.btn-sm.btn-outline-primary \"Edit\" 35px",
+      "button.btn.btn-sm.btn-outline-secondary \"Remove from the menu\" 35px",
+      "button.btn.btn-sm.btn-outline-danger \"Switch off\" 35px",
+      "input.form-control.form-control-sm \"0\" 35px",
+      "button.btn.btn-sm.btn-outline-primary \"Save\" 35px",
+      "input.form-control.form-control-sm \"8\" 35px"
+    ],
+    "smallTargetCount": 217,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "12-staff-sandwich-edit",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#Number.form-control \"1\" 38px",
+      "input#PriceText.form-control \"4.00\" 38px",
+      "input#NameEn.form-control \"Healthy\" 38px",
+      "input#NameNl.form-control \"Gezond\" 38px",
+      "select#Kind.form-select \"Made here Supplied\" 38px",
+      "input.form-control.form-control-sm.portions-input \"1\" 34px",
+      "input#Photo.form-control 38px"
+    ],
+    "smallTargetCount": 51,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "13-staff-deadline",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#Deadline.form-control \"23:59\" 38px",
+      "button.btn.btn-primary \"Save\" 38px"
+    ],
+    "smallTargetCount": 3,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "14-staff-announcements",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [
+      "th \"Text\": 577px in 366px"
+    ],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-primary \"New announcement\" 38px",
+      "a.btn.btn-sm.btn-outline-primary \"Edit\" 35px",
+      "button.btn.btn-sm.btn-outline-danger \"Delete\" 35px"
+    ],
+    "smallTargetCount": 4,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "15-staff-announcement-edit",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#ShowFrom.form-control \"2026-10-15\" 38px",
+      "input#PeriodStart.form-control \"2026-10-22\" 38px",
+      "input#PeriodEnd.form-control \"2026-10-22\" 38px",
+      "button.btn.btn-primary \"Save\" 38px",
+      "a.btn.btn-outline-secondary \"Cancel\" 38px"
+    ],
+    "smallTargetCount": 6,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "17-staff-history",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-outline-secondary \"‹\" 38px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "22-change-password",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "input#CurrentPassword.form-control 38px",
+      "input#NewPassword.form-control 38px",
+      "input#ConfirmNewPassword.form-control 38px",
+      "button.btn.btn-primary.w-100 \"Change password\" 38px"
+    ],
+    "smallTargetCount": 5,
+    "smallFonts": []
+  },
+  {
+    "viewport": "phone-390",
+    "page": "23-not-found",
+    "width": 390,
+    "scrollWidth": 390,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [
+      "a.visually-hidden-focusable.btn.btn-primary \"Skip to content\" 1px",
+      "a.btn.btn-primary \"Back to the menu\" 38px"
+    ],
+    "smallTargetCount": 2,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "01-menu",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "02-menu-first-sandwich",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "03-menu-filter-open",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "04-navigation-open",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "05-menu-dutch",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "06-login",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "07-register",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "08-my-order",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "09-menu-after-ordering",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "16-my-previous-orders",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "10-staff-today",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "11-staff-menu",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [
+      "th \"#\": 862px in 696px"
+    ],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "12-staff-sandwich-edit",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "13-staff-deadline",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "14-staff-announcements",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "15-staff-announcement-edit",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "17-staff-history",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "22-change-password",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "tablet-768",
+    "page": "23-not-found",
+    "width": 768,
+    "scrollWidth": 768,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "01-menu",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "02-menu-first-sandwich",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "03-menu-filter-open",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "05-menu-dutch",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "06-login",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "07-register",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "08-my-order",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "09-menu-after-ordering",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "16-my-previous-orders",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "10-staff-today",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "11-staff-menu",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "12-staff-sandwich-edit",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "13-staff-deadline",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "14-staff-announcements",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "15-staff-announcement-edit",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "17-staff-history",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "22-change-password",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "laptop-1366",
+    "page": "23-not-found",
+    "width": 1366,
+    "scrollWidth": 1366,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "01-menu",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "02-menu-first-sandwich",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "03-menu-filter-open",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "05-menu-dutch",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "06-login",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "07-register",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "08-my-order",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "09-menu-after-ordering",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "16-my-previous-orders",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "10-staff-today",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "11-staff-menu",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "12-staff-sandwich-edit",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "13-staff-deadline",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "14-staff-announcements",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "15-staff-announcement-edit",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "17-staff-history",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "22-change-password",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  },
+  {
+    "viewport": "desktop-1920",
+    "page": "23-not-found",
+    "width": 1920,
+    "scrollWidth": 1920,
+    "tooWide": [],
+    "scrollers": [],
+    "smallTargets": [],
+    "smallTargetCount": 0,
+    "smallFonts": []
+  }
+]
