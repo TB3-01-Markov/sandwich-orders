@@ -132,4 +132,12 @@
   <data name="The sandwich has been saved." xml:space="preserve"><value>Het broodje is opgeslagen.</value></data>
   <data name="This ingredient already exists." xml:space="preserve"><value>Dit ingrediënt bestaat al.</value></data>
   <data name="This sandwich number is already used (use a number of 1 or higher)." xml:space="preserve"><value>Dit broodjesnummer is al in gebruik (gebruik 1 of hoger).</value></data>
+  <data name="Filter by ingredient" xml:space="preserve"><value>Filter op ingrediënt</value></data>
+  <data name="Must contain" xml:space="preserve"><value>Moet bevatten</value></data>
+  <data name="Must not contain" xml:space="preserve"><value>Mag niet bevatten</value></data>
+  <data name="Filter" xml:space="preserve"><value>Filteren</value></data>
+  <data name="Clear filter" xml:space="preserve"><value>Filter wissen</value></data>
+  <data name="The filter is not an allergen guarantee. Ask the canteen if you have an allergy." xml:space="preserve"><value>De filter is geen garantie voor allergenen. Vraag het aan de kantine als je een allergie hebt.</value></data>
+  <data name="Showing {0} of {1} sandwiches" xml:space="preserve"><value>{0} van {1} broodjes getoond</value></data>
+  <data name="No sandwich matches this filter." xml:space="preserve"><value>Geen enkel broodje past bij deze filter.</value></data>
 </root>

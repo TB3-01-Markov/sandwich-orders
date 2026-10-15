@@ -13,6 +13,13 @@ public class MenuViewModel
     public Order? TodaysOrder { get; init; }
     public bool IsSignedIn { get; init; }
     public string GuestName { get; init; } = "";
+
+    // US-09: the ingredient filter. Sandwiches holds only the sandwiches that match; TotalCount is the whole menu.
+    public IReadOnlyList<Ingredient> Ingredients { get; init; } = Array.Empty<Ingredient>();
+    public IReadOnlyCollection<int> Include { get; init; } = Array.Empty<int>();
+    public IReadOnlyCollection<int> Exclude { get; init; } = Array.Empty<int>();
+    public int TotalCount { get; init; }
+    public bool IsFiltered => Include.Count > 0 || Exclude.Count > 0;
 }
 
 public class TodayOrderViewModel
