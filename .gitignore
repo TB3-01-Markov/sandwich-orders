@@ -10,3 +10,6 @@ obj/
 TestResults/
 coverage*/
 src/SandwichOrders.Web/uploads/
+tools/ui-check/node_modules/
+tools/ui-check/out/
+tools/ui-check/package*.json

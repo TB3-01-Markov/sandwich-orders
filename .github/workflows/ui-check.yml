@@ -1,0 +1,42 @@
+name: UI check
+# Starts the app with demo data, opens every page at phone, tablet and desktop sizes (tools/ui-check),
+# and pushes the screenshots and the report to the branch "ui-screenshots" so they can be looked at.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['ui-check*']
+permissions:
+  contents: write
+jobs:
+  screenshots:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Start the app (Development = demo menu and demo staff account)
+        run: |
+          dotnet build src/SandwichOrders.Web -c Release
+          ASPNETCORE_ENVIRONMENT=Development nohup dotnet run --project src/SandwichOrders.Web -c Release --no-build \
+            --urls http://127.0.0.1:5080 > app.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:5080/health && break; sleep 2; done
+          curl -sf http://127.0.0.1:5080/health
+      - name: Install Playwright
+        working-directory: tools/ui-check
+        run: |
+          npm init -y > /dev/null
+          npm install playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Screenshots and layout report
+        working-directory: tools/ui-check
+        run: node check.mjs
+      - name: Push results to the ui-screenshots branch
+        if: always()
+        run: |
+          mkdir -p tools/ui-check/out && cp app.log tools/ui-check/out/ || true
+          cd tools/ui-check/out
+          git init -q && git checkout -q -b ui-screenshots
+          git add -A
+          git -c user.name="ui-check" -c user.email="ui-check@users.noreply.github.com" commit -qm "UI check of ${GITHUB_SHA}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ui-screenshots
