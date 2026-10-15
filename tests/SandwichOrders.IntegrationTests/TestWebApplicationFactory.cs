@@ -8,9 +8,16 @@ using Microsoft.Extensions.Time.Testing;
 
 namespace SandwichOrders.IntegrationTests;
 
-// Starts the real application in memory with its own temporary SQLite file and a clock the test controls.
+// Starts the real application in memory with its own temporary database and a clock the test controls.
+// By default the database is a temporary SQLite file. When the environment variable TEST_SQLSERVER holds a
+// connection string to a SQL Server (CI does this), every test gets its own new SQL Server database instead,
+// created by the migrations - so the same tests also prove the migrations and the SQL Server behaviour.
 public class TestWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private static readonly string? SqlServer = Environment.GetEnvironmentVariable("TEST_SQLSERVER");
+
+    private readonly string sqlServerDatabase = $"SandwichOrdersTest_{Guid.NewGuid():N}";
+
     private readonly string databasePath =
         Path.Combine(Path.GetTempPath(), $"sandwich-orders-tests-{Guid.NewGuid():N}.db");
 
@@ -29,8 +36,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureAppConfiguration((_, configuration) =>
             configuration.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Database:Provider"] = "Sqlite",
-                ["ConnectionStrings:DefaultConnection"] = $"Data Source={databasePath}",
+                ["Database:Provider"] = SqlServer is null ? "Sqlite" : "SqlServer",
+                ["ConnectionStrings:DefaultConnection"] = SqlServer is null
+                    ? $"Data Source={databasePath}"
+                    : $"{SqlServer.TrimEnd(';')};Database={sqlServerDatabase}",
                 ["Uploads:Path"] = uploadsPath,
                 ["Seed:Enabled"] = "false",
                 // All test requests come from the same (empty) address; only RateLimitingTests uses a low limit.
@@ -52,6 +61,11 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void Dispose(bool disposing)
     {
+        if (disposing && SqlServer is not null)
+        {
+            DropSqlServerDatabase();
+        }
+
         base.Dispose(disposing);
 
         if (disposing)
@@ -69,6 +83,19 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             {
                 // A leftover file in the temp folder is harmless.
             }
+        }
+    }
+
+    private void DropSqlServerDatabase()
+    {
+        try
+        {
+            using var scope = Services.CreateScope();
+            scope.ServiceProvider.GetRequiredService<SandwichOrders.Web.Data.AppDbContext>().Database.EnsureDeleted();
+        }
+        catch (Exception)
+        {
+            // The CI server is thrown away after the run; a leftover test database is harmless.
         }
     }
 }

@@ -5,6 +5,7 @@ on:
   pull_request:
 jobs:
   build-and-test:
+    name: Build and test (SQLite)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -21,25 +22,62 @@ jobs:
         run: dotnet test --no-build -c Release --logger "trx;LogFileName=results.trx" --logger "console;verbosity=normal"
       - name: Report failed tests
         if: failure()
-        run: |
-          python3 - <<'PY'
-          import glob, re
-          import xml.etree.ElementTree as ET
-          ns = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
-          lines = ["### Failed tests"]
-          for f in glob.glob("**/TestResults/*.trx", recursive=True):
-              for r in ET.parse(f).getroot().iterfind(".//t:UnitTestResult", ns):
-                  if r.get("outcome") != "Failed":
-                      continue
-                  msg = r.findtext(".//t:ErrorInfo/t:Message", default="", namespaces=ns).strip()
-                  stack = r.findtext(".//t:ErrorInfo/t:StackTrace", default="", namespaces=ns).strip().splitlines()
-                  text = (r.get("testName") + " :: " + msg + " @ " + (stack[0].strip() if stack else "")).replace("\r", " ").replace("\n", " | ")
-                  print("::error title=Failed test::" + text[:1500])
-                  lines.append("- " + r.get("testName"))
-          open(__import__("os").environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join(lines) + "\n")
-          PY
+        run: python3 .github/scripts/report_failed_tests.py
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results
           path: "**/TestResults/*.trx"
+
+  sql-server:
+    name: Tests on SQL Server
+    runs-on: ubuntu-24.04
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "Ci-Test-Passw0rd!" # throw-away server that only lives during this job
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -C -b -S localhost -U sa -P 'Ci-Test-Passw0rd!' -Q 'SELECT 1'"
+          --health-interval 10s --health-timeout 5s --health-retries 12 --health-start-period 20s
+    env:
+      SQL: "Server=localhost,1433;User Id=sa;Password=Ci-Test-Passw0rd!;TrustServerCertificate=True"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet build -c Release
+      - name: Every model change has a migration
+        env:
+          Database__Provider: SqlServer
+          ConnectionStrings__DefaultConnection: "${{ env.SQL }};Database=Design"
+        run: |
+          dotnet tool install --global dotnet-ef
+          dotnet ef migrations has-pending-model-changes --project src/SandwichOrders.Web --no-build --configuration Release
+      - name: Integration tests on SQL Server (one new database per test, created by the migrations)
+        env:
+          TEST_SQLSERVER: ${{ env.SQL }}
+        run: dotnet test tests/SandwichOrders.IntegrationTests --no-build -c Release --logger "trx;LogFileName=sqlserver.trx" --logger "console;verbosity=normal"
+      - name: The app starts on SQL Server with the demo data
+        env:
+          Database__Provider: SqlServer
+          ConnectionStrings__DefaultConnection: "${{ env.SQL }};Database=SandwichOrders"
+          Seed__Enabled: "true"
+          Seed__StaffEmail: staff@example.test
+          Seed__StaffPassword: Ci-Staff-1234
+        run: |
+          nohup dotnet run --project src/SandwichOrders.Web -c Release --no-build --urls http://127.0.0.1:5080 > app.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:5080/health > /dev/null && break; sleep 2; done
+          curl -sf http://127.0.0.1:5080/health | grep -q Healthy
+          curl -sf http://127.0.0.1:5080/ | grep -q "Smos"
+          curl -sf http://127.0.0.1:5080/api/menu/status | grep -q '"sandwiches"'
+          echo "Health, menu page and API answer on SQL Server."
+      - name: Report failed tests
+        if: failure()
+        run: |
+          python3 .github/scripts/report_failed_tests.py
+          if [ -f app.log ]; then echo "::error title=App log (last lines)::$(tail -n 40 app.log | tr '\n' '|' | cut -c1-3000)"; fi

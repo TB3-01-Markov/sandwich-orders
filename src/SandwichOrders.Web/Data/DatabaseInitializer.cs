@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace SandwichOrders.Web.Data;
 
-// Runs once while the host starts: creates the database, the roles and (optionally) the demo data.
+// Runs once while the host starts: creates or migrates the database, the roles and (optionally) the demo data.
 // Running it as a hosted service means the database is ready before the first request and before tests start.
 public class DatabaseInitializer(
     IServiceProvider services,
@@ -19,7 +21,18 @@ public class DatabaseInitializer(
                 using var scope = services.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                await db.Database.EnsureCreatedAsync(cancellationToken);
+                // SQL Server (Docker, hosting): the migrations in Data/Migrations create and update the schema, so an
+                // existing database keeps its data when the model changes.
+                // SQLite (development on the laptop, most tests): created straight from the model. After a model
+                // change, delete sandwich-orders.db* and it is created again with the demo data.
+                if (db.Database.IsSqlServer())
+                {
+                    await db.Database.MigrateAsync(cancellationToken);
+                }
+                else
+                {
+                    await db.Database.EnsureCreatedAsync(cancellationToken);
+                }
                 await DbSeeder.EnsureRolesAsync(scope.ServiceProvider);
 
                 if (configuration.GetValue<bool>("Seed:Enabled"))
