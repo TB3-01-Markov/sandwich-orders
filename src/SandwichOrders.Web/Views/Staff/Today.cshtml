@@ -9,7 +9,10 @@
     @if (Model.IsToday)
     {
         <h1 class="h3 mb-0">@L["Today's orders"] <small class="text-muted">@Dates.Format(overview.Date)</small></h1>
-        <a asp-action="Today" class="btn btn-outline-secondary btn-sm">@L["Refresh"]</a>
+        <div class="d-flex align-items-center gap-2">
+            <span id="live-updated" class="small text-muted"></span>
+            <a asp-action="Today" id="refresh-button" class="btn btn-outline-secondary btn-sm">@L["Refresh"]</a>
+        </div>
     }
     else
     {
@@ -19,12 +22,28 @@
     }
 </div>
 
-@if (!overview.Orders.Any())
-{
-    <p class="text-muted">@(Model.IsToday ? L["No orders yet."] : L["No orders on this day."])</p>
+@{
+    var hasOrders = overview.Orders.Any();
 }
-else
+
+@if (Model.IsToday)
 {
+    @* staff-today.js refreshes the lists below every 15 seconds from GET /api/staff/orders/today and sends the
+       buttons to the API, so the page never reloads. Without JavaScript the page and its forms still work. *@
+    <div id="staff-live" class="d-none"
+         data-url="/api/staff/orders/today"
+         data-text-ready="@L["Ready"]"
+         data-text-collected="@L["Collected"]"
+         data-text-cancel="@L["Cancel"]"
+         data-text-confirm-cancel="@L["Cancel this order and put the stock back?"]"
+         data-text-error="@L["Something went wrong. Please try again."]"
+         data-text-updated="@L["Updated {0}", "{0}"]"></div>
+    <div id="live-error" class="alert alert-danger d-none" role="alert"></div>
+}
+
+<p id="no-orders" class="text-muted @(hasOrders ? "d-none" : "")">@(Model.IsToday ? L["No orders yet."] : L["No orders on this day."])</p>
+
+<div id="orders-content" class="@(hasOrders ? "" : "d-none")">
     <h2 class="h5">@L["What to prepare"]</h2>
     <table class="table table-sm align-middle mb-4">
         <thead>
@@ -35,7 +54,7 @@ else
             <th class="text-end">@L["Quantity"]</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="prep-rows">
         @foreach (var row in overview.Rows)
         {
             <tr>
@@ -49,7 +68,7 @@ else
         <tfoot>
         <tr>
             <th colspan="3">@L["Total"]</th>
-            <th class="text-end">@overview.TotalSandwiches &middot; @Money.Format(overview.TotalAmount)</th>
+            <th class="text-end" id="prep-total">@overview.TotalSandwiches &middot; @Money.Format(overview.TotalAmount)</th>
         </tr>
         </tfoot>
     </table>
@@ -70,13 +89,13 @@ else
             <th></th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="order-rows">
         @foreach (var order in overview.Orders)
         {
             var first = true;
             foreach (var line in order.Lines)
             {
-                <tr class="@(order.Status == OrderStatus.Collected ? "text-body-secondary" : "")">
+                <tr class="@(order.Status == OrderStatus.Collected ? "text-body-secondary" : "")" data-order-id="@order.Id">
                     <td>@order.CustomerName</td>
                     <td class="text-nowrap">
                         @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
@@ -102,7 +121,7 @@ else
     </table>
     </div>
 
-    <div class="d-md-none vstack gap-2">
+    <div id="order-cards" class="d-md-none vstack gap-2">
         @foreach (var order in overview.Orders)
         {
             var badge = order.Status switch
@@ -111,7 +130,7 @@ else
                 OrderStatus.Collected => "text-bg-secondary",
                 _ => "text-bg-primary"
             };
-            <div class="card @(order.Status == OrderStatus.Collected ? "text-body-secondary" : "")">
+            <div class="card @(order.Status == OrderStatus.Collected ? "text-body-secondary" : "")" data-order-id="@order.Id">
                 <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-start gap-2">
                         <strong>@order.CustomerName</strong>
@@ -138,4 +157,9 @@ else
             </div>
         }
     </div>
+</div>
+
+@section Scripts {
+    @* Does nothing on an earlier day: there is no #staff-live element then. *@
+    <script src="~/js/staff-today.js" asp-append-version="true"></script>
 }

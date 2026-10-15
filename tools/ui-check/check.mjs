@@ -122,7 +122,7 @@ for (let i = 0; i < guestNames.length; i++) {
   const p = await ctx.newPage();
   await p.goto(`${BASE}/`);
   await p.fill('#guestName', guestNames[i]);
-  const form = p.locator('form.order-form').nth(i * 3);
+  const form = p.locator('form.order-form:visible').nth(i * 3);
   if (i === 1) await form.locator('select').selectOption({ index: 1 });
   await form.locator('button[type=submit]').click();
   await p.waitForURL(u => u.pathname.includes('/Orders/Today'));
@@ -131,8 +131,9 @@ for (let i = 0; i < guestNames.length; i++) {
 }
 
 await staff.goto(`${BASE}/Staff/Today`);
-await staff.locator('form button.btn-success').first().click(); // first order: Ready
+await staff.locator('button.btn-success:visible').first().click(); // first order: Ready (through the API)
 await staff.waitForLoadState('networkidle');
+await staff.waitForTimeout(500);
 const staffState = await staffCtx.storageState();
 const editHref = await staff.goto(`${BASE}/Staff/Menu`).then(() => staff.locator('a[href*="SandwichEdit/"], a[href*="SandwichEdit?id"]').first().getAttribute('href'));
 await staffCtx.close();
@@ -143,7 +144,7 @@ for (const vp of viewports) {
   const g = await guestCtx.newPage();
   await g.goto(`${BASE}/`);
   await shot(g, vp, '01-menu');
-  await g.locator('form.order-form').first().scrollIntoViewIfNeeded();
+  await g.locator('form.order-form:visible').first().scrollIntoViewIfNeeded();
   await g.evaluate(() => window.scrollBy(0, -120));
   await shot(g, vp, '02-menu-first-sandwich');
   await g.goto(`${BASE}/`);
@@ -157,7 +158,7 @@ for (const vp of viewports) {
   }
   await g.goto(`${BASE}/`);
   await setLanguage(g, 'nl');
-  await g.locator('form.order-form').first().scrollIntoViewIfNeeded();
+  await g.locator('form.order-form:visible').first().scrollIntoViewIfNeeded();
   await g.evaluate(() => window.scrollBy(0, -120));
   await shot(g, vp, '05-menu-dutch');
   await setLanguage(g, 'en');
@@ -198,6 +199,71 @@ for (const vp of viewports) {
   await sCtx.close();
 }
 
+// ---- Live behaviour (phone size): no page reloads needed --------------------------------------------------------
+const live = [];
+async function expectLive(name, check) {
+  try {
+    await check();
+    live.push(`| ${name} | ok |`);
+  } catch (error) {
+    live.push(`| ${name} | **FAILED**: ${String(error.message).split('\n')[0].slice(0, 200)} |`);
+    process.exitCode = 1;
+  }
+}
+
+const phone = viewports[1];
+const liveStaffCtx = await newContext(phone, staffState);
+const liveStaff = await liveStaffCtx.newPage();
+await liveStaff.goto(`${BASE}/Staff/Today`);
+await liveStaff.waitForLoadState('networkidle');
+
+const lateCtx = await newContext(phone);
+const late = await lateCtx.newPage();
+await late.goto(`${BASE}/`);
+await late.fill('#guestName', 'Linus Torvalds');
+await late.locator('form.order-form:visible').nth(10).locator('button[type=submit]').click();
+await late.waitForURL(u => u.pathname.includes('/Orders/Today'));
+
+await expectLive('A new order appears on the staff page without reloading (<= 20 s)', async () => {
+  await liveStaff.locator('.card:has-text("Linus Torvalds")').waitFor({ timeout: 20000 });
+  await liveStaff.screenshot({ path: `${OUT}/${phone.name}--18-live-staff-new-order.png`, fullPage: true });
+});
+
+await expectLive('"Ready" pressed by staff reaches the customer page (<= 20 s)', async () => {
+  await liveStaff.locator('.card:has-text("Linus Torvalds") button.btn-success').click();
+  await late.waitForFunction(() => document.title.startsWith('✅'), null, { timeout: 20000 });
+  await late.screenshot({ path: `${OUT}/${phone.name}--19-live-my-order-ready.png`, fullPage: true });
+});
+
+// Deadline two minutes from now (Brussels time): the menu counts down and closes by itself.
+const brussels = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Brussels' }));
+brussels.setMinutes(brussels.getMinutes() + 2);
+if (brussels.getHours() === 0 && brussels.getMinutes() < 3) {
+  live.push('| Countdown and closing at the deadline | skipped (too close to midnight) |');
+} else {
+  const hhmm = `${String(brussels.getHours()).padStart(2, '0')}:${String(brussels.getMinutes()).padStart(2, '0')}`;
+  await liveStaff.goto(`${BASE}/Staff/Deadline`);
+  await liveStaff.fill('#Deadline', hhmm);
+  await liveStaff.click('main form button.btn-primary');
+  await liveStaff.waitForLoadState('networkidle');
+
+  const menuCtx = await newContext(phone);
+  const menu = await menuCtx.newPage();
+  await menu.goto(`${BASE}/`);
+  await expectLive(`Countdown is shown before the deadline (${hhmm})`, async () => {
+    await menu.locator('#countdown:not(.d-none)').waitFor({ timeout: 5000 });
+    await menu.screenshot({ path: `${OUT}/${phone.name}--20-live-menu-countdown.png` });
+  });
+  await expectLive('At the deadline the order buttons disappear without reloading', async () => {
+    await menu.locator('#closed-alert:not(.d-none)').waitFor({ timeout: 200000 });
+    if (await menu.locator('form.order-form:visible').count() !== 0) throw new Error('order forms still visible');
+    await menu.screenshot({ path: `${OUT}/${phone.name}--21-live-menu-closed.png` });
+  });
+  await menuCtx.close();
+}
+await liveStaffCtx.close();
+await lateCtx.close();
+
 await browser.close();
 
 // ---- Report -------------------------------------------------------------------------------------------------
@@ -208,5 +274,6 @@ const lines = ['# UI check', '', `Base URL: ${BASE}`, '',
 for (const r of report) {
   lines.push(`| ${r.viewport} | ${r.page} | ${r.scrollWidth > r.width ? `**${r.scrollWidth}px > ${r.width}px**: ${r.tooWide.join('; ')}` : 'no'} | ${r.scrollers.join('; ') || '-'} | ${r.smallTargetCount ? `${r.smallTargetCount}: ${r.smallTargets.join('; ')}` : '-'} | ${r.smallFonts.join('; ') || '-'} |`);
 }
+lines.push('', '## Live behaviour', '', '| Check | Result |', '|---|---|', ...live);
 fs.writeFileSync(`${OUT}/report.md`, lines.join('\n') + '\n');
 console.log(lines.join('\n'));

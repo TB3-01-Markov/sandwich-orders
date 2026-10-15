@@ -228,4 +228,7 @@
   <data name="My previous orders" xml:space="preserve"><value>Mijn vorige bestellingen</value></data>
   <data name="You have no previous orders." xml:space="preserve"><value>Je hebt nog geen vorige bestellingen.</value></data>
   <data name="Your history is kept in this browser only. With an account it stays when you use another phone or clear your cookies." xml:space="preserve"><value>Je geschiedenis wordt alleen in deze browser bewaard. Met een account blijft ze bewaard als je een andere telefoon gebruikt of je cookies wist.</value></data>
+  <data name="Closes in {0}" xml:space="preserve"><value>Sluit over {0}</value></data>
+  <data name="Something went wrong. Please try again." xml:space="preserve"><value>Er ging iets mis. Probeer het opnieuw.</value></data>
+  <data name="Updated {0}" xml:space="preserve"><value>Bijgewerkt om {0}</value></data>
 </root>

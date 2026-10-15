@@ -1,6 +1,7 @@
 @model TodayOrderViewModel
 @{
-    ViewData["Title"] = L["My order"].Value;
+    // "✅" in the browser tab when the sandwich is ready, visible even when another tab is open.
+    ViewData["Title"] = (Model.Order?.Status == OrderStatus.Prepared ? "✅ " : "") + L["My order"].Value;
 }
 
 <h1 class="h3 mb-3">@L["My order for today"]</h1>
@@ -13,6 +14,13 @@
 else
 {
     var order = Model.Order;
+
+    @* live-order.js asks GET /api/orders/today every 15 seconds and reloads this page when the status changes
+       (for example when the canteen presses Ready). Not needed any more once the sandwich is collected. *@
+    if (order.Status is OrderStatus.Placed or OrderStatus.Prepared)
+    {
+        <div id="live-order" class="d-none" data-url="/api/orders/today" data-status="@order.Status"></div>
+    }
 
     <div class="card">
         <div class="card-body">
@@ -66,3 +74,7 @@ else
 <p class="mt-3">
     <a asp-action="History" class="btn btn-outline-secondary">@L["My previous orders"]</a>
 </p>
+
+@section Scripts {
+    <script src="~/js/live-order.js" asp-append-version="true"></script>
+}
