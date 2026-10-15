@@ -58,8 +58,8 @@ Photos (JPG/PNG/WebP, max 2 MB, checked by file signature) are stored in `Upload
   two people cannot both take the last portion; the second gets "please try again".
 - Sold-out sandwiches are greyed out with "Sold out"; "Only N left" is shown from 5 down.
 
-**Only staff can cancel** — customers have no cancel button and no cancel endpoint any more
-(`OrderService.CancelAsync` stays in the code). Staff cancel on *Today's orders*; the stock goes back.
+**Only staff can cancel** — customers have no cancel button and no cancel endpoint.
+Staff cancel on *Today's orders*; the stock goes back.
 
 **Order status** — staff press *Ready* and *Collected*; the customer sees "Your sandwich is ready" on *My order*.
 This replaces WhatsApp notifications (no paid API, no consent for messages needed).

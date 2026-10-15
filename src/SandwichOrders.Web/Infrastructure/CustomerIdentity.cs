@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace SandwichOrders.Web.Infrastructure;
 
 // Who is ordering? A signed-in user is identified by the Identity user id.
-// A visitor without an account gets a random guest id stored in a cookie, so he can see and cancel his own order.
+// A visitor without an account gets a random guest id stored in a cookie, so they can see their own order.
 // Guest ids always look like "guest-<32 hex digits>", which can never equal an Identity id (a GUID with dashes),
 // so a guest cannot pretend to be a registered customer by editing the cookie.
 public static partial class CustomerIdentity
