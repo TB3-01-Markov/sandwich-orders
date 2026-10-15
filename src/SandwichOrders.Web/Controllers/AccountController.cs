@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Localization;
 using SandwichOrders.Core;
+using SandwichOrders.Web.Infrastructure;
 using SandwichOrders.Web.Models;
 
 namespace SandwichOrders.Web.Controllers;
@@ -16,6 +18,7 @@ public class AccountController(
     public IActionResult Register() => View(new RegisterViewModel());
 
     [HttpPost]
+    [EnableRateLimiting(RateLimits.Forms)]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
@@ -62,6 +65,7 @@ public class AccountController(
     }
 
     [HttpPost]
+    [EnableRateLimiting(RateLimits.Forms)]
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
@@ -71,7 +75,13 @@ public class AccountController(
         }
 
         var result = await signInManager.PasswordSignInAsync(
-            model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
+
+        if (result.IsLockedOut)
+        {
+            ModelState.AddModelError(string.Empty, L["Too many wrong passwords. This account is locked for 5 minutes."].Value);
+            return View(model);
+        }
 
         if (!result.Succeeded)
         {
