@@ -213,4 +213,19 @@
   <data name="Yes" xml:space="preserve"><value>Ja</value></data>
   <data name="Your sandwich is ready. You can collect it at the canteen." xml:space="preserve"><value>Je broodje is klaar. Je kunt het ophalen in de kantine.</value></data>
   <data name="The stock changed in the meantime (someone ordered). Please check and save again." xml:space="preserve"><value>De voorraad is intussen veranderd (iemand bestelde). Controleer en sla opnieuw op.</value></data>
+  <data name="History" xml:space="preserve"><value>Geschiedenis</value></data>
+  <data name="Order history" xml:space="preserve"><value>Bestelgeschiedenis</value></data>
+  <data name="Orders on {0}" xml:space="preserve"><value>Bestellingen van {0}</value></data>
+  <data name="Back to the history" xml:space="preserve"><value>Terug naar de geschiedenis</value></data>
+  <data name="No orders on this day." xml:space="preserve"><value>Geen bestellingen op deze dag.</value></data>
+  <data name="No orders in this month." xml:space="preserve"><value>Geen bestellingen in deze maand.</value></data>
+  <data name="Previous month" xml:space="preserve"><value>Vorige maand</value></data>
+  <data name="Next month" xml:space="preserve"><value>Volgende maand</value></data>
+  <data name="Day" xml:space="preserve"><value>Dag</value></data>
+  <data name="Orders" xml:space="preserve"><value>Bestellingen</value></data>
+  <data name="Amount" xml:space="preserve"><value>Bedrag</value></data>
+  <data name="Amounts do not include cancelled orders." xml:space="preserve"><value>Geannuleerde bestellingen tellen niet mee in de bedragen.</value></data>
+  <data name="My previous orders" xml:space="preserve"><value>Mijn vorige bestellingen</value></data>
+  <data name="You have no previous orders." xml:space="preserve"><value>Je hebt nog geen vorige bestellingen.</value></data>
+  <data name="Your history is kept in this browser only. With an account it stays when you use another phone or clear your cookies." xml:space="preserve"><value>Je geschiedenis wordt alleen in deze browser bewaard. Met een account blijft ze bewaard als je een andere telefoon gebruikt of je cookies wist.</value></data>
 </root>

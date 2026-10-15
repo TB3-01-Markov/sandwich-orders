@@ -106,13 +106,46 @@ public class OrderService(
     public Task<Order?> GetTodaysOrderAsync(string customerId, CancellationToken ct = default) =>
         orders.GetActiveForCustomerAsync(customerId, BrusselsTime.Today(clock), ct);
 
-    // US-06 and US-07: who ordered what today, and how many of each sandwich and bread to prepare.
-    public async Task<PreparationOverview> GetPreparationOverviewAsync(CancellationToken ct = default)
-    {
-        var today = BrusselsTime.Today(clock);
-        var todaysOrders = await orders.GetActiveForDateAsync(today, ct);
+    // "My previous orders": everything before today, newest first (today's order is on "My order").
+    public Task<IReadOnlyList<Order>> GetHistoryAsync(string customerId, CancellationToken ct = default) =>
+        orders.GetForCustomerBeforeAsync(customerId, BrusselsTime.Today(clock), OrderingRules.CustomerHistoryLimit, ct);
 
-        var rows = todaysOrders
+    // The canteen's history: per day the number of orders and sandwiches and the amount, for one calendar month.
+    // Computed here (not in SQL) because SQLite cannot sum decimals; a month is a few hundred orders at most.
+    public async Task<MonthSummary> GetMonthSummaryAsync(int year, int month, CancellationToken ct = default)
+    {
+        var first = new DateOnly(year, month, 1); // throws for an impossible month; the controller checks first
+        var last = first.AddMonths(1).AddDays(-1);
+        var monthOrders = await orders.GetForPeriodAsync(first, last, ct);
+
+        var days = monthOrders
+            .GroupBy(order => order.OrderDate)
+            .OrderBy(group => group.Key)
+            .Select(group =>
+            {
+                var active = group.Where(order => !order.IsCancelled).ToList();
+                return new DaySummary(
+                    group.Key,
+                    active.Count,
+                    active.Sum(order => order.Lines.Sum(line => line.Quantity)),
+                    active.Sum(order => order.Total),
+                    group.Count(order => order.IsCancelled));
+            })
+            .ToList();
+
+        return new MonthSummary(year, month, days);
+    }
+
+    // US-06 and US-07: who ordered what today, and how many of each sandwich and bread to prepare.
+    public Task<PreparationOverview> GetPreparationOverviewAsync(CancellationToken ct = default) =>
+        GetOverviewForDateAsync(BrusselsTime.Today(clock), ct);
+
+    // The same overview for any day (the canteen's history).
+    public async Task<PreparationOverview> GetOverviewForDateAsync(DateOnly date, CancellationToken ct = default)
+    {
+        var dayOrders = await orders.GetActiveForDateAsync(date, ct);
+
+        var rows = dayOrders
             .SelectMany(order => order.Lines)
             .GroupBy(line => (line.SandwichId, line.Bread))
             .Select(group => new PreparationRow(group.First().Sandwich, group.Key.Bread, group.Sum(line => line.Quantity)))
@@ -121,11 +154,11 @@ public class OrderService(
             .ToList();
 
         return new PreparationOverview(
-            today,
-            todaysOrders,
+            date,
+            dayOrders,
             rows,
             rows.Sum(row => row.Quantity),
-            todaysOrders.Sum(order => order.Total));
+            dayOrders.Sum(order => order.Total));
     }
 
     // US-15: the canteen employee decides until when trainees may order.

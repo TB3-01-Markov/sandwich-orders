@@ -84,6 +84,14 @@ public static class Dates
 {
     public static string Format(DateOnly day) => day.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
 
+    // Short day in a month overview: "Mon 12/01" in English, "ma 12/01" in Dutch.
+    public static string DayInMonth(DateOnly day) =>
+        $"{day.ToString("ddd", CultureInfo.CurrentCulture)} {day.ToString("dd'/'MM", CultureInfo.InvariantCulture)}";
+
+    // "January 2026" / "januari 2026".
+    public static string Month(int year, int month) =>
+        new DateOnly(year, month, 1).ToString("MMMM yyyy", CultureInfo.CurrentCulture);
+
     // One day is shown once ("22/10/2026"), a longer period as "22/10/2026 – 26/10/2026".
     public static string Period(DateOnly start, DateOnly end) =>
         start == end ? Format(start) : $"{Format(start)} – {Format(end)}";

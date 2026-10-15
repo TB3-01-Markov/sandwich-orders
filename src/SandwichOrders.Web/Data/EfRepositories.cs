@@ -72,6 +72,21 @@ public class EfOrderRepository(AppDbContext db) : IOrderRepository
             .OrderBy(o => o.CustomerName)
             .ToListAsync(ct);
 
+    public async Task<IReadOnlyList<Order>> GetForCustomerBeforeAsync(
+        string customerId, DateOnly before, int max, CancellationToken ct = default) =>
+        await db.Orders.AsNoTracking()
+            .Include(o => o.Lines).ThenInclude(l => l.Sandwich)
+            .Where(o => o.CustomerId == customerId && o.OrderDate < before)
+            .OrderByDescending(o => o.OrderDate)
+            .Take(max)
+            .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<Order>> GetForPeriodAsync(DateOnly from, DateOnly to, CancellationToken ct = default) =>
+        await db.Orders.AsNoTracking()
+            .Include(o => o.Lines)
+            .Where(o => o.OrderDate >= from && o.OrderDate <= to)
+            .ToListAsync(ct);
+
     public Task<Order?> GetAsync(int id, CancellationToken ct = default) =>
         db.Orders
             .Include(o => o.Lines).ThenInclude(l => l.Sandwich)

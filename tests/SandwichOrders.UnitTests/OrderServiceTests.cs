@@ -390,6 +390,73 @@ public class OrderServiceTests
         Assert.Equal(0m, overview.TotalAmount);
     }
 
+    // ---- History ---------------------------------------------------------------------------------------------
+
+    [Fact]
+    public async Task History_AsksForTheCustomersOrdersBeforeTodayInBrussels()
+    {
+        IReadOnlyList<Order> previous = [OrderOf("Ada Lovelace", Line(HamSandwich(), Bread.White))];
+        orders.GetForCustomerBeforeAsync(CustomerId, new DateOnly(2026, 1, 14), OrderingRules.CustomerHistoryLimit, Arg.Any<CancellationToken>())
+            .Returns(previous);
+
+        var history = await service.GetHistoryAsync(CustomerId);
+
+        Assert.Same(previous, history);
+    }
+
+    [Fact]
+    public async Task MonthSummary_GroupsByDay_AndLeavesCancelledOrdersOutOfTheAmount()
+    {
+        var monday = new DateOnly(2026, 1, 12);
+        var wednesday = new DateOnly(2026, 1, 14);
+        var cancelled = OrderOn(monday, OrderOf("Linus", Line(HamSandwich(), Bread.White)));
+        cancelled.Status = OrderStatus.Cancelled;
+        IReadOnlyList<Order> january =
+        [
+            OrderOn(wednesday, OrderOf("Ada", Line(HamSandwich(), Bread.White))),
+            OrderOn(monday, OrderOf("Grace", Line(HamSandwich(), Bread.White))),
+            cancelled,
+            OrderOn(wednesday, OrderOf("Alan", Line(HamSandwich(), Bread.White)))
+        ];
+        orders.GetForPeriodAsync(new DateOnly(2026, 1, 1), new DateOnly(2026, 1, 31), Arg.Any<CancellationToken>())
+            .Returns(january);
+
+        var month = await service.GetMonthSummaryAsync(2026, 1);
+
+        Assert.Equal(
+            new[] { new DaySummary(monday, 1, 1, 4.20m, 1), new DaySummary(wednesday, 2, 2, 8.40m, 0) },
+            month.Days);
+        Assert.Equal(3, month.Orders);
+        Assert.Equal(3, month.Sandwiches);
+        Assert.Equal(12.60m, month.Amount);
+        Assert.Equal(1, month.Cancelled);
+    }
+
+    [Fact]
+    public async Task MonthSummary_UsesTheWholeMonth_AlsoInFebruary()
+    {
+        IReadOnlyList<Order> none = [];
+        orders.GetForPeriodAsync(Arg.Any<DateOnly>(), Arg.Any<DateOnly>(), Arg.Any<CancellationToken>()).Returns(none);
+
+        var month = await service.GetMonthSummaryAsync(2028, 2); // leap year
+
+        _ = orders.Received(1).GetForPeriodAsync(new DateOnly(2028, 2, 1), new DateOnly(2028, 2, 29), Arg.Any<CancellationToken>());
+        Assert.Empty(month.Days);
+        Assert.Equal(0m, month.Amount);
+    }
+
+    [Fact]
+    public async Task OverviewForAnEarlierDay_UsesThatDay()
+    {
+        IReadOnlyList<Order> monday = [OrderOf("Ada", Line(HamSandwich(), Bread.White))];
+        orders.GetActiveForDateAsync(new DateOnly(2026, 1, 12), Arg.Any<CancellationToken>()).Returns(monday);
+
+        var overview = await service.GetOverviewForDateAsync(new DateOnly(2026, 1, 12));
+
+        Assert.Equal(new DateOnly(2026, 1, 12), overview.Date);
+        Assert.Equal(1, overview.TotalSandwiches);
+    }
+
     // ---- helpers -----------------------------------------------------------------------------------------
 
     private void SetUtc(string iso) =>
@@ -399,6 +466,12 @@ public class OrderServiceTests
     {
         var order = new Order { CustomerId = customerName, CustomerName = customerName };
         order.Lines.Add(line);
+        return order;
+    }
+
+    private static Order OrderOn(DateOnly date, Order order)
+    {
+        order.OrderDate = date;
         return order;
     }
 
