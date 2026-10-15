@@ -31,6 +31,19 @@ public class DatabaseRulesTests : IntegrationTestBase
         }
     }
 
+    // The keys behind the login cookie and the anti-forgery tokens are stored in the database, so a restart of the
+    // app (frequent on shared hosting) does not sign everybody out.
+    [Fact]
+    public async Task DataProtectionKeys_AreStoredInTheDatabase()
+    {
+        using var visitor = CreateClient();
+        await visitor.GetStringAsync("/"); // the page contains forms, so an anti-forgery token is created
+
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        Assert.True(await db.DataProtectionKeys.AnyAsync());
+    }
+
     [Fact]
     public void ColumnSizes_MatchTheLimitsTheFormsCheck()
     {

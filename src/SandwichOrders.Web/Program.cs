@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -72,6 +73,13 @@ builder.Services.ConfigureApplicationCookie(options =>
         return Task.CompletedTask;
     };
 });
+
+// The keys that encrypt the login cookie and the anti-forgery tokens are kept in the database. By default they live in
+// memory or in the user profile; on shared hosting the app is restarted often (and a new Docker container has no
+// profile), which would sign everybody out and make open forms fail with "400 Bad Request".
+builder.Services.AddDataProtection()
+    .SetApplicationName("SandwichOrders")
+    .PersistKeysToDbContext<AppDbContext>();
 
 // JavaScript sends the anti-forgery token of the page in this header with every POST to the API.
 builder.Services.AddAntiforgery(options => options.HeaderName = "RequestVerificationToken");

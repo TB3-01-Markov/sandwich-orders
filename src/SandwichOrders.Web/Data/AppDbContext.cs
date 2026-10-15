@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SandwichOrders.Core;
@@ -8,8 +9,12 @@ using SandwichOrders.Web.Models;
 
 namespace SandwichOrders.Web.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<ApplicationUser>(options)
+// Also stores the Data Protection keys (IDataProtectionKeyContext), see Program.cs.
+public class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<ApplicationUser>(options), IDataProtectionKeyContext
 {
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+
     public DbSet<Ingredient> Ingredients => Set<Ingredient>();
     public DbSet<Sandwich> Sandwiches => Set<Sandwich>();
     public DbSet<SandwichIngredient> SandwichIngredients => Set<SandwichIngredient>();
