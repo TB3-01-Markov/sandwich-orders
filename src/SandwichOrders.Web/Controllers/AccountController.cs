@@ -33,7 +33,8 @@ public class AccountController(
         {
             UserName = model.Email,
             Email = model.Email,
-            DisplayName = model.DisplayName.Trim()
+            DisplayName = model.DisplayName.Trim(),
+            PhoneNumber = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber.Trim()
         };
 
         var created = await users.CreateAsync(user, model.Password);

@@ -14,3 +14,12 @@
     height: 140px;
     object-fit: cover;
 }
+
+/* Small inline stock forms on the staff menu page. */
+.stock-form input[type=number] {
+    width: 6rem;
+}
+
+.portions-input {
+    width: 4.5rem;
+}

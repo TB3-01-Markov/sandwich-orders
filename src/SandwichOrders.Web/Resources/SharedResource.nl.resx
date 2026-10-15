@@ -140,4 +140,73 @@
   <data name="The filter is not an allergen guarantee. Ask the canteen if you have an allergy." xml:space="preserve"><value>De filter is geen garantie voor allergenen. Vraag het aan de kantine als je een allergie hebt.</value></data>
   <data name="Showing {0} of {1} sandwiches" xml:space="preserve"><value>{0} van {1} broodjes getoond</value></data>
   <data name="No sandwich matches this filter." xml:space="preserve"><value>Geen enkel broodje past bij deze filter.</value></data>
+  <data name="An announcement is shown from its first date. During the period it can block ordering, for example during holidays. After the period it disappears by itself." xml:space="preserve"><value>Een mededeling wordt getoond vanaf de eerste datum. Tijdens de periode kan ze bestellen blokkeren, bijvoorbeeld tijdens de vakantie. Na de periode verdwijnt ze vanzelf.</value></data>
+  <data name="Announcements" xml:space="preserve"><value>Mededelingen</value></data>
+  <data name="Block ordering during the period" xml:space="preserve"><value>Bestellen blokkeren tijdens de periode</value></data>
+  <data name="Blocking" xml:space="preserve"><value>Blokkeert</value></data>
+  <data name="Blocks ordering" xml:space="preserve"><value>Blokkeert bestellen</value></data>
+  <data name="Calculated from the ingredient stock" xml:space="preserve"><value>Berekend uit de voorraad ingrediënten</value></data>
+  <data name="Can still be made" xml:space="preserve"><value>Nog te maken</value></data>
+  <data name="Cancel this order and put the stock back?" xml:space="preserve"><value>Deze bestelling annuleren en de voorraad terugzetten?</value></data>
+  <data name="Closed today" xml:space="preserve"><value>Vandaag gesloten</value></data>
+  <data name="Delete" xml:space="preserve"><value>Verwijderen</value></data>
+  <data name="Delete this announcement?" xml:space="preserve"><value>Deze mededeling verwijderen?</value></data>
+  <data name="Edit announcement" xml:space="preserve"><value>Mededeling bewerken</value></data>
+  <data name="Empty = not counted." xml:space="preserve"><value>Leeg = niet geteld.</value></data>
+  <data name="Enter a stock of 0 or more (empty = not counted)." xml:space="preserve"><value>Geef een voorraad van 0 of meer in (leeg = niet geteld).</value></data>
+  <data name="Enter a valid phone number." xml:space="preserve"><value>Geef een geldig telefoonnummer in.</value></data>
+  <data name="Enter the text in at least one language." xml:space="preserve"><value>Geef de tekst in minstens één taal in.</value></data>
+  <data name="Finished" xml:space="preserve"><value>Afgelopen</value></data>
+  <data name="In period" xml:space="preserve"><value>In periode</value></data>
+  <data name="Informing" xml:space="preserve"><value>Informeert</value></data>
+  <data name="Leave empty to keep showing the normal text during the period." xml:space="preserve"><value>Laat leeg om tijdens de periode de gewone tekst te blijven tonen.</value></data>
+  <data name="Made here" xml:space="preserve"><value>Hier gemaakt</value></data>
+  <data name="Made here: stock comes from the ingredients. Supplied: delivered ready-made, counted per piece." xml:space="preserve"><value>Hier gemaakt: de voorraad komt van de ingrediënten. Geleverd: kant-en-klaar geleverd, per stuk geteld.</value></data>
+  <data name="New announcement" xml:space="preserve"><value>Nieuwe mededeling</value></data>
+  <data name="No" xml:space="preserve"><value>Nee</value></data>
+  <data name="No announcements yet." xml:space="preserve"><value>Nog geen mededelingen.</value></data>
+  <data name="Not shown yet" xml:space="preserve"><value>Nog niet getoond</value></data>
+  <data name="Now" xml:space="preserve"><value>Nu</value></data>
+  <data name="One language is enough; the other language then shows the same text." xml:space="preserve"><value>Eén taal volstaat; de andere taal toont dan dezelfde tekst.</value></data>
+  <data name="Only used by the canteen to contact you about your order." xml:space="preserve"><value>Wordt alleen door de kantine gebruikt om je over je bestelling te contacteren.</value></data>
+  <data name="Only {0} left" xml:space="preserve"><value>Nog maar {0} over</value></data>
+  <data name="Ordering is not possible in this period." xml:space="preserve"><value>Bestellen is in deze periode niet mogelijk.</value></data>
+  <data name="Other text during the period (optional)" xml:space="preserve"><value>Andere tekst tijdens de periode (optioneel)</value></data>
+  <data name="Period" xml:space="preserve"><value>Periode</value></data>
+  <data name="Period from" xml:space="preserve"><value>Periode van</value></data>
+  <data name="Period until (inclusive)" xml:space="preserve"><value>Periode tot en met</value></data>
+  <data name="Phone" xml:space="preserve"><value>Telefoon</value></data>
+  <data name="Phone number (optional)" xml:space="preserve"><value>Telefoonnummer (optioneel)</value></data>
+  <data name="Pieces left" xml:space="preserve"><value>Stuks over</value></data>
+  <data name="Please enter a valid date." xml:space="preserve"><value>Geef een geldige datum in.</value></data>
+  <data name="Portions per sandwich" xml:space="preserve"><value>Porties per broodje</value></data>
+  <data name="Portions per sandwich must be between 1 and 20." xml:space="preserve"><value>Porties per broodje moeten tussen 1 en 20 liggen.</value></data>
+  <data name="Ready" xml:space="preserve"><value>Klaar</value></data>
+  <data name="Shown from" xml:space="preserve"><value>Getoond vanaf</value></data>
+  <data name="Sold out" xml:space="preserve"><value>Uitverkocht</value></data>
+  <data name="Someone else just ordered the same thing. Please try again." xml:space="preserve"><value>Iemand anders bestelde net hetzelfde. Probeer het opnieuw.</value></data>
+  <data name="Stock (portions)" xml:space="preserve"><value>Voorraad (porties)</value></data>
+  <data name="Stock is counted in portions: 1 portion is what goes on one sandwich (for example 1 slice of cheese). Leave the field empty to not count an ingredient. The menu calculates how many sandwiches can still be made and greys out what is sold out." xml:space="preserve"><value>De voorraad wordt in porties geteld: 1 portie is wat op één broodje gaat (bijvoorbeeld 1 sneetje kaas). Laat het veld leeg om een ingrediënt niet te tellen. Het menu berekent hoeveel broodjes nog gemaakt kunnen worden en maakt uitverkochte broodjes grijs.</value></data>
+  <data name="Supplied" xml:space="preserve"><value>Geleverd</value></data>
+  <data name="Text" xml:space="preserve"><value>Tekst</value></data>
+  <data name="Text (Dutch)" xml:space="preserve"><value>Tekst (Nederlands)</value></data>
+  <data name="Text (English)" xml:space="preserve"><value>Tekst (Engels)</value></data>
+  <data name="The announcement has been deleted." xml:space="preserve"><value>De mededeling is verwijderd.</value></data>
+  <data name="The announcement has been saved." xml:space="preserve"><value>De mededeling is opgeslagen.</value></data>
+  <data name="The canteen is closed today, so ordering is not possible." xml:space="preserve"><value>De kantine is vandaag gesloten, dus bestellen is niet mogelijk.</value></data>
+  <data name="The dates must be in order: shown from ≤ period start ≤ period end." xml:space="preserve"><value>De datums moeten in volgorde staan: getoond vanaf ≤ begin periode ≤ einde periode.</value></data>
+  <data name="The number next to an ingredient is how many portions one sandwich uses (for example 2 slices of cheese)." xml:space="preserve"><value>Het getal naast een ingrediënt is hoeveel porties één broodje gebruikt (bijvoorbeeld 2 sneetjes kaas).</value></data>
+  <data name="The order has been cancelled and the stock was put back." xml:space="preserve"><value>De bestelling is geannuleerd en de voorraad is teruggezet.</value></data>
+  <data name="The phone number is too long." xml:space="preserve"><value>Het telefoonnummer is te lang.</value></data>
+  <data name="The stock has been saved." xml:space="preserve"><value>De voorraad is opgeslagen.</value></data>
+  <data name="The stock must be 0 or more." xml:space="preserve"><value>De voorraad moet 0 of meer zijn.</value></data>
+  <data name="The text is too long." xml:space="preserve"><value>De tekst is te lang.</value></data>
+  <data name="This announcement does not exist." xml:space="preserve"><value>Deze mededeling bestaat niet.</value></data>
+  <data name="This status change is not possible for this order." xml:space="preserve"><value>Deze statuswijziging is niet mogelijk voor deze bestelling.</value></data>
+  <data name="Type" xml:space="preserve"><value>Soort</value></data>
+  <data name="Want to change or cancel your order? Please ask the canteen staff." xml:space="preserve"><value>Wil je je bestelling wijzigen of annuleren? Vraag het aan het kantinepersoneel.</value></data>
+  <data name="We will show here when your sandwich is ready." xml:space="preserve"><value>We tonen hier wanneer je broodje klaar is.</value></data>
+  <data name="Yes" xml:space="preserve"><value>Ja</value></data>
+  <data name="Your sandwich is ready. You can collect it at the canteen." xml:space="preserve"><value>Je broodje is klaar. Je kunt het ophalen in de kantine.</value></data>
+  <data name="The stock changed in the meantime (someone ordered). Please check and save again." xml:space="preserve"><value>De voorraad is intussen veranderd (iemand bestelde). Controleer en sla opnieuw op.</value></data>
 </root>

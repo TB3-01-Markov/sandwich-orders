@@ -1,3 +1,5 @@
+using SandwichOrders.Web.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -40,16 +42,13 @@ public class OrderingAndStaffTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task AGuestCanOnlyOrderOncePerDay_AndCanCancelHisOwnOrder()
+    public async Task AGuestCanOnlyOrderOncePerDay()
     {
         using var visitor = CreateClient();
         await OrderHamAsync(visitor, "White", "Jan Peeters");
 
         await OrderHamAsync(visitor, "White", "Jan Peeters");
         Assert.Contains("already have an order", await visitor.GetStringAsync("/"));
-
-        await PostFormAsync(visitor, "/Orders/Cancel", new Dictionary<string, string>());
-        Assert.Contains("You have no order for today", await visitor.GetStringAsync("/Orders/Today"));
     }
 
     [Fact]
@@ -152,34 +151,63 @@ public class OrderingAndStaffTests : IntegrationTestBase
         Assert.Contains("already have an order", await customer.GetStringAsync("/"));
     }
 
-    // ---- US-05: cancelling -------------------------------------------------------------------------------
+    // ---- Cancelling: only the canteen employee can cancel ------------------------------------------------------
 
     [Fact]
-    public async Task ACustomerCanCancelBeforeTheDeadline_AndThenOrderAgain()
+    public async Task ACustomerCannotCancel_ThereIsNoButtonAndNoEndpoint()
     {
         using var customer = await CreateSignedInCustomerAsync();
         await OrderHamAsync(customer);
 
-        var cancel = await PostFormAsync(customer, "/Orders/Cancel", new Dictionary<string, string>());
-        Assert.Equal(HttpStatusCode.Redirect, cancel.StatusCode);
-        Assert.Contains("You have no order for today", await customer.GetStringAsync("/Orders/Today"));
+        var html = await customer.GetStringAsync("/Orders/Today");
+        Assert.DoesNotContain("/Orders/Cancel", html);
+        Assert.Contains("ask the canteen staff", html);
 
-        var again = await OrderHamAsync(customer);
-        Assert.EndsWith("/Orders/Today", again.Headers.Location!.ToString());
+        var cancel = await PostFormAsync(customer, "/Orders/Cancel", new Dictionary<string, string>());
+        Assert.Equal(HttpStatusCode.NotFound, cancel.StatusCode);
+        Assert.Contains("Ham sandwich", await customer.GetStringAsync("/Orders/Today"));
     }
 
     [Fact]
-    public async Task CancellingAfterTheDeadline_IsRefused_AndTheOrderStays()
+    public async Task ACustomerCannotUseTheStaffCancel()
     {
         using var customer = await CreateSignedInCustomerAsync();
         await OrderHamAsync(customer);
-        SetBrusselsClockToUtc("2026-01-14T08:31:00Z");
 
-        await PostFormAsync(customer, "/Orders/Cancel", new Dictionary<string, string>());
+        var response = await PostFormAsync(customer, "/Staff/CancelOrder", new Dictionary<string, string> { ["id"] = "1" });
 
-        var html = await customer.GetStringAsync("/Orders/Today");
-        Assert.Contains("Ham sandwich", html);
-        Assert.Contains("deadline has passed", html);
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Contains("/Account/AccessDenied", response.Headers.Location!.ToString());
+        Assert.Contains("Ham sandwich", await customer.GetStringAsync("/Orders/Today"));
+    }
+
+    [Fact]
+    public async Task TheCanteenCanCancel_EvenAfterTheDeadline_AndTheCustomerCanOrderAgainTheNextDay()
+    {
+        using var customer = await CreateSignedInCustomerAsync();
+        await OrderHamAsync(customer);
+        SetBrusselsClockToUtc("2026-01-14T08:31:00Z"); // after the deadline
+        using var staff = await CreateStaffClientAsync();
+
+        var cancel = await PostFormAsync(staff, "/Staff/CancelOrder",
+            new Dictionary<string, string> { ["id"] = await OnlyOrderIdAsync() }, "/Staff/Today");
+
+        Assert.Equal(HttpStatusCode.Redirect, cancel.StatusCode);
+        Assert.Contains("You have no order for today", await customer.GetStringAsync("/Orders/Today"));
+        Assert.Contains("No orders yet", await staff.GetStringAsync("/Staff/Today"));
+    }
+
+    [Fact]
+    public async Task WhenTheCanteenMarksAnOrderReady_TheCustomerSeesIt()
+    {
+        using var customer = await CreateSignedInCustomerAsync();
+        await OrderHamAsync(customer);
+        using var staff = await CreateStaffClientAsync();
+
+        await PostFormAsync(staff, "/Staff/SetOrderStatus",
+            new Dictionary<string, string> { ["id"] = await OnlyOrderIdAsync(), ["status"] = "Prepared" }, "/Staff/Today");
+
+        Assert.Contains("Your sandwich is ready", await customer.GetStringAsync("/Orders/Today"));
     }
 
     // ---- US-06 and US-07: the canteen's view -------------------------------------------------------------
@@ -203,17 +231,22 @@ public class OrderingAndStaffTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task ACancelledOrderIsNotOnTheCanteensList()
+    public async Task TheCanteenSeesThePhoneNumberOfARegisteredCustomer()
     {
-        using var customer = await CreateSignedInCustomerAsync();
+        using var customer = CreateClient();
+        await PostFormAsync(customer, "/Account/Register", new Dictionary<string, string>
+        {
+            ["DisplayName"] = "Ada Lovelace",
+            ["Email"] = "ada@example.test",
+            ["PhoneNumber"] = "+32 470 12 34 56",
+            ["Password"] = CustomerPassword,
+            ["ConfirmPassword"] = CustomerPassword
+        });
         await OrderHamAsync(customer);
-        await PostFormAsync(customer, "/Orders/Cancel", new Dictionary<string, string>());
         using var staff = await CreateStaffClientAsync();
 
-        var html = await staff.GetStringAsync("/Staff/Today");
-
-        Assert.DoesNotContain("Ada Lovelace", html);
-        Assert.Contains("No orders yet", html);
+        // Razor HTML-encodes "+", so only the digits are compared.
+        Assert.Contains("470 12 34 56", await staff.GetStringAsync("/Staff/Today"));
     }
 
     [Fact]
@@ -325,5 +358,87 @@ public class OrderingAndStaffTests : IntegrationTestBase
 
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         Assert.Contains("/Account/AccessDenied", response.Headers.Location!.ToString());
+    }
+
+    // ---- Stock and closing days -----------------------------------------------------------------------------
+
+    [Fact]
+    public async Task WhenTheLastPortionIsOrdered_TheSandwichIsSoldOut_AndCancellingPutsItBack()
+    {
+        using var staff = await CreateStaffClientAsync();
+        await PostFormAsync(staff, "/Staff/SetIngredientStock",
+            new Dictionary<string, string> { ["id"] = await HamIngredientIdAsync(), ["portions"] = "1" }, "/Staff/Menu");
+
+        using var ada = await CreateSignedInCustomerAsync("ada@example.test", "Ada Lovelace");
+        await OrderHamAsync(ada);
+
+        using var grace = await CreateSignedInCustomerAsync("grace@example.test", "Grace Hopper");
+        await OrderHamAsync(grace);
+        Assert.Contains("This sandwich is not available", await grace.GetStringAsync("/"));
+        Assert.Contains("Sold out", await grace.GetStringAsync("/"));
+
+        await PostFormAsync(staff, "/Staff/CancelOrder",
+            new Dictionary<string, string> { ["id"] = await OnlyOrderIdAsync() }, "/Staff/Today");
+
+        var again = await OrderHamAsync(grace);
+        Assert.EndsWith("/Orders/Today", again.Headers.Location!.ToString());
+    }
+
+    [Fact]
+    public async Task DuringAClosingPeriod_OrderingIsBlocked_AndTheAnnouncementIsShown()
+    {
+        using var staff = await CreateStaffClientAsync();
+        var saved = await PostFormAsync(staff, "/Staff/AnnouncementEdit", new Dictionary<string, string>
+        {
+            ["MessageEn"] = "Closed for holidays",
+            ["ShowFrom"] = "2026-01-10",
+            ["PeriodStart"] = "2026-01-14",
+            ["PeriodEnd"] = "2026-01-20",
+            ["BlocksOrdering"] = "true"
+        }, "/Staff/AnnouncementEdit");
+        Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
+
+        using var visitor = CreateClient();
+        var menu = await visitor.GetStringAsync("/");
+        Assert.Contains("Closed for holidays", menu);
+        Assert.Contains("Closed today", menu);
+
+        await OrderHamAsync(visitor, "White", "Jan Peeters");
+        Assert.Contains("The canteen is closed today", await visitor.GetStringAsync("/"));
+        Assert.Contains("You have no order for today", await visitor.GetStringAsync("/Orders/Today"));
+    }
+
+    [Fact]
+    public async Task BeforeTheClosingPeriod_TheAnnouncementOnlyInforms()
+    {
+        using var staff = await CreateStaffClientAsync();
+        await PostFormAsync(staff, "/Staff/AnnouncementEdit", new Dictionary<string, string>
+        {
+            ["MessageEn"] = "Closed next week",
+            ["ShowFrom"] = "2026-01-10",
+            ["PeriodStart"] = "2026-01-19",
+            ["PeriodEnd"] = "2026-01-23",
+            ["BlocksOrdering"] = "true"
+        }, "/Staff/AnnouncementEdit");
+
+        using var visitor = CreateClient();
+        Assert.Contains("Closed next week", await visitor.GetStringAsync("/"));
+
+        var order = await OrderHamAsync(visitor, "White", "Jan Peeters");
+        Assert.EndsWith("/Orders/Today", order.Headers.Location!.ToString());
+    }
+
+    private async Task<string> OnlyOrderIdAsync()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return (await db.Orders.SingleAsync(o => o.Status != SandwichOrders.Core.OrderStatus.Cancelled)).Id.ToString();
+    }
+
+    private async Task<string> HamIngredientIdAsync()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return (await db.Ingredients.SingleAsync(i => i.NameEn == "Ham")).Id.ToString();
     }
 }

@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
 using SandwichOrders.Core;
+using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 using SandwichOrders.Core.Orders;
 
@@ -18,6 +19,7 @@ public class OrderServiceTests
     private readonly IOrderRepository orders = Substitute.For<IOrderRepository>();
     private readonly IMenuRepository menu = Substitute.For<IMenuRepository>();
     private readonly IOrderingSettings settings = Substitute.For<IOrderingSettings>();
+    private readonly IAnnouncementRepository announcements = Substitute.For<IAnnouncementRepository>();
     private readonly FakeTimeProvider clock = new();
     private readonly OrderService service;
 
@@ -25,9 +27,10 @@ public class OrderServiceTests
     {
         settings.GetDeadlineAsync(Arg.Any<CancellationToken>()).Returns(new TimeOnly(9, 30));
         menu.GetAsync(1, Arg.Any<CancellationToken>()).Returns(HamSandwich());
+        announcements.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Announcement>());
         SetUtc("2026-01-14T08:00:00Z");
 
-        service = new OrderService(orders, menu, settings, clock);
+        service = new OrderService(orders, menu, settings, announcements, clock);
     }
 
     // ---- US-04: placing an order -------------------------------------------------------------------------
@@ -178,6 +181,154 @@ public class OrderServiceTests
         var exception = await Assert.ThrowsAsync<OrderingException>(() => service.CancelAsync(CustomerId));
 
         Assert.Equal(OrderingError.OrderNotFound, exception.Error);
+    }
+
+    // ---- Stock, closing days and the canteen employee -------------------------------------------------------
+
+    [Fact]
+    public async Task Place_TakesTheIngredientPortionsOutOfStock()
+    {
+        var sandwich = HamSandwich();
+        sandwich.SandwichIngredients.Single().Portions = 2;
+        sandwich.SandwichIngredients.Single().Ingredient.SetStock(5);
+        menu.GetAsync(1, Arg.Any<CancellationToken>()).Returns(sandwich);
+
+        await service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White);
+
+        Assert.Equal(3, sandwich.SandwichIngredients.Single().Ingredient.StockPortions);
+    }
+
+    [Fact]
+    public async Task Place_WhenNotEnoughPortionsAreLeft_IsRefusedAndTheStockStays()
+    {
+        var sandwich = HamSandwich();
+        sandwich.SandwichIngredients.Single().Portions = 2;
+        sandwich.SandwichIngredients.Single().Ingredient.SetStock(1);
+        menu.GetAsync(1, Arg.Any<CancellationToken>()).Returns(sandwich);
+
+        var exception = await Assert.ThrowsAsync<OrderingException>(
+            () => service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White));
+
+        Assert.Equal(OrderingError.SandwichUnavailable, exception.Error);
+        Assert.Equal(1, sandwich.SandwichIngredients.Single().Ingredient.StockPortions);
+        orders.DidNotReceive().Add(Arg.Any<Order>());
+    }
+
+    [Fact]
+    public async Task Place_ASuppliedSandwich_CountsPieces()
+    {
+        var wrap = new Sandwich { Id = 2, Number = 2, NameEn = "Wrap", NameNl = "Wrap", Price = 5m, Kind = SandwichKind.Supplied };
+        wrap.SetStock(1);
+        menu.GetAsync(2, Arg.Any<CancellationToken>()).Returns(wrap);
+
+        await service.PlaceAsync(CustomerId, "Ada Lovelace", 2, Bread.White);
+
+        Assert.Equal(0, wrap.StockCount);
+        Assert.False(wrap.IsAvailable);
+    }
+
+    [Fact]
+    public async Task Place_CopiesThePhoneNumber()
+    {
+        var order = await service.PlaceAsync(CustomerId, "Ada Lovelace", " +32 470 12 34 56 ", 1, Bread.White);
+
+        Assert.Equal("+32 470 12 34 56", order.CustomerPhone);
+    }
+
+    [Fact]
+    public async Task Place_OnAClosingDay_IsRefused()
+    {
+        announcements.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Announcement>
+        {
+            new()
+            {
+                MessageEn = "Holidays",
+                ShowFrom = new DateOnly(2026, 1, 1),
+                PeriodStart = new DateOnly(2026, 1, 14),
+                PeriodEnd = new DateOnly(2026, 1, 20),
+                BlocksOrdering = true
+            }
+        });
+
+        var exception = await Assert.ThrowsAsync<OrderingException>(
+            () => service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White));
+
+        Assert.Equal(OrderingError.CanteenClosed, exception.Error);
+        Assert.True((await service.GetWindowAsync()).ClosedToday);
+    }
+
+    [Fact]
+    public async Task Place_BeforeTheClosingPeriod_IsStillAccepted()
+    {
+        announcements.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Announcement>
+        {
+            new()
+            {
+                MessageEn = "Closed next week",
+                ShowFrom = new DateOnly(2026, 1, 1),
+                PeriodStart = new DateOnly(2026, 1, 19),
+                PeriodEnd = new DateOnly(2026, 1, 23),
+                BlocksOrdering = true
+            }
+        });
+
+        var order = await service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White);
+
+        Assert.Equal(OrderStatus.Placed, order.Status);
+    }
+
+    [Fact]
+    public async Task CancelByStaff_PutsTheStockBack()
+    {
+        var sandwich = HamSandwich();
+        sandwich.SandwichIngredients.Single().Ingredient.SetStock(3);
+        var order = OrderOf("Ada Lovelace", Line(sandwich, Bread.White));
+        order.Id = 7;
+        orders.GetAsync(7, Arg.Any<CancellationToken>()).Returns(order);
+
+        await service.CancelByStaffAsync(7);
+
+        Assert.Equal(OrderStatus.Cancelled, order.Status);
+        Assert.Equal(4, sandwich.SandwichIngredients.Single().Ingredient.StockPortions);
+        _ = orders.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task CancelByStaff_WorksAfterTheDeadline()
+    {
+        var order = OrderOf("Ada Lovelace", Line(HamSandwich(), Bread.White));
+        orders.GetAsync(7, Arg.Any<CancellationToken>()).Returns(order);
+        SetUtc("2026-01-14T12:00:00Z");
+
+        await service.CancelByStaffAsync(7);
+
+        Assert.True(order.IsCancelled);
+    }
+
+    [Theory]
+    [InlineData(OrderStatus.Placed, OrderStatus.Prepared, true)]
+    [InlineData(OrderStatus.Placed, OrderStatus.Collected, true)]
+    [InlineData(OrderStatus.Prepared, OrderStatus.Collected, true)]
+    [InlineData(OrderStatus.Prepared, OrderStatus.Placed, false)]
+    [InlineData(OrderStatus.Collected, OrderStatus.Prepared, false)]
+    [InlineData(OrderStatus.Placed, OrderStatus.Cancelled, false)]
+    public async Task SetStatus_OnlyMovesForward(OrderStatus from, OrderStatus to, bool allowed)
+    {
+        var order = OrderOf("Ada Lovelace", Line(HamSandwich(), Bread.White));
+        order.Status = from;
+        orders.GetAsync(7, Arg.Any<CancellationToken>()).Returns(order);
+
+        if (allowed)
+        {
+            await service.SetStatusAsync(7, to);
+            Assert.Equal(to, order.Status);
+        }
+        else
+        {
+            var exception = await Assert.ThrowsAsync<OrderingException>(() => service.SetStatusAsync(7, to));
+            Assert.Equal(OrderingError.InvalidStatusChange, exception.Error);
+            Assert.Equal(from, order.Status);
+        }
     }
 
     // ---- US-07: what the canteen has to prepare ----------------------------------------------------------

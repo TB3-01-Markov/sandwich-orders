@@ -94,7 +94,8 @@ public class OrderTests
     {
         var order = new Order { Status = OrderStatus.Collected };
 
-        Assert.Throws<InvalidOperationException>(order.Cancel);
+        var exception = Assert.Throws<OrderingException>(order.Cancel);
+        Assert.Equal(OrderingError.InvalidStatusChange, exception.Error);
     }
 }
 

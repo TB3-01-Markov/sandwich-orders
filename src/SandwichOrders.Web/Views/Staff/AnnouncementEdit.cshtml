@@ -1,0 +1,68 @@
+@model AnnouncementEditViewModel
+@{
+    var isNew = Model.Id is null;
+    ViewData["Title"] = isNew ? L["New announcement"].Value : L["Edit announcement"].Value;
+    string DateValue(DateOnly? date) => date?.ToString("yyyy-MM-dd") ?? "";
+}
+
+<h1 class="h3 mb-3">@ViewData["Title"]</h1>
+
+<form asp-action="AnnouncementEdit" method="post" class="row g-3">
+    <div asp-validation-summary="All" class="alert alert-danger col-12 mb-0"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="col-12 col-md-6">
+        <label asp-for="MessageNl" class="form-label">@L["Text (Dutch)"]</label>
+        <textarea asp-for="MessageNl" class="form-control" rows="2" maxlength="500"
+                  placeholder="Van 5 tot 15 augustus is de kantine gesloten (vakantie)."></textarea>
+    </div>
+    <div class="col-12 col-md-6">
+        <label asp-for="MessageEn" class="form-label">@L["Text (English)"]</label>
+        <textarea asp-for="MessageEn" class="form-control" rows="2" maxlength="500"
+                  placeholder="The canteen is closed from 5 to 15 August (holidays)."></textarea>
+    </div>
+    <div class="col-12 form-text mt-1">@L["One language is enough; the other language then shows the same text."]</div>
+
+    <div class="col-6 col-md-3">
+        <label for="ShowFrom" class="form-label">@L["Shown from"]</label>
+        <input id="ShowFrom" name="ShowFrom" type="date" value="@DateValue(Model.ShowFrom)" class="form-control" required />
+    </div>
+    <div class="col-6 col-md-3">
+        <label for="PeriodStart" class="form-label">@L["Period from"]</label>
+        <input id="PeriodStart" name="PeriodStart" type="date" value="@DateValue(Model.PeriodStart)" class="form-control" required />
+    </div>
+    <div class="col-6 col-md-3">
+        <label for="PeriodEnd" class="form-label">@L["Period until (inclusive)"]</label>
+        <input id="PeriodEnd" name="PeriodEnd" type="date" value="@DateValue(Model.PeriodEnd)" class="form-control" required />
+    </div>
+    <div class="col-6 col-md-3 d-flex align-items-end">
+        <div class="form-check">
+            <input asp-for="BlocksOrdering" class="form-check-input" />
+            <label asp-for="BlocksOrdering" class="form-check-label">@L["Block ordering during the period"]</label>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <details @(string.IsNullOrWhiteSpace(Model.PeriodMessageNl) && string.IsNullOrWhiteSpace(Model.PeriodMessageEn) ? null : "open")>
+            <summary>@L["Other text during the period (optional)"]</summary>
+            <div class="row g-3 mt-1">
+                <div class="col-12 col-md-6">
+                    <label asp-for="PeriodMessageNl" class="form-label">@L["Text (Dutch)"]</label>
+                    <textarea asp-for="PeriodMessageNl" class="form-control" rows="2" maxlength="500"
+                              placeholder="De kantine is gesloten tot 16 augustus."></textarea>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label asp-for="PeriodMessageEn" class="form-label">@L["Text (English)"]</label>
+                    <textarea asp-for="PeriodMessageEn" class="form-control" rows="2" maxlength="500"
+                              placeholder="The canteen is closed until 16 August."></textarea>
+                </div>
+            </div>
+            <div class="form-text">@L["Leave empty to keep showing the normal text during the period."]</div>
+        </details>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">@L["Save"]</button>
+        <a asp-action="Announcements" class="btn btn-outline-secondary">@L["Cancel"]</a>
+    </div>
+</form>

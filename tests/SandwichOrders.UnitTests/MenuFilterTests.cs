@@ -44,7 +44,8 @@ public class MenuFilterTests
 
     [Fact]
     public void IncludeAndExclude_BothApply() =>
-        Assert.Equal(new[] { 1 }, Numbers(MenuFilter.Apply(menu, [Cheese], [Egg])));
+        // cheese: sandwiches 1, 3 and 4; without egg removes 4
+        Assert.Equal(new[] { 1, 3 }, Numbers(MenuFilter.Apply(menu, [Cheese], [Egg])));
 
     [Fact]
     public void AnIngredientThatIsBothIncludedAndExcluded_MatchesNothing() =>

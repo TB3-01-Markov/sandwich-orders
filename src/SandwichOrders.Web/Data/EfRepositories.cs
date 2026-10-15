@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using SandwichOrders.Core;
+using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 using SandwichOrders.Core.Orders;
 using SandwichOrders.Web.Models;
@@ -31,7 +32,19 @@ public class EfMenuRepository(AppDbContext db) : IMenuRepository
 
     public void Add(Ingredient ingredient) => db.Ingredients.Add(ingredient);
 
-    public Task SaveChangesAsync(CancellationToken ct = default) => db.SaveChangesAsync(ct);
+    public async Task SaveChangesAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // An order changed the same stock while the employee was saving. Nothing is stored; reload and retry.
+            db.ChangeTracker.Clear();
+            throw new MenuException(MenuError.StockChanged);
+        }
+    }
 }
 
 public class EfOrderRepository(AppDbContext db) : IOrderRepository
@@ -50,7 +63,43 @@ public class EfOrderRepository(AppDbContext db) : IOrderRepository
             .OrderBy(o => o.CustomerName)
             .ToListAsync(ct);
 
+    public Task<Order?> GetAsync(int id, CancellationToken ct = default) =>
+        db.Orders
+            .Include(o => o.Lines).ThenInclude(l => l.Sandwich)
+            .ThenInclude(s => s.SandwichIngredients).ThenInclude(si => si.Ingredient)
+            .FirstOrDefaultAsync(o => o.Id == id, ct);
+
     public void Add(Order order) => db.Orders.Add(order);
+
+    public async Task SaveChangesAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Someone else changed the same stock between our read and our save (e.g. took the last portion).
+            // Forget our changes so this request leaves nothing half-done, and let the user try again.
+            db.ChangeTracker.Clear();
+            throw new OrderingException(OrderingError.StockChanged);
+        }
+    }
+}
+
+public class EfAnnouncementRepository(AppDbContext db) : IAnnouncementRepository
+{
+    public async Task<IReadOnlyList<Announcement>> GetAllAsync(CancellationToken ct = default) =>
+        await db.Announcements.AsNoTracking()
+            .OrderByDescending(a => a.PeriodStart)
+            .ToListAsync(ct);
+
+    public Task<Announcement?> GetAsync(int id, CancellationToken ct = default) =>
+        db.Announcements.FirstOrDefaultAsync(a => a.Id == id, ct);
+
+    public void Add(Announcement announcement) => db.Announcements.Add(announcement);
+
+    public void Remove(Announcement announcement) => db.Announcements.Remove(announcement);
 
     public Task SaveChangesAsync(CancellationToken ct = default) => db.SaveChangesAsync(ct);
 }
