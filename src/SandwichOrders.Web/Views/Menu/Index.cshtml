@@ -167,7 +167,7 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
                                 }
                                 <select name="bread" class="form-select form-select-sm" aria-label="@L["Bread"]">
                                     <option value="@Bread.White">@L["White bread"]</option>
-                                    <option value="@Bread.WholeGrain">@L["Whole-grain bread"]</option>
+                                    <option value="@Bread.WholeGrain">@L["Whole-grain bread"] (+@Money.Format(OrderingRules.BrownBreadSurcharge))</option>
                                 </select>
                                 <button type="submit" class="btn btn-primary btn-sm">@L["Order"]</button>
                             </form>

@@ -84,7 +84,7 @@ public class OrderService(
             Sandwich = sandwich,
             Bread = bread,
             Quantity = quantity,
-            UnitPrice = sandwich.Price
+            UnitPrice = sandwich.Price + OrderingRules.SurchargeFor(bread)
         });
 
         orders.Add(order);

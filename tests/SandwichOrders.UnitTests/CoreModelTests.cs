@@ -193,4 +193,11 @@ public class MenuServiceTests
 
         Assert.Equal(OrderingError.IngredientNotFound, exception.Error);
     }
+
+    [Fact]
+    public void BrownBreadSurcharge_IsEightyCent_WhiteBreadHasNone()
+    {
+        Assert.Equal(0.80m, OrderingRules.SurchargeFor(Bread.WholeGrain));
+        Assert.Equal(0m, OrderingRules.SurchargeFor(Bread.White));
+    }
 }
