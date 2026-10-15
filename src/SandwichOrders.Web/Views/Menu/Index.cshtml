@@ -50,6 +50,61 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
     </div>
 }
 
+<form method="get" asp-controller="Menu" asp-action="Index" class="card card-body mb-3">
+    <details @(Model.IsFiltered ? "open" : null)>
+        <summary class="fw-semibold">@L["Filter by ingredient"]</summary>
+        <div class="row g-3 mt-1">
+            <div class="col-12 col-md-6">
+                <div class="form-label">@L["Must contain"]</div>
+                <div class="row row-cols-2 g-1">
+                    @foreach (var ingredient in Model.Ingredients)
+                    {
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="include" value="@ingredient.Id"
+                                       id="include-@ingredient.Id" @(Model.Include.Contains(ingredient.Id) ? "checked" : null) />
+                                <label class="form-check-label" for="include-@ingredient.Id">@ingredient.Name()</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-label">@L["Must not contain"]</div>
+                <div class="row row-cols-2 g-1">
+                    @foreach (var ingredient in Model.Ingredients)
+                    {
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="exclude" value="@ingredient.Id"
+                                       id="exclude-@ingredient.Id" @(Model.Exclude.Contains(ingredient.Id) ? "checked" : null) />
+                                <label class="form-check-label" for="exclude-@ingredient.Id">@ingredient.Name()</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <button type="submit" class="btn btn-sm btn-primary">@L["Filter"]</button>
+            @if (Model.IsFiltered)
+            {
+                <a asp-controller="Menu" asp-action="Index" class="btn btn-sm btn-outline-secondary">@L["Clear filter"]</a>
+            }
+            <span class="text-muted small">@L["The filter is not an allergen guarantee. Ask the canteen if you have an allergy."]</span>
+        </div>
+    </details>
+</form>
+
+@if (Model.IsFiltered)
+{
+    <p class="text-muted" role="status">@L["Showing {0} of {1} sandwiches", Model.Sandwiches.Count, Model.TotalCount]</p>
+    @if (Model.Sandwiches.Count == 0)
+    {
+        <div class="alert alert-secondary">@L["No sandwich matches this filter."]</div>
+    }
+}
+
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
     @foreach (var sandwich in Model.Sandwiches)
     {

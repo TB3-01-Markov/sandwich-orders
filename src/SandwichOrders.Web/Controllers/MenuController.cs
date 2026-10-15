@@ -10,13 +10,20 @@ namespace SandwichOrders.Web.Controllers;
 public class MenuController(MenuService menu, OrderService orders) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken ct)
+    public async Task<IActionResult> Index(int[]? include, int[]? exclude, CancellationToken ct)
     {
         var customerId = CustomerIdentity.CurrentId(HttpContext);
+        var whole = await menu.GetMenuAsync(ct);
+        var includeIds = (include ?? []).Distinct().ToList();
+        var excludeIds = (exclude ?? []).Distinct().ToList();
 
         return View(new MenuViewModel
         {
-            Sandwiches = await menu.GetMenuAsync(ct),
+            Sandwiches = MenuFilter.Apply(whole, includeIds, excludeIds),
+            TotalCount = whole.Count,
+            Ingredients = await menu.GetIngredientsAsync(ct),
+            Include = includeIds,
+            Exclude = excludeIds,
             Window = await orders.GetWindowAsync(ct),
             IsSignedIn = CustomerIdentity.SignedInUserId(User) is not null,
             GuestName = CustomerIdentity.GuestName(Request) ?? "",
