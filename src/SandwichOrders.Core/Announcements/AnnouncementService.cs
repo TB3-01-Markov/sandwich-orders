@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace SandwichOrders.Core.Announcements;
 
 public interface IAnnouncementRepository
@@ -39,7 +41,7 @@ public class AnnouncementException(AnnouncementError error) : Exception($"Announ
     public AnnouncementError Error { get; } = error;
 }
 
-public class AnnouncementService(IAnnouncementRepository announcements, TimeProvider clock)
+public class AnnouncementService(IAnnouncementRepository announcements, TimeProvider clock, ILogger<AnnouncementService> logger)
 {
     // What visitors see today (upcoming and current notices), the soonest period first.
     public async Task<IReadOnlyList<Announcement>> GetVisibleTodayAsync(CancellationToken ct = default)
@@ -104,6 +106,8 @@ public class AnnouncementService(IAnnouncementRepository announcements, TimeProv
         announcement.BlocksOrdering = input.BlocksOrdering;
 
         await announcements.SaveChangesAsync(ct);
+        logger.LogInformation("Announcement {Id} saved: {Start} to {End}, blocks ordering {Blocks}",
+            announcement.Id, announcement.PeriodStart, announcement.PeriodEnd, announcement.BlocksOrdering);
         return announcement;
     }
 
@@ -113,5 +117,6 @@ public class AnnouncementService(IAnnouncementRepository announcements, TimeProv
                            ?? throw new AnnouncementException(AnnouncementError.NotFound);
         announcements.Remove(announcement);
         await announcements.SaveChangesAsync(ct);
+        logger.LogInformation("Announcement {Id} deleted", id);
     }
 }

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using System.Globalization;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
@@ -21,6 +23,7 @@ public class OrderServiceTests
     private readonly IOrderingSettings settings = Substitute.For<IOrderingSettings>();
     private readonly IAnnouncementRepository announcements = Substitute.For<IAnnouncementRepository>();
     private readonly FakeTimeProvider clock = new();
+    private readonly FakeLogger<OrderService> log = new();
     private readonly OrderService service;
 
     public OrderServiceTests()
@@ -30,7 +33,7 @@ public class OrderServiceTests
         announcements.GetAllAsync(Arg.Any<CancellationToken>()).Returns(new List<Announcement>());
         SetUtc("2026-01-14T08:00:00Z");
 
-        service = new OrderService(orders, menu, settings, announcements, clock);
+        service = new OrderService(orders, menu, settings, announcements, clock, log);
     }
 
     // ---- US-04: placing an order -------------------------------------------------------------------------
@@ -400,6 +403,31 @@ public class OrderServiceTests
         Assert.Empty(overview.Rows);
         Assert.Equal(0, overview.TotalSandwiches);
         Assert.Equal(0m, overview.TotalAmount);
+    }
+
+    // ---- Log -------------------------------------------------------------------------------------------------
+
+    [Fact]
+    public async Task Place_WritesTheOrderToTheLog_WithoutTheCustomersName()
+    {
+        await service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.WholeGrain, " +32 470 12 34 56 ");
+
+        var record = log.LatestRecord;
+        Assert.Equal(LogLevel.Information, record.Level);
+        Assert.Contains("placed", record.Message);
+        Assert.Contains("#1", record.Message);
+        Assert.DoesNotContain("Ada", record.Message);
+        Assert.DoesNotContain("470", record.Message);
+    }
+
+    [Fact]
+    public async Task ARefusedOrder_IsLoggedWithTheReason()
+    {
+        SetUtc("2026-01-14T08:30:00Z"); // 09:30, the deadline
+
+        await Assert.ThrowsAsync<OrderingException>(() => service.PlaceAsync(CustomerId, "Ada Lovelace", 1, Bread.White));
+
+        Assert.Contains("DeadlinePassed", log.LatestRecord.Message);
     }
 
     // ---- History ---------------------------------------------------------------------------------------------

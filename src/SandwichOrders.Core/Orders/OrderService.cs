@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
 
@@ -5,12 +6,14 @@ namespace SandwichOrders.Core.Orders;
 
 // The business rules for ordering (US-04, US-05, US-06, US-07, US-15) plus stock and closing days.
 // Rules that refuse an action throw OrderingException with a code; nothing here knows about HTTP or databases.
+// The log gets every business event with numbers only (order id, sandwich number), never names or phone numbers.
 public class OrderService(
     IOrderRepository orders,
     IMenuRepository menu,
     IOrderingSettings settings,
     IAnnouncementRepository announcements,
-    TimeProvider clock)
+    TimeProvider clock,
+    ILogger<OrderService> logger)
 {
     public async Task<OrderingWindow> GetWindowAsync(CancellationToken ct = default)
     {
@@ -33,6 +36,30 @@ public class OrderService(
         Bread bread,
         string? customerPhone = null,
         CancellationToken ct = default)
+    {
+        try
+        {
+            var order = await PlaceCoreAsync(customerId, customerName, sandwichId, bread, customerPhone, ct);
+            var line = order.Lines.Single();
+            logger.LogInformation(
+                "Order {OrderId} placed for {OrderDate}: sandwich #{SandwichNumber}, {Bread}, {UnitPrice}",
+                order.Id, order.OrderDate, line.Sandwich.Number, line.Bread, line.UnitPrice);
+            return order;
+        }
+        catch (OrderingException exception)
+        {
+            logger.LogInformation("Order refused for sandwich {SandwichId}: {Reason}", sandwichId, exception.Error);
+            throw;
+        }
+    }
+
+    private async Task<Order> PlaceCoreAsync(
+        string customerId,
+        string customerName,
+        int sandwichId,
+        Bread bread,
+        string? customerPhone,
+        CancellationToken ct)
     {
         if (!Enum.IsDefined(bread))
         {
@@ -96,14 +123,17 @@ public class OrderService(
         var order = await orders.GetAsync(orderId, ct) ?? throw new OrderingException(OrderingError.OrderNotFound);
         order.Cancel();
         await orders.SaveChangesAsync(ct);
+        logger.LogInformation("Order {OrderId} cancelled by the canteen; the stock went back", orderId);
     }
 
     // The canteen employee marks an order as ready (Prepared) or collected. The customer sees it on "My order".
     public async Task SetStatusAsync(int orderId, OrderStatus status, CancellationToken ct = default)
     {
         var order = await orders.GetAsync(orderId, ct) ?? throw new OrderingException(OrderingError.OrderNotFound);
+        var previous = order.Status;
         order.MoveTo(status);
         await orders.SaveChangesAsync(ct);
+        logger.LogInformation("Order {OrderId}: {PreviousStatus} -> {Status}", orderId, previous, status);
     }
 
     public Task<Order?> GetTodaysOrderAsync(string customerId, CancellationToken ct = default) =>
@@ -165,8 +195,11 @@ public class OrderService(
     }
 
     // US-15: the canteen employee decides until when trainees may order.
-    public Task SetDeadlineAsync(TimeOnly deadline, CancellationToken ct = default) =>
-        settings.SetDeadlineAsync(deadline, ct);
+    public async Task SetDeadlineAsync(TimeOnly deadline, CancellationToken ct = default)
+    {
+        await settings.SetDeadlineAsync(deadline, ct);
+        logger.LogInformation("Order deadline set to {Deadline}", deadline);
+    }
 
     // Closed at the weekend, and on days an announcement blocks ordering.
     private async Task<bool> IsClosedTodayAsync(CancellationToken ct)

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using SandwichOrders.Core;
 using SandwichOrders.Core.Announcements;
 using SandwichOrders.Core.Menu;
@@ -126,7 +127,7 @@ public class StockAndAnnouncementTests
     [Fact]
     public async Task Save_WithoutText_IsRefused()
     {
-        var service = new AnnouncementService(Substitute.For<IAnnouncementRepository>(), new FakeTimeProvider());
+        var service = new AnnouncementService(Substitute.For<IAnnouncementRepository>(), new FakeTimeProvider(), NullLogger<AnnouncementService>.Instance);
 
         var exception = await Assert.ThrowsAsync<AnnouncementException>(() => service.SaveAsync(Input(" ", null)));
 
@@ -136,7 +137,7 @@ public class StockAndAnnouncementTests
     [Fact]
     public async Task Save_WithDatesOutOfOrder_IsRefused()
     {
-        var service = new AnnouncementService(Substitute.For<IAnnouncementRepository>(), new FakeTimeProvider());
+        var service = new AnnouncementService(Substitute.For<IAnnouncementRepository>(), new FakeTimeProvider(), NullLogger<AnnouncementService>.Instance);
 
         var exception = await Assert.ThrowsAsync<AnnouncementException>(() => service.SaveAsync(
             Input("Closed", null) with { PeriodStart = new DateOnly(2026, 8, 20) }));
@@ -148,7 +149,7 @@ public class StockAndAnnouncementTests
     public async Task Save_StoresTheAnnouncement()
     {
         var repository = Substitute.For<IAnnouncementRepository>();
-        var service = new AnnouncementService(repository, new FakeTimeProvider());
+        var service = new AnnouncementService(repository, new FakeTimeProvider(), NullLogger<AnnouncementService>.Instance);
 
         var saved = await service.SaveAsync(Input("  Closed  ", "Gesloten"));
 

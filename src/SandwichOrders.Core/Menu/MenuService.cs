@@ -1,8 +1,9 @@
+using Microsoft.Extensions.Logging;
 using SandwichOrders.Core.Orders;
 
 namespace SandwichOrders.Core.Menu;
 
-public class MenuService(IMenuRepository menu)
+public class MenuService(IMenuRepository menu, ILogger<MenuService> logger)
 {
     public Task<IReadOnlyList<Sandwich>> GetMenuAsync(CancellationToken ct = default) =>
         menu.GetActiveAsync(ct);
@@ -24,6 +25,7 @@ public class MenuService(IMenuRepository menu)
 
         sandwich.IsTemporarilyUnavailable = unavailable;
         await menu.SaveChangesAsync(ct);
+        logger.LogInformation("Sandwich #{Number} switched {State}", sandwich.Number, unavailable ? "off" : "on");
     }
 
     // US-13: an ingredient ran out, so every sandwich that contains it becomes unavailable at once.
@@ -34,6 +36,7 @@ public class MenuService(IMenuRepository menu)
 
         ingredient.IsAvailable = available;
         await menu.SaveChangesAsync(ct);
+        logger.LogInformation("Ingredient {IngredientId} ({Name}) switched {State}", ingredient.Id, ingredient.NameEn, available ? "on" : "off");
     }
 
     // Creates (Id is null) or updates a sandwich. All rules are checked here, before anything is stored.
@@ -136,6 +139,8 @@ public class MenuService(IMenuRepository menu)
         }
 
         await menu.SaveChangesAsync(ct);
+        logger.LogInformation("Sandwich #{Number} {Action}: {Price}, {IngredientCount} ingredients, active {IsActive}",
+            sandwich.Number, input.Id is null ? "added" : "changed", sandwich.Price, ingredientIds.Count, sandwich.IsActive);
         return new SavedSandwich(sandwich, oldImage);
     }
 
@@ -145,6 +150,7 @@ public class MenuService(IMenuRepository menu)
         var sandwich = await menu.GetAsync(sandwichId, ct) ?? throw new MenuException(MenuError.SandwichNotFound);
         sandwich.IsActive = active;
         await menu.SaveChangesAsync(ct);
+        logger.LogInformation("Sandwich #{Number} {Action} the menu", sandwich.Number, active ? "put back on" : "taken off");
     }
 
     // The canteen employee counts what is in the fridge. null = do not count this ingredient.
@@ -159,6 +165,7 @@ public class MenuService(IMenuRepository menu)
                          ?? throw new MenuException(MenuError.IngredientNotFound);
         ingredient.SetStock(portions);
         await menu.SaveChangesAsync(ct);
+        logger.LogInformation("Stock of ingredient {IngredientId} ({Name}) set to {Portions}", ingredient.Id, ingredient.NameEn, portions);
     }
 
     // A delivery arrived (or was counted again) for a supplied sandwich.
@@ -177,6 +184,7 @@ public class MenuService(IMenuRepository menu)
 
         sandwich.SetStock(count);
         await menu.SaveChangesAsync(ct);
+        logger.LogInformation("Stock of sandwich #{Number} set to {Count}", sandwich.Number, count);
     }
 
     // stockPortions: null = the stock of this ingredient is not counted.
@@ -208,5 +216,6 @@ public class MenuService(IMenuRepository menu)
 
         menu.Add(ingredient);
         await menu.SaveChangesAsync(ct);
+        logger.LogInformation("Ingredient {Name} added (stock {Portions})", nameEn, stockPortions);
     }
 }

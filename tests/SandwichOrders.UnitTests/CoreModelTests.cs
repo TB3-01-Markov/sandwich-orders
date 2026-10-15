@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
 using SandwichOrders.Core;
@@ -159,7 +160,7 @@ public class MenuServiceTests
 
     public MenuServiceTests()
     {
-        service = new MenuService(menu);
+        service = new MenuService(menu, NullLogger<MenuService>.Instance);
     }
 
     [Fact]
