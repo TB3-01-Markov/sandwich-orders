@@ -26,7 +26,7 @@ jobs:
         working-directory: tools/ui-check
         run: |
           npm init -y > /dev/null
-          npm install playwright@1.48.2
+          npm install playwright@1.48.2 axe-core@4.10.2
           npx playwright install --with-deps chromium
       - name: Screenshots and layout report
         working-directory: tools/ui-check

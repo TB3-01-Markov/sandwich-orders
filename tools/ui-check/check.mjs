@@ -4,6 +4,13 @@
 // Usage: BASE_URL=http://127.0.0.1:5080 node check.mjs   (writes ./out)
 import { chromium } from 'playwright';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
+
+// axe-core: the usual automatic accessibility checker (WCAG rules). It finds about a third to half of all
+// accessibility problems; the rest (keyboard flow, screen reader wording) still needs a human.
+const axePath = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
+const AUDITED = ['phone-390', 'laptop-1366'];
+const a11y = [];
 
 const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:5080';
 const STAFF_EMAIL = process.env.STAFF_EMAIL ?? 'staff@example.test';
@@ -88,9 +95,25 @@ async function setLanguage(page, culture) {
   await page.waitForLoadState('networkidle');
 }
 
+async function audit(page, vp, name) {
+  if (!AUDITED.includes(vp.name)) return;
+  await page.addScriptTag({ path: axePath });
+  const result = await page.evaluate(() => window.axe.run(document, {
+    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] }
+  }));
+  for (const v of result.violations) {
+    a11y.push({
+      viewport: vp.name, page: name, id: v.id, impact: v.impact, help: v.help, count: v.nodes.length,
+      targets: v.nodes.slice(0, 3).map(n => n.target.join(' ')),
+      sample: (v.nodes[0]?.failureSummary ?? '').split('\n').slice(1, 2).join(' ').trim()
+    });
+  }
+}
+
 async function shot(page, vp, name, options = {}) {
   await page.waitForLoadState('networkidle');
   await measure(page, vp, name);
+  await audit(page, vp, name);
   await page.screenshot({ path: `${OUT}/${vp.name}--${name}.png`, ...options });
 }
 
@@ -113,6 +136,13 @@ await staff.goto(`${BASE}/Staff/AnnouncementEdit`);
 await staff.fill('#MessageEn', 'The canteen is closed next week for the holidays.');
 await staff.fill('#MessageNl', 'De kantine is volgende week gesloten wegens vakantie.');
 await staff.click('main form button[type=submit].btn-primary');
+await staff.waitForLoadState('networkidle');
+
+// One supplied sandwich sold out, so the menu also shows (and axe checks) a sold-out card.
+await staff.goto(`${BASE}/Staff/Menu`);
+const stockForm = staff.locator('form[action*="SetSandwichStock"]').first();
+await stockForm.locator('input[name=count]').fill('0');
+await stockForm.locator('button[type=submit]').click();
 await staff.waitForLoadState('networkidle');
 
 const guestNames = ['Ada Lovelace', 'Grace Hopper', 'Alan Turing'];
@@ -274,6 +304,17 @@ const lines = ['# UI check', '', `Base URL: ${BASE}`, '',
 for (const r of report) {
   lines.push(`| ${r.viewport} | ${r.page} | ${r.scrollWidth > r.width ? `**${r.scrollWidth}px > ${r.width}px**: ${r.tooWide.join('; ')}` : 'no'} | ${r.scrollers.join('; ') || '-'} | ${r.smallTargetCount ? `${r.smallTargetCount}: ${r.smallTargets.join('; ')}` : '-'} | ${r.smallFonts.join('; ') || '-'} |`);
 }
+lines.push('', '## Accessibility (axe-core, WCAG 2.1 A/AA)', '');
+if (a11y.length === 0) {
+  lines.push('No violations found on the audited pages (' + AUDITED.join(', ') + ').');
+} else {
+  lines.push('| Viewport | Page | Rule | Impact | Problem | Elements | Example |', '|---|---|---|---|---|---|---|');
+  for (const v of a11y) {
+    lines.push(`| ${v.viewport} | ${v.page} | ${v.id} | ${v.impact} | ${v.help} | ${v.count}: ${v.targets.join(' ; ').replaceAll('|', '/')} | ${v.sample.replaceAll('|', '/')} |`);
+  }
+}
+fs.writeFileSync(`${OUT}/a11y.json`, JSON.stringify(a11y, null, 2));
+if (a11y.some(v => v.impact === 'serious' || v.impact === 'critical')) process.exitCode = 1;
 lines.push('', '## Live behaviour', '', '| Check | Result |', '|---|---|', ...live);
 fs.writeFileSync(`${OUT}/report.md`, lines.join('\n') + '\n');
 console.log(lines.join('\n'));

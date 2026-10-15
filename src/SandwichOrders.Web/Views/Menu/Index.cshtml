@@ -44,7 +44,7 @@
 
 @if (Model.Window.IsOpen)
 {
-    <div id="closed-alert" class="alert alert-warning d-none">@L["Ordering is closed. You can browse the menu, but orders are accepted again tomorrow."]</div>
+    <div id="closed-alert" class="alert alert-warning d-none" role="status">@L["Ordering is closed. You can browse the menu, but orders are accepted again tomorrow."]</div>
 }
 
 @if (Model.Window.Weekend)
@@ -139,7 +139,7 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
         var description = sandwich.Description();
 
         <div class="col">
-            <div class="card h-100 @(available ? "" : "opacity-75")" data-sandwich-id="@sandwich.Id">
+            <div class="card h-100 @(available ? "" : "card-unavailable")" data-sandwich-id="@sandwich.Id">
                 @if (!string.IsNullOrWhiteSpace(sandwich.ImagePath))
                 {
                     <img src="@sandwich.ImagePath" class="card-img-top sandwich-image" alt="@sandwich.Name()" />

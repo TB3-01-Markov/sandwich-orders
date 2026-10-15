@@ -41,7 +41,7 @@
 
     <div class="col-12 col-md-4">
         <label asp-for="Kind" class="form-label">@L["Type"]</label>
-        <select asp-for="Kind" class="form-select" id="kind">
+        <select asp-for="Kind" class="form-select">
             <option value="@SandwichKind.Prepared">@L.KindName(SandwichKind.Prepared)</option>
             <option value="@SandwichKind.Supplied">@L.KindName(SandwichKind.Supplied)</option>
         </select>
@@ -112,7 +112,7 @@
     <script>
         // The "pieces left" field only makes sense for supplied sandwiches.
         (function () {
-            var kind = document.getElementById('kind');
+            var kind = document.getElementById('Kind');
             var group = document.getElementById('stock-group');
             if (!kind || !group) return;
             function update() { group.hidden = kind.value !== '@SandwichKind.Supplied'; }
