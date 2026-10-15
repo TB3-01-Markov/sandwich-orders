@@ -77,6 +77,17 @@ async function measure(page, vp, name) {
   report.push({ viewport: vp.name, page: name, ...result });
 }
 
+// The language buttons are inside the collapsed navigation on small screens: open it first, like a user would.
+async function setLanguage(page, culture) {
+  const toggler = page.locator('.navbar-toggler');
+  if (await toggler.isVisible()) {
+    await toggler.click();
+    await page.locator(`button[name=culture][value=${culture}]`).waitFor({ state: 'visible' });
+  }
+  await page.click(`button[name=culture][value=${culture}]`);
+  await page.waitForLoadState('networkidle');
+}
+
 async function shot(page, vp, name, options = {}) {
   await page.waitForLoadState('networkidle');
   await measure(page, vp, name);
@@ -145,12 +156,11 @@ for (const vp of viewports) {
     await shot(g, vp, '04-navigation-open');
   }
   await g.goto(`${BASE}/`);
-  await g.click('button[name=culture][value=nl]');
-  await g.waitForLoadState('networkidle');
+  await setLanguage(g, 'nl');
   await g.locator('form.order-form').first().scrollIntoViewIfNeeded();
   await g.evaluate(() => window.scrollBy(0, -120));
   await shot(g, vp, '05-menu-dutch');
-  await g.click('button[name=culture][value=en]');
+  await setLanguage(g, 'en');
   await g.goto(`${BASE}/Account/Login`);
   await shot(g, vp, '06-login', { fullPage: true });
   await g.goto(`${BASE}/Account/Register`);
