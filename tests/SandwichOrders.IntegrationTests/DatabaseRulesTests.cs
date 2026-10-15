@@ -44,6 +44,27 @@ public class DatabaseRulesTests : IntegrationTestBase
         Assert.True(await db.DataProtectionKeys.AnyAsync());
     }
 
+    // A local SQLite file made before a model change misses the new table or column; this is found.
+    [Fact]
+    public async Task AnOutdatedSqliteFile_IsRecognised()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (!db.Database.IsSqlite())
+        {
+            return; // only about the local SQLite file
+        }
+
+        Assert.Empty(await SqliteSchema.FindMissingAsync(db));
+
+        await db.Database.ExecuteSqlRawAsync("DROP TABLE DataProtectionKeys");
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE Orders DROP COLUMN CustomerPhone");
+
+        var missing = await SqliteSchema.FindMissingAsync(db);
+        Assert.Contains("DataProtectionKeys", missing);
+        Assert.Contains("Orders.CustomerPhone", missing);
+    }
+
     [Fact]
     public void ColumnSizes_MatchTheLimitsTheFormsCheck()
     {

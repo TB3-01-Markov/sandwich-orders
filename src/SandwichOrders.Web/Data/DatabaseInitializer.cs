@@ -23,8 +23,9 @@ public class DatabaseInitializer(
 
                 // SQL Server (Docker, hosting): the migrations in Data/Migrations create and update the schema, so an
                 // existing database keeps its data when the model changes.
-                // SQLite (development on the laptop, most tests): created straight from the model. After a model
-                // change, delete sandwich-orders.db* and it is created again with the demo data.
+                // SQLite (development on the laptop, most tests): created straight from the model. An existing file is
+                // never changed by EnsureCreated; in Development (Database:RecreateOutdatedSqlite) a file that is older
+                // than the model is deleted and created again with the demo data.
                 logger.LogInformation("Database provider: {Provider}", db.Database.ProviderName);
                 if (db.Database.IsSqlServer())
                 {
@@ -33,6 +34,7 @@ public class DatabaseInitializer(
                 else
                 {
                     await db.Database.EnsureCreatedAsync(cancellationToken);
+                    await RecreateOutdatedSqliteAsync(db, cancellationToken);
                 }
                 await DbSeeder.EnsureRolesAsync(scope.ServiceProvider);
 
@@ -52,4 +54,25 @@ public class DatabaseInitializer(
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    // Only when switched on (appsettings.Development.json): it deletes the file, so never for real data.
+    private async Task RecreateOutdatedSqliteAsync(AppDbContext db, CancellationToken ct)
+    {
+        if (!configuration.GetValue<bool>("Database:RecreateOutdatedSqlite"))
+        {
+            return;
+        }
+
+        var missing = await SqliteSchema.FindMissingAsync(db, ct);
+        if (missing.Count == 0)
+        {
+            return;
+        }
+
+        logger.LogWarning(
+            "The SQLite file is older than the model (missing: {Missing}). It is deleted and created again with the demo data.",
+            string.Join(", ", missing));
+        await db.Database.EnsureDeletedAsync(ct);
+        await db.Database.EnsureCreatedAsync(ct);
+    }
 }
