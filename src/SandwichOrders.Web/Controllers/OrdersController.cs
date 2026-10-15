@@ -70,7 +70,7 @@ public class OrdersController(
 
         try
         {
-            await orders.PlaceAsync(customerId, name, phone, sandwichId, bread, ct);
+            await orders.PlaceAsync(customerId, name, sandwichId, bread, phone, ct);
             TempData["Success"] = L["Your order has been placed."].Value;
             return RedirectToAction(nameof(Today));
         }

@@ -155,7 +155,7 @@ public class StaffController(
         }
         else
         {
-            var sandwich = (await menu.GetAllSandwichesAsync(ct)).FirstOrDefault(s => s.Id == id);
+            var sandwich = await menu.GetSandwichAsync(id.Value, ct);
             if (sandwich is null)
             {
                 return NotFound();
