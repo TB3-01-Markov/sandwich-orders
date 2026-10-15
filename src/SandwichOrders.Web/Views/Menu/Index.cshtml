@@ -142,7 +142,7 @@ else if (!Model.IsSignedIn && Model.TodaysOrder is null)
             <div class="card h-100 @(available ? "" : "card-unavailable")" data-sandwich-id="@sandwich.Id">
                 @if (!string.IsNullOrWhiteSpace(sandwich.ImagePath))
                 {
-                    <img src="@sandwich.ImagePath" class="card-img-top sandwich-image" alt="@sandwich.Name()" />
+                    <img src="@sandwich.ImagePath" class="card-img-top sandwich-image" alt="@sandwich.Name()" loading="lazy" decoding="async" />
                 }
                 else
                 {

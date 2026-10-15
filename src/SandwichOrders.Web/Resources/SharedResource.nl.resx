@@ -232,4 +232,11 @@
   <data name="Something went wrong. Please try again." xml:space="preserve"><value>Er ging iets mis. Probeer het opnieuw.</value></data>
   <data name="Updated {0}" xml:space="preserve"><value>Bijgewerkt om {0}</value></data>
   <data name="Skip to content" xml:space="preserve"><value>Naar de inhoud</value></data>
+  <data name="Page not found" xml:space="preserve"><value>Pagina niet gevonden</value></data>
+  <data name="This page does not exist (any more). Maybe the link is old." xml:space="preserve"><value>Deze pagina bestaat niet (meer). Misschien is de link oud.</value></data>
+  <data name="Change password" xml:space="preserve"><value>Wachtwoord wijzigen</value></data>
+  <data name="Current password" xml:space="preserve"><value>Huidig wachtwoord</value></data>
+  <data name="New password" xml:space="preserve"><value>Nieuw wachtwoord</value></data>
+  <data name="The current password is not correct." xml:space="preserve"><value>Het huidige wachtwoord is niet juist.</value></data>
+  <data name="Your password has been changed." xml:space="preserve"><value>Je wachtwoord is gewijzigd.</value></data>
 </root>

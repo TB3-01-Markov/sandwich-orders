@@ -127,7 +127,32 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseStaticFiles();
+// Security headers on every answer, also on photos and other static files:
+//  - nosniff: the browser treats an uploaded photo as an image only, never as a script or HTML page;
+//  - no framing by other sites (clickjacking), in the old and the new header;
+//  - other sites only learn our domain, not the full address, when a link is followed.
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers.XContentTypeOptions = "nosniff";
+    headers.XFrameOptions = "DENY";
+    headers.ContentSecurityPolicy = "frame-ancestors 'none'";
+    headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    await next();
+});
+
+// "Page not found" and other errors without content get a normal page in the visitor's language.
+// The JSON API keeps its plain status codes (401, 403, 404...).
+app.UseWhen(
+    context => !context.Request.Path.StartsWithSegments("/api"),
+    branch => branch.UseStatusCodePagesWithReExecute("/Error/{0}"));
+
+// Files referenced with asp-append-version get a new address when they change, so browsers may keep them a month.
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context =>
+        context.Context.Response.Headers.CacheControl = "public, max-age=2592000"
+});
 
 // Photos uploaded by the canteen employee live outside wwwroot (Uploads:Path), so Docker can keep them on a volume.
 var photoStorage = app.Services.GetRequiredService<PhotoStorage>();
@@ -135,7 +160,10 @@ Directory.CreateDirectory(photoStorage.Directory);
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(photoStorage.Directory),
-    RequestPath = "/uploads"
+    RequestPath = "/uploads",
+    // Every photo gets a new random file name, so a file never changes: phones may keep it for a year.
+    OnPrepareResponse = context =>
+        context.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable"
 });
 
 // Only the language cookie decides the language, so the site starts in English until the user switches.
