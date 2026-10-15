@@ -67,6 +67,7 @@ public class EfOrderRepository(AppDbContext db) : IOrderRepository
         db.Orders
             .Include(o => o.Lines).ThenInclude(l => l.Sandwich)
             .ThenInclude(s => s.SandwichIngredients).ThenInclude(si => si.Ingredient)
+            .AsSplitQuery() // two collections (lines, ingredients) in one query would multiply the rows
             .FirstOrDefaultAsync(o => o.Id == id, ct);
 
     public void Add(Order order) => db.Orders.Add(order);

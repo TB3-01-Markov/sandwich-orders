@@ -20,7 +20,7 @@ public class Ingredient
     // take the last portion at the same moment cannot both succeed (the second one gets "try again").
     public int StockVersion { get; private set; }
 
-    public ICollection<SandwichIngredient> SandwichIngredients { get; set; } = new List<SandwichIngredient>();
+    public ICollection<SandwichIngredient> SandwichIngredients { get; set; } = [];
 
     public string NameFor(string culture) => Localized.Pick(culture, NameEn, NameNl);
 

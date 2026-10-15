@@ -97,7 +97,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     DefaultRequestCulture = new RequestCulture("en"),
     SupportedCultures = cultures,
     SupportedUICultures = cultures,
-    RequestCultureProviders = new List<IRequestCultureProvider> { new CookieRequestCultureProvider() }
+    RequestCultureProviders = [new CookieRequestCultureProvider()]
 });
 
 app.UseRouting();
